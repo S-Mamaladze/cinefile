@@ -211,15 +211,15 @@
    <select class="filter-select" id="ratingFilter" onchange="render()">
      <option value="all">All Ratings</option>
      <option value="10">10 Stars</option>
-     <option value="9">9+ Stars</option>
-     <option value="8">8+ Stars</option>
-     <option value="7">7+ Stars</option>
-     <option value="6">6+ Stars</option>
-     <option value="5">5+ Stars</option>
-     <option value="4">4+ Stars</option>
-     <option value="3">3+ Stars</option>
-     <option value="2">2+ Stars</option>
-     <option value="1">1+ Stars</option>
+     <option value="9">9 Stars</option>
+     <option value="8">8 Stars</option>
+     <option value="7">7 Stars</option>
+     <option value="6">6 Stars</option>
+     <option value="5">5 Stars</option>
+     <option value="4">4 Stars</option>
+     <option value="3">3 Stars</option>
+     <option value="2">2 Stars</option>
+     <option value="1">1 Star</option>
    </select>
 
    <!-- REPLACE YOUR CURRENT SORT FILTER WITH THIS -->
@@ -447,7 +447,7 @@ function ratingNum(r) {
 function render() {
  const q = document.getElementById('searchBox').value.toLowerCase();
  const genre = document.getElementById('genreFilter').value;
- const ratingMin = document.getElementById('ratingFilter').value;
+ const ratingVal = document.getElementById('ratingFilter').value;
  const sort = document.getElementById('sortFilter').value;
 
  let filtered = MOVIES.filter(m => {
@@ -457,8 +457,8 @@ function render() {
    if (genre && !m.genres.includes(genre)) return false;
    
    // NEW Filter Logic
-   if (ratingMin !== 'all' && ratingNum(m.rating) < parseInt(ratingMin)) return false;
-   
+   if (ratingVal !== 'all' && ratingNum(m.rating) !== parseInt(ratingVal)) return false;
+
    if (q && !m.title.toLowerCase().includes(q) && !m.director.toLowerCase().includes(q) && !m.genres.toLowerCase().includes(q)) return false;
    return true;
  });
