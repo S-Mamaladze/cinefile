@@ -13,8 +13,8 @@
     --ink:        #15130f;
     --ink-soft:   #8a8171;
     --rule:       #cdbf9f;
-    --sienna:     #bd5530;
-    --sienna-deep:#8f3c1f;
+    --sienna:       #e67e58; /* Changed from #bd5530 */
+    --sienna-deep:  #bf6545; /* Changed from #8f3c1f */
     --moss:       #56624c;
     --moss-deep:  #4a5442;
     --brass:      #b8893f;
@@ -459,7 +459,7 @@
     display: flex; align-items: center; justify-content: center;
     transition: background 0.15s;
   }
-  .modal-close:hover { background: rgba(189,85,48,0.18); border-color: var(--sienna); }
+  .modal-close:hover { background: rgba(230, 126, 88, 0.18); border-color: var(--sienna); }
   .modal-body { padding: 22px 30px 30px 38px; }
   .modal-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 13px; margin-bottom: 18px; }
   .modal-field-label { font-family: 'JetBrains Mono', monospace; font-size: 0.62rem; text-transform: uppercase; letter-spacing: 0.06em; color: var(--ink-soft); margin-bottom: 4px; }
@@ -473,9 +473,11 @@
     text-decoration: none; font-size: 0.84rem; font-weight: 600;
     transition: background 0.15s;
   }
-  .modal-trakt {
-    background: rgba(189,85,48,0.1); border: 1px solid rgba(189,85,48,0.3);
+ .modal-trakt {
+    background: rgba(230, 126, 88, 0.1); border: 1px solid rgba(230, 126, 88, 0.3);
     color: var(--sienna);
+  }
+  .modal-trakt:hover { background: rgba(230, 126, 88, 0.2); }
   }
   .modal-trakt:hover { background: rgba(189,85,48,0.2); }
   .modal-watch {
