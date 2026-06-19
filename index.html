@@ -69,6 +69,7 @@
   .view-btn:hover { color: var(--paper-on-night); background: rgba(255,255,255,0.03); }
   .view-btn.active { background: var(--sienna); color: var(--paper); }
   .view-btn.active.series-active { background: var(--moss); color: var(--paper); }
+  .view-btn.active.analytics-active { background: var(--brass); color: var(--night); }
   .view-page { display: none; }
   .view-page.active { display: block; }
 
@@ -100,11 +101,14 @@
   .stat-label { font-family: 'JetBrains Mono', monospace; font-size: 0.62rem; color: var(--ink-soft); text-transform: uppercase; letter-spacing: 0.06em; margin-top: 6px; }
 
   .controls {
-    padding: 18px 44px; display: flex; flex-wrap: wrap; gap: 10px; align-items: center;
+    padding: 16px 44px; display: flex; flex-direction: column; gap: 12px;
     border-bottom: 1px solid var(--night-rule); background: rgba(28,26,20,0.55);
     position: sticky; top: 67px; z-index: 90;
   }
-  .search-wrap { position: relative; flex: 1; min-width: 200px; max-width: 300px; }
+  .controls-row { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; }
+  .controls-row-top { justify-content: space-between; }
+  .controls-row-filters { padding-top: 10px; border-top: 1px solid var(--night-rule); }
+  .search-wrap { position: relative; flex: 1; min-width: 200px; max-width: 320px; }
   .search-wrap svg { position: absolute; left: 11px; top: 50%; transform: translateY(-50%); opacity: 0.45; }
   .search-box {
     width: 100%; background: var(--night-card); border: 1px solid var(--night-rule); border-radius: 2px;
@@ -114,25 +118,32 @@
   .search-box:focus { border-color: var(--brass); }
   .search-box::placeholder { color: var(--ink-soft); }
 
-  .filter-group { display: flex; gap: 5px; flex-wrap: wrap; }
+  .filter-group { display: flex; gap: 5px; flex-wrap: wrap; flex-shrink: 0; }
   .filter-btn {
     background: var(--night-card); border: 1px solid var(--night-rule); color: var(--ink-soft);
     padding: 7px 13px; border-radius: 2px; font-size: 0.72rem; font-weight: 500; cursor: pointer;
-    font-family: 'Archivo', sans-serif; transition: all 0.15s; white-space: nowrap;
+    font-family: 'Archivo', sans-serif; transition: all 0.15s; white-space: nowrap; flex-shrink: 0;
   }
   .filter-btn:hover { border-color: var(--brass); color: var(--paper-on-night); }
   .filter-btn.active { background: var(--sienna); border-color: var(--sienna); color: var(--paper); }
   .filter-btn.active-watch { background: var(--moss); border-color: var(--moss); color: var(--paper); }
   .filter-btn.active-drop { background: var(--sienna-deep); border-color: var(--sienna-deep); color: var(--paper); }
+  .clear-filter-btn {
+    background: transparent; border: 1px dashed var(--ink-soft); color: var(--ink-soft);
+    padding: 7px 13px; border-radius: 2px; font-size: 0.72rem; font-weight: 600; cursor: pointer;
+    font-family: 'Archivo', sans-serif; transition: all 0.15s; white-space: nowrap; flex-shrink: 0;
+    display: inline-flex; align-items: center; gap: 5px;
+  }
+  .clear-filter-btn:hover { border-color: var(--sienna); color: var(--sienna); border-style: solid; }
 
   select.filter-select {
     background: var(--night-card); border: 1px solid var(--night-rule); color: var(--paper-on-night);
     padding: 7px 10px; border-radius: 2px; font-size: 0.72rem; cursor: pointer;
-    font-family: 'Archivo', sans-serif; outline: none; appearance: none;
+    font-family: 'Archivo', sans-serif; outline: none; appearance: none; flex-shrink: 0;
   }
   select.filter-select:focus { border-color: var(--brass); }
 
-  .count-badge { font-family: 'JetBrains Mono', monospace; color: var(--ink-soft); font-size: 0.7rem; margin-left: auto; letter-spacing: 0.02em; }
+  .count-badge { font-family: 'JetBrains Mono', monospace; color: var(--ink-soft); font-size: 0.7rem; letter-spacing: 0.02em; white-space: nowrap; }
   .count-badge strong { color: var(--brass); font-weight: 600; }
 
   .grid-section { padding: 30px 44px 56px; }
@@ -321,13 +332,24 @@
   }
   .load-more-btn:hover { background: var(--brass); color: var(--night); }
 
+  /* PHASE 4: analytics */
+  .analytics-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(420px, 1fr)); gap: 18px; padding: 30px 44px 56px; }
+  .chart-card { background: var(--night-card); border: 1px solid var(--night-rule); border-radius: 3px; padding: 20px 22px; }
+  .chart-card.full-width { grid-column: 1 / -1; }
+  .chart-card-title { font-family: 'JetBrains Mono', monospace; font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.08em; color: var(--brass); margin-bottom: 14px; }
+  .chart-card canvas { max-height: 320px; }
+  .chart-empty { text-align: center; padding: 40px 20px; color: var(--ink-soft); font-family: 'JetBrains Mono', monospace; font-size: 0.78rem; }
+
   @media (max-width: 768px) {
-    .masthead, .controls, .hero, .grid-section { padding-left: 18px; padding-right: 18px; }
+    .masthead, .controls, .hero, .grid-section, .analytics-grid { padding-left: 18px; padding-right: 18px; }
     .grid { grid-template-columns: repeat(auto-fill, minmax(155px, 1fr)); gap: 12px; }
     .modal-grid { grid-template-columns: 1fr; }
     .stats-row { grid-template-columns: repeat(3, 1fr); }
     .masthead { flex-direction: column; align-items: flex-start; gap: 12px; }
     .controls { top: 0; position: static; }
+    .controls-row-top { flex-direction: column; align-items: stretch; }
+    .search-wrap { max-width: none; }
+    .analytics-grid { grid-template-columns: 1fr; }
   }
 
   ::-webkit-scrollbar { width: 7px; }
@@ -346,6 +368,7 @@
     <div class="view-switcher">
       <button class="view-btn active" id="viewBtnMovies" onclick="switchView('movies')">Films &amp; Anime</button>
       <button class="view-btn" id="viewBtnSeries" onclick="switchView('series')">Series</button>
+      <button class="view-btn" id="viewBtnAnalytics" onclick="switchView('analytics')">Analytics</button>
     </div>
     <div id="headerCount">181 entries</div>
   </div>
@@ -367,58 +390,62 @@
   </section>
 
   <div class="controls">
-    <div class="search-wrap">
-      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
-      <input class="search-box" id="searchBox" placeholder="Search title, director, genre..." autocomplete="off">
+    <div class="controls-row controls-row-top">
+      <div class="search-wrap">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+        <input class="search-box" id="searchBox" placeholder="Search title, director, genre..." autocomplete="off">
+      </div>
+      <button class="filter-btn" style="border-color: var(--brass); color: var(--brass);" onclick="openWebSearch()">+ Add Movie</button>
+      <div class="count-badge">Showing <strong id="countBadge">0</strong> of <strong id="countBadgeTotal">0</strong> entries</div>
     </div>
 
-    <div class="filter-group">
-      <button class="filter-btn active" data-status="all" onclick="setStatus(this,'all')">All</button>
-      <button class="filter-btn" data-status="seen" onclick="setStatus(this,'seen')">Seen</button>
-      <button class="filter-btn" data-status="watchlist" onclick="setStatus(this,'watchlist')">Watchlist</button>
-      <button class="filter-btn" data-status="dropped" onclick="setStatus(this,'dropped')">Dropped</button>
+    <div class="controls-row controls-row-filters">
+      <div class="filter-group">
+        <button class="filter-btn active" data-status="all" onclick="setStatus(this,'all')">All</button>
+        <button class="filter-btn" data-status="seen" onclick="setStatus(this,'seen')">Seen</button>
+        <button class="filter-btn" data-status="watchlist" onclick="setStatus(this,'watchlist')">Watchlist</button>
+        <button class="filter-btn" data-status="dropped" onclick="setStatus(this,'dropped')">Dropped</button>
+      </div>
+
+      <div class="filter-group">
+        <button class="filter-btn active" data-type="all" onclick="setType(this,'all')">All Types</button>
+        <button class="filter-btn" data-type="Movie" onclick="setType(this,'Movie')">Movie</button>
+        <button class="filter-btn" data-type="Anime" onclick="setType(this,'Anime')">Anime</button>
+      </div>
+
+      <select class="filter-select" id="genreFilter" onchange="render()">
+        <option value="">All Genres</option>
+      </select>
+
+      <select class="filter-select" id="ratingFilter" onchange="render()">
+        <option value="all">All Ratings</option>
+        <option value="10">10 -- Masterpiece</option>
+        <option value="9">9 -- Excellent</option>
+        <option value="8">8 -- Great</option>
+        <option value="7">7 -- Good</option>
+        <option value="6">6 -- Fine</option>
+        <option value="5">5 -- Average</option>
+        <option value="4">4 -- Subpar</option>
+        <option value="3">3 -- Bad</option>
+        <option value="2">2</option>
+        <option value="1">1</option>
+      </select>
+
+      <select class="filter-select" id="sortFilter" onchange="render()">
+        <option value="alpha_asc">A -> Z</option>
+        <option value="alpha_desc">Z -> A</option>
+        <option value="rating_desc">Rating (down)</option>
+        <option value="rating_asc">Rating (up)</option>
+        <option value="released_desc">Year (down)</option>
+        <option value="released_asc">Year (up)</option>
+        <option value="metacritic_desc">Metacritic (down)</option>
+        <option value="metacritic_asc">Metacritic (up)</option>
+        <option value="watched_desc">Date watched (down)</option>
+        <option value="watched_asc">Date watched (up)</option>
+      </select>
+
+      <button class="clear-filter-btn" onclick="clearFilters()" title="Reset all filters">&#8634; Clear Filters</button>
     </div>
-
-    <div class="filter-group">
-      <button class="filter-btn active" data-type="all" onclick="setType(this,'all')">All Types</button>
-      <button class="filter-btn" data-type="Movie" onclick="setType(this,'Movie')">Movie</button>
-      <button class="filter-btn" data-type="Anime" onclick="setType(this,'Anime')">Anime</button>
-    </div>
-
-    <select class="filter-select" id="genreFilter" onchange="render()">
-      <option value="">All Genres</option>
-    </select>
-
-    <select class="filter-select" id="ratingFilter" onchange="render()">
-      <option value="all">All Ratings</option>
-      <option value="10">10 -- Masterpiece</option>
-      <option value="9">9 -- Excellent</option>
-      <option value="8">8 -- Great</option>
-      <option value="7">7 -- Good</option>
-      <option value="6">6 -- Fine</option>
-      <option value="5">5 -- Average</option>
-      <option value="4">4 -- Subpar</option>
-      <option value="3">3 -- Bad</option>
-      <option value="2">2</option>
-      <option value="1">1</option>
-    </select>
-
-    <select class="filter-select" id="sortFilter" onchange="render()">
-      <option value="alpha_asc">A -> Z</option>
-      <option value="alpha_desc">Z -> A</option>
-      <option value="rating_desc">Rating (down)</option>
-      <option value="rating_asc">Rating (up)</option>
-      <option value="released_desc">Year (down)</option>
-      <option value="released_asc">Year (up)</option>
-      <option value="metacritic_desc">Metacritic (down)</option>
-      <option value="metacritic_asc">Metacritic (up)</option>
-      <option value="watched_desc">Date watched (down)</option>
-      <option value="watched_asc">Date watched (up)</option>
-    </select>
-
-    <button class="filter-btn" style="border-color: var(--brass); color: var(--brass);" onclick="openWebSearch()">+ Add Movie</button>
-
-    <div class="count-badge">Showing <strong id="countBadge">0</strong> of <strong id="countBadgeTotal">0</strong> entries</div>
   </div>
 
   <div class="grid-section">
@@ -448,30 +475,34 @@
   </section>
 
   <div class="controls">
-    <div class="search-wrap">
-      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
-      <input class="search-box" id="seriesSearchBox" placeholder="Search show..." autocomplete="off">
+    <div class="controls-row controls-row-top">
+      <div class="search-wrap">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+        <input class="search-box" id="seriesSearchBox" placeholder="Search show..." autocomplete="off">
+      </div>
+      <button class="filter-btn" style="border-color: var(--brass); color: var(--brass);" onclick="openShowSearch()">+ Add Show</button>
+      <div class="count-badge">Showing <strong id="seriesCountBadge">0</strong> of <strong id="seriesCountBadgeTotal">0</strong> shows</div>
     </div>
 
-    <div class="filter-group">
-      <button class="filter-btn active" data-sstatus="all" onclick="setSeriesStatus(this,'all')">All</button>
-      <button class="filter-btn" data-sstatus="progress" onclick="setSeriesStatus(this,'progress')">In Progress</button>
-      <button class="filter-btn" data-sstatus="completed" onclick="setSeriesStatus(this,'completed')">Completed</button>
-      <button class="filter-btn" data-sstatus="notstarted" onclick="setSeriesStatus(this,'notstarted')">Not Started</button>
+    <div class="controls-row controls-row-filters">
+      <div class="filter-group">
+        <button class="filter-btn active" data-sstatus="all" onclick="setSeriesStatus(this,'all')">All</button>
+        <button class="filter-btn" data-sstatus="progress" onclick="setSeriesStatus(this,'progress')">In Progress</button>
+        <button class="filter-btn" data-sstatus="completed" onclick="setSeriesStatus(this,'completed')">Completed</button>
+        <button class="filter-btn" data-sstatus="notstarted" onclick="setSeriesStatus(this,'notstarted')">Not Started</button>
+      </div>
+
+      <select class="filter-select" id="seriesSortFilter" onchange="renderSeries()">
+        <option value="alpha_asc">A -> Z</option>
+        <option value="alpha_desc">Z -> A</option>
+        <option value="pct_desc">Progress (down)</option>
+        <option value="pct_asc">Progress (up)</option>
+        <option value="remaining_desc">Episodes left (down)</option>
+        <option value="remaining_asc">Episodes left (up)</option>
+      </select>
+
+      <button class="clear-filter-btn" onclick="clearSeriesFilters()" title="Reset all filters">&#8634; Clear Filters</button>
     </div>
-
-    <select class="filter-select" id="seriesSortFilter" onchange="renderSeries()">
-      <option value="alpha_asc">A -> Z</option>
-      <option value="alpha_desc">Z -> A</option>
-      <option value="pct_desc">Progress (down)</option>
-      <option value="pct_asc">Progress (up)</option>
-      <option value="remaining_desc">Episodes left (down)</option>
-      <option value="remaining_asc">Episodes left (up)</option>
-    </select>
-
-    <button class="filter-btn" style="border-color: var(--brass); color: var(--brass);" onclick="openShowSearch()">+ Add Show</button>
-
-    <div class="count-badge">Showing <strong id="seriesCountBadge">0</strong> of <strong id="seriesCountBadgeTotal">0</strong> shows</div>
   </div>
 
   <div class="grid-section">
@@ -479,6 +510,32 @@
     <div class="empty" id="seriesEmptyState" style="display:none"><div class="empty-icon">X</div><p>NO SHOWS MATCH THESE FILTERS</p></div>
     <div class="load-more-wrap" id="seriesLoadMoreWrap">
       <button class="load-more-btn" id="seriesLoadMoreBtn" onclick="loadMoreSeries()">Load More</button>
+    </div>
+  </div>
+</div>
+
+<div class="view-page" id="page-analytics">
+  <section class="hero">
+    <div class="hero-eyebrow">Volume Three</div>
+    <div class="hero-title">The ledger, <em>charted</em>.</div>
+    <div class="hero-sub">Viewing habits, genre leanings, and pace over time -- pulled straight from the same data as Volumes One and Two.</div>
+  </section>
+  <div class="analytics-grid">
+    <div class="chart-card full-width">
+      <div class="chart-card-title">Titles watched per month</div>
+      <canvas id="chartTimeline"></canvas>
+    </div>
+    <div class="chart-card">
+      <div class="chart-card-title">Genre distribution</div>
+      <canvas id="chartGenres"></canvas>
+    </div>
+    <div class="chart-card">
+      <div class="chart-card-title">Rating distribution</div>
+      <canvas id="chartRatings"></canvas>
+    </div>
+    <div class="chart-card full-width">
+      <div class="chart-card-title">Minutes watched per month</div>
+      <canvas id="chartRuntime"></canvas>
     </div>
   </div>
 </div>
@@ -587,6 +644,7 @@
   </div>
 </div>
 
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.4/chart.umd.min.js"></script>
 <script>
 const MOVIES = [{"title": "1922", "type": "Movie", "status": "Already Seen", "rating": "7 - Good", "genres": "Crime, Drama, Horror", "dateWatched": "", "runtime": "1h 42m", "director": "Zak Hilditch", "released": "2017-10-20", "metacritic": 70, "country": "Canada", "ageRating": "Unknown", "url": "https://trakt.tv/movies/1922-2017", "available": null}, {"title": "17 Again", "type": "Movie", "status": "Already Seen", "rating": "6 - Fine", "genres": "Comedy, Drama, Fantasy, Romance", "dateWatched": "2026-02-27", "runtime": "1h 42m", "director": "Burr Steers", "released": "2009-04-17", "metacritic": 48, "country": "United States", "ageRating": "PG-13", "url": "https://trakt.tv/movies/17-again-2009", "available": null}, {"title": "2 Fast 2 Furious", "type": "Movie", "status": "Already Seen", "rating": "8 - Great", "genres": "Action, Crime, Thriller", "dateWatched": "", "runtime": "1h 48m", "director": "John Singleton", "released": "2003-06-06", "metacritic": 38, "country": "United States", "ageRating": "PG-13", "url": "https://trakt.tv/movies/2-fast-2-furious-2003", "available": null}, {"title": "300", "type": "Movie", "status": "Already Seen", "rating": "8 - Great", "genres": "Action, Adventure, War", "dateWatched": "2026-03-23", "runtime": "1h 56m", "director": "Martin Walters", "released": "2007-03-09", "metacritic": 52, "country": "United States", "ageRating": "R", "url": "https://trakt.tv/movies/300-2007", "available": null}, {"title": "8 Mile", "type": "Movie", "status": "Already Seen", "rating": "8 - Great", "genres": "Drama, Music", "dateWatched": "", "runtime": "1h 51m", "director": "Curtis Hanson", "released": "2025-01-05", "metacritic": 77, "country": "United States", "ageRating": "R", "url": "https://trakt.tv/movies/8-mile-2002", "available": null}, {"title": "8 Minutes", "type": "Movie", "status": "Already Seen", "rating": "8 - Great", "genres": "Drama, Sci-Fi", "dateWatched": "", "runtime": "13m", "director": "Giorgi Gogichaishvili", "released": "2017-09-25", "metacritic": null, "country": "Georgia", "ageRating": "Unknown", "url": "https://trakt.tv/movies/8-minutes-2017", "available": null}, {"title": "A Bronx Tale", "type": "Movie", "status": "Already Seen", "rating": "9 - Excellent", "genres": "Crime, Drama", "dateWatched": "", "runtime": "2h 1m", "director": "Robert De Niro", "released": "1993-10-01", "metacritic": 80, "country": "United States", "ageRating": "R", "url": "https://trakt.tv/movies/a-bronx-tale-1993", "available": null}, {"title": "A Minecraft Movie", "type": "Movie", "status": "Already Seen", "rating": "7 - Good", "genres": "Action, Adventure, Comedy, Family, Fantasy", "dateWatched": "2025-07-12", "runtime": "1h 41m", "director": "Jared Hess", "released": "2025-04-04", "metacritic": 45, "country": "United States", "ageRating": "PG", "url": "https://trakt.tv/movies/a-minecraft-movie-2025", "available": null}, {"title": "Accepted", "type": "Movie", "status": "Already Seen", "rating": "7 - Good", "genres": "Comedy", "dateWatched": "", "runtime": "1h 33m", "director": "Steve Pink", "released": "2006-08-18", "metacritic": 47, "country": "United States", "ageRating": "PG-13", "url": "https://trakt.tv/movies/accepted-2006", "available": null}, {"title": "Ace Ventura: Pet Detective", "type": "Movie", "status": "Already Seen", "rating": "8 - Great", "genres": "Crime, Mystery, Comedy", "dateWatched": "", "runtime": "1h 26m", "director": "Tom Shadyac", "released": "1994-02-04", "metacritic": 37, "country": "United States", "ageRating": "PG-13", "url": "https://trakt.tv/movies/ace-ventura-pet-detective-1994", "available": null}, {"title": "Ace Ventura: When Nature Calls", "type": "Movie", "status": "Already Seen", "rating": "8 - Great", "genres": "Adventure, Comedy, Crime", "dateWatched": "", "runtime": "1h 30m", "director": "Steve Oedekerk", "released": "1995-11-10", "metacritic": 43, "country": "United States", "ageRating": "PG-13", "url": "https://trakt.tv/movies/ace-ventura-when-nature-calls-1995", "available": null}, {"title": "Aladdin", "type": "Movie", "status": "Already Seen", "rating": "9 - Excellent", "genres": "Adventure, Animation, Fantasy, Romance, Family, Musical", "dateWatched": "", "runtime": "1h 31m", "director": "Ron Clements", "released": "1992-11-25", "metacritic": 86, "country": "United States", "ageRating": "G", "url": "https://trakt.tv/movies/aladdin-1992", "available": null}, {"title": "Aladdin", "type": "Movie", "status": "Already Seen", "rating": "8 - Great", "genres": "Romance, Adventure, Fantasy, Family, Musical", "dateWatched": "", "runtime": "2h 7m", "director": "Guy Ritchie", "released": "2019-05-24", "metacritic": 53, "country": "United States", "ageRating": "PG", "url": "https://trakt.tv/movies/aladdin-2019", "available": null}, {"title": "Alexander", "type": "Movie", "status": "Already Seen", "rating": "7 - Good", "genres": "Action, Adventure, Drama, History, Romance, War", "dateWatched": "2026-05-08", "runtime": "2h 56m", "director": "Oliver Stone", "released": "2004-11-24", "metacritic": 40, "country": "United States", "ageRating": "R", "url": "https://trakt.tv/movies/alexander-2004", "available": null}, {"title": "Alien", "type": "Movie", "status": "Watchlist", "rating": "", "genres": "Horror, Science-Fiction", "dateWatched": "", "runtime": "1h 57m", "director": "Ridley Scott", "released": "1979-05-25", "metacritic": 89, "country": "United States", "ageRating": "R", "url": "https://trakt.tv/movies/alien-1979", "available": null}, {"title": "Alien: Romulus", "type": "Movie", "status": "Already Seen", "rating": "8 - Great", "genres": "Horror, Sci-Fi", "dateWatched": "", "runtime": "1h 59m", "director": "Fede Álvarez", "released": "2024-08-16", "metacritic": 64, "country": "United States", "ageRating": "R", "url": "https://trakt.tv/movies/alien-romulus-2024", "available": null}, {"title": "Armageddon", "type": "Movie", "status": "Already Seen", "rating": "8 - Great", "genres": "Action, Adventure, Sci-Fi, Thriller", "dateWatched": "", "runtime": "2h 31m", "director": "Michael Bay", "released": "1998-07-01", "metacritic": 42, "country": "United States", "ageRating": "PG-13", "url": "https://trakt.tv/movies/armageddon-1998", "available": null}, {"title": "Arrival", "type": "Movie", "status": "Already Seen", "rating": "8 - Great", "genres": "Drama, Mystery, Sci-Fi", "dateWatched": "2026-01-25", "runtime": "1h 56m", "director": "Denis Villeneuve", "released": "2016-11-11", "metacritic": 81, "country": "United States", "ageRating": "PG-13", "url": "https://trakt.tv/movies/arrival-2016", "available": null}, {"title": "Assassin's Creed", "type": "Movie", "status": "Already Seen", "rating": "6 - Fine", "genres": "Action, Adventure, Sci-Fi", "dateWatched": "2026-03-25", "runtime": "1h 56m", "director": "Justin Kurzel", "released": "2016-12-21", "metacritic": 36, "country": "France", "ageRating": "PG-13", "url": "https://trakt.tv/movies/assassin-s-creed-2016", "available": null}, {"title": "Attack on Titan", "type": "Anime", "status": "Already Seen", "rating": "8 - Great", "genres": "Action, Adventure, Anime, Fantasy", "dateWatched": "", "runtime": "1d 10h 47m / (87ep)", "director": "Production I.G", "released": "2013-04-06", "metacritic": null, "country": "Japan", "ageRating": "TV-MA", "url": "https://trakt.tv/shows/attack-on-titan", "available": null}, {"title": "Backrooms", "type": "Movie", "status": "Already Seen", "rating": "7 - Good", "genres": "Science-Fiction, Horror, Mystery", "dateWatched": "2026-06-05", "runtime": "1h 45m", "director": "Kane Parsons", "released": "2026-05-29", "metacritic": 77, "country": "United States", "ageRating": "R", "url": "https://trakt.tv/movies/backrooms-2026", "available": null}, {"title": "Barbarian", "type": "Movie", "status": "Already Seen", "rating": "5 - Average", "genres": "Horror, Thriller", "dateWatched": "", "runtime": "1h 43m", "director": "Zach Cregger", "released": "2022-09-09", "metacritic": 78, "country": "United States", "ageRating": "R", "url": "https://trakt.tv/movies/barbarian-2022", "available": null}, {"title": "Bohemian Rhapsody", "type": "Movie", "status": "Already Seen", "rating": "9 - Excellent", "genres": "Drama, Music", "dateWatched": "", "runtime": "2h 15m", "director": "Bryan Singer", "released": "2018-11-02", "metacritic": 49, "country": "United States", "ageRating": "PG-13", "url": "https://trakt.tv/movies/bohemian-rhapsody-2018", "available": null}, {"title": "Broker", "type": "Movie", "status": "Already Seen", "rating": "7 - Good", "genres": "Comedy, Crime, Drama", "dateWatched": "", "runtime": "2h 9m", "director": "Hirokazu Kore-eda", "released": "2022-06-08", "metacritic": 77, "country": "South Korea", "ageRating": "R", "url": "https://trakt.tv/movies/broker-2022", "available": null}, {"title": "Cars", "type": "Movie", "status": "Already Seen", "rating": "8 - Great", "genres": "Adventure, Animation, Comedy, Family", "dateWatched": "2026-05-20", "runtime": "1h 57m", "director": "John Lasseter", "released": "2006-06-09", "metacritic": 73, "country": "United States", "ageRating": "G", "url": "https://trakt.tv/movies/cars-2006", "available": null}, {"title": "Cars 2", "type": "Movie", "status": "Already Seen", "rating": "9 - Excellent", "genres": "Adventure, Animation, Comedy, Family", "dateWatched": "2026-05-25", "runtime": "1h 46m", "director": "John Lasseter", "released": "2011-06-24", "metacritic": 57, "country": "United States", "ageRating": "G", "url": "https://trakt.tv/movies/cars-2-2011", "available": null}, {"title": "Cars 3", "type": "Movie", "status": "Already Seen", "rating": "8 - Great", "genres": "Comedy, Adventure, Animation, Family, Drama", "dateWatched": "2026-05-25", "runtime": "1h 42m", "director": "Brian Fee", "released": "2017-06-16", "metacritic": 59, "country": "United States", "ageRating": "G", "url": "https://trakt.tv/movies/cars-3-2017", "available": null}, {"title": "Chainsaw Man - The Movie: Reze Arc", "type": "Movie", "status": "Already Seen", "rating": "6 - Fine", "genres": "Action, Anime, Fantasy, Romance", "dateWatched": "2025-11-03", "runtime": "1h 40m", "director": "Tatsuya Yoshihara", "released": "2025-09-19", "metacritic": 71, "country": "Japan", "ageRating": "R", "url": "https://trakt.tv/movies/chainsaw-man-the-movie-reze-arc-2025", "available": null}, {"title": "Charlie and the Chocolate Factory", "type": "Movie", "status": "Already Seen", "rating": "9 - Excellent", "genres": "Adventure, Comedy, Family, Fantasy", "dateWatched": "", "runtime": "1h 55m", "director": "Tim Burton", "released": "2005-07-15", "metacritic": 72, "country": "United States", "ageRating": "PG", "url": "https://trakt.tv/movies/charlie-and-the-chocolate-factory-2005", "available": null}, {"title": "Coherence", "type": "Movie", "status": "Already Seen", "rating": "7 - Good", "genres": "Science-Fiction, Thriller", "dateWatched": "2026-05-06", "runtime": "1h 29m", "director": "James Ward Byrkit", "released": "2014-08-06", "metacritic": 65, "country": "United States", "ageRating": "NR", "url": "https://trakt.tv/movies/coherence-2014", "available": null}, {"title": "Conjuring", "type": "Movie", "status": "Already Seen", "rating": "8 - Great", "genres": "Horror", "dateWatched": "2025-09-06", "runtime": "1m", "director": "Georges Méliès", "released": "1896-06-15", "metacritic": null, "country": "France", "ageRating": "Unknown", "url": "https://trakt.tv/movies/conjuring-1896", "available": null}, {"title": "Deck the Halls", "type": "Movie", "status": "Already Seen", "rating": "5 - Average", "genres": "Comedy, Family, Holiday", "dateWatched": "2025-10-24", "runtime": "1h 33m", "director": "John Whitesell", "released": "2006-11-22", "metacritic": 28, "country": "United States", "ageRating": "PG", "url": "https://trakt.tv/movies/deck-the-halls-2006", "available": null}, {"title": "Definitely, Maybe", "type": "Movie", "status": "Already Seen", "rating": "7 - Good", "genres": "Comedy, Romance", "dateWatched": "2026-06-02", "runtime": "1h 52m", "director": "Adam Brooks", "released": "2008-02-14", "metacritic": 59, "country": "United States", "ageRating": "PG-13", "url": "https://trakt.tv/movies/definitely-maybe-2008", "available": null}, {"title": "Despicable Me", "type": "Movie", "status": "Already Seen", "rating": "8 - Great", "genres": "Animation, Family, Comedy, Science-Fiction, Crime", "dateWatched": "", "runtime": "1h 35m", "director": "Pierre Coffin", "released": "2010-07-09", "metacritic": 72, "country": "United States", "ageRating": "PG", "url": "https://trakt.tv/movies/despicable-me-2010", "available": null}, {"title": "Despicable Me 2", "type": "Movie", "status": "Already Seen", "rating": "8 - Great", "genres": "Animation, Comedy, Family", "dateWatched": "", "runtime": "1h 38m", "director": "Pierre Coffin", "released": "2013-07-03", "metacritic": 62, "country": "United States", "ageRating": "PG", "url": "https://trakt.tv/movies/despicable-me-2-2013", "available": null}, {"title": "Despicable Me 3", "type": "Movie", "status": "Already Seen", "rating": "8 - Great", "genres": "Animation, Comedy, Action, Family, Adventure", "dateWatched": "", "runtime": "1h 30m", "director": "Kyle Balda", "released": "2017-06-30", "metacritic": 49, "country": "United States", "ageRating": "PG", "url": "https://trakt.tv/movies/despicable-me-3-2017", "available": null}, {"title": "Despicable Me 4", "type": "Movie", "status": "Already Seen", "rating": "8 - Great", "genres": "Animation, Family, Comedy, Superhero, Science-Fiction, Action", "dateWatched": "", "runtime": "1h 34m", "director": "Chris Renaud", "released": "2024-07-03", "metacritic": 52, "country": "United States", "ageRating": "PG", "url": "https://trakt.tv/movies/despicable-me-4-2024", "available": null}, {"title": "Dracula Untold", "type": "Movie", "status": "Already Seen", "rating": "7 - Good", "genres": "Action, Fantasy, Horror", "dateWatched": "", "runtime": "1h 32m", "director": "Gary Shore", "released": "2014-10-03", "metacritic": 40, "country": "United States", "ageRating": "PG-13", "url": "https://trakt.tv/movies/dracula-untold-2014", "available": null}, {"title": "Dumb and Dumber", "type": "Movie", "status": "Already Seen", "rating": "8 - Great", "genres": "Comedy", "dateWatched": "", "runtime": "1h 47m", "director": "Peter Farrelly", "released": "1994-12-16", "metacritic": 41, "country": "United States", "ageRating": "PG-13", "url": "https://trakt.tv/movies/dumb-and-dumber-1994", "available": null}, {"title": "Dumb and Dumber To", "type": "Movie", "status": "Already Seen", "rating": "8 - Great", "genres": "Comedy", "dateWatched": "", "runtime": "1h 50m", "director": "Bobby Farrelly", "released": "2014-11-14", "metacritic": 36, "country": "United States", "ageRating": "PG-13", "url": "https://trakt.tv/movies/dumb-and-dumber-to-2014", "available": null}, {"title": "Dune", "type": "Movie", "status": "Dropped", "rating": "5 - Average", "genres": "Science-Fiction, Adventure", "dateWatched": "", "runtime": "2h 35m", "director": "Denis Villeneuve", "released": "2021-10-21", "metacritic": 74, "country": "United States", "ageRating": "PG-13", "url": "https://trakt.tv/movies/dune-2021", "available": null}, {"title": "Dune: Part Three", "type": "Movie", "status": "Watchlist", "rating": "", "genres": "Science-Fiction, Adventure", "dateWatched": "", "runtime": "", "director": "Denis Villeneuve", "released": "2026-12-18", "metacritic": null, "country": "United States", "ageRating": "", "url": "https://trakt.tv/movies/dune-part-three-2026", "available": null}, {"title": "Dune: Part Two", "type": "Movie", "status": "Watchlist", "rating": "", "genres": "Science-Fiction, Adventure, Romance", "dateWatched": "", "runtime": "2h 47m", "director": "Denis Villeneuve", "released": "2024-03-01", "metacritic": 79, "country": "United States", "ageRating": "PG-13", "url": "https://trakt.tv/movies/dune-part-two-2024", "available": null}, {"title": "Eddie the Eagle", "type": "Movie", "status": "Watchlist", "rating": "", "genres": "Comedy, History, Drama, Adventure", "dateWatched": "", "runtime": "1h 46m", "director": "Dexter Fletcher", "released": "2016-02-26", "metacritic": 54, "country": "United States", "ageRating": "PG-13", "url": "https://trakt.tv/movies/eddie-the-eagle-2016", "available": null}, {"title": "EuroTrip", "type": "Movie", "status": "Already Seen", "rating": "7 - Good", "genres": "Comedy", "dateWatched": "", "runtime": "1h 32m", "director": "Jeff Schaffer", "released": "2004-02-20", "metacritic": 45, "country": "United States", "ageRating": "R", "url": "https://trakt.tv/movies/eurotrip-2004", "available": null}, {"title": "Ex Machina", "type": "Movie", "status": "Watchlist", "rating": "", "genres": "Drama, Science-Fiction", "dateWatched": "", "runtime": "1h 48m", "director": "Alex Garland", "released": "2015-01-21", "metacritic": 78, "country": "United Kingdom", "ageRating": "R", "url": "https://trakt.tv/movies/ex-machina-2015", "available": null}, {"title": "Fifty Shades of Grey", "type": "Movie", "status": "Already Seen", "rating": "8 - Great", "genres": "Drama, Romance, Thriller", "dateWatched": "", "runtime": "2h 5m", "director": "Sam Taylor-Johnson", "released": "2015-02-13", "metacritic": 46, "country": "United States", "ageRating": "R", "url": "https://trakt.tv/movies/fifty-shades-of-grey-2015", "available": null}, {"title": "Forrest Gump", "type": "Movie", "status": "Already Seen", "rating": "7 - Good", "genres": "Comedy, Drama, Romance", "dateWatched": "", "runtime": "2h 22m", "director": "Robert Zemeckis", "released": "1994-07-06", "metacritic": 82, "country": "United States", "ageRating": "PG-13", "url": "https://trakt.tv/movies/forrest-gump-1994", "available": null}, {"title": "Frankenstein", "type": "Movie", "status": "Already Seen", "rating": "9 - Excellent", "genres": "Drama, Fantasy, Horror", "dateWatched": "2025-11-16", "runtime": "2h 30m", "director": "Guillermo del Toro", "released": "2025-10-17", "metacritic": 78, "country": "United States", "ageRating": "R", "url": "https://trakt.tv/movies/frankenstein-2025", "available": null}, {"title": "Frozen", "type": "Movie", "status": "Already Seen", "rating": "8 - Great", "genres": "Adventure, Animation, Family, Musical, Fantasy", "dateWatched": "", "runtime": "1h 42m", "director": "Chris Buck", "released": "2013-11-27", "metacritic": 75, "country": "United States", "ageRating": "PG", "url": "https://trakt.tv/movies/frozen-2013", "available": null}, {"title": "Frozen II", "type": "Movie", "status": "Already Seen", "rating": "8 - Great", "genres": "Animation, Family, Adventure, Comedy, Fantasy, Musical", "dateWatched": "", "runtime": "1h 43m", "director": "Jennifer Lee", "released": "2019-11-22", "metacritic": 64, "country": "United States", "ageRating": "PG", "url": "https://trakt.tv/movies/frozen-ii-2019", "available": null}, {"title": "Gladiator", "type": "Movie", "status": "Already Seen", "rating": "8 - Great", "genres": "Action, Adventure, Drama", "dateWatched": "2026-03-19", "runtime": "2h 35m", "director": "Ridley Scott", "released": "2000-05-05", "metacritic": 67, "country": "United States", "ageRating": "R", "url": "https://trakt.tv/movies/gladiator-2000", "available": null}, {"title": "Gladiator II", "type": "Movie", "status": "Already Seen", "rating": "8 - Great", "genres": "Action, Adventure, Drama", "dateWatched": "2026-03-20", "runtime": "2h 28m", "director": "Ridley Scott", "released": "2024-11-22", "metacritic": 64, "country": "United States", "ageRating": "R", "url": "https://trakt.tv/movies/gladiator-ii-2024", "available": null}, {"title": "Glass Onion: A Knives Out Mystery", "type": "Movie", "status": "Watchlist", "rating": "", "genres": "Comedy, Crime, Mystery", "dateWatched": "", "runtime": "2h 20m", "director": "Rian Johnson", "released": "2022-11-23", "metacritic": 81, "country": "United States", "ageRating": "PG-13", "url": "https://trakt.tv/movies/glass-onion-a-knives-out-mystery-2022", "available": null}, {"title": "God Loves Caviar", "type": "Movie", "status": "Already Seen", "rating": "5 - Average", "genres": "Adventure, History", "dateWatched": "2025-06-30", "runtime": "1h 39m", "director": "Yannis Smaragdis", "released": "2012-10-11", "metacritic": null, "country": "Greece", "ageRating": "Unknown", "url": "https://trakt.tv/movies/god-loves-caviar-2012", "available": null}, {"title": "Hacksaw Ridge", "type": "Movie", "status": "Already Seen", "rating": "7 - Good", "genres": "Drama, History, War", "dateWatched": "", "runtime": "2h 19m", "director": "Mel Gibson", "released": "2016-10-07", "metacritic": 71, "country": "Australia", "ageRating": "R", "url": "https://trakt.tv/movies/hacksaw-ridge-2016", "available": null}, {"title": "Hereditary", "type": "Movie", "status": "Already Seen", "rating": "5 - Average", "genres": "Horror, Mystery, Thriller", "dateWatched": "", "runtime": "2h 8m", "director": "Ari Aster", "released": "2018-06-08", "metacritic": 87, "country": "United States", "ageRating": "R", "url": "https://trakt.tv/movies/hereditary-2018", "available": null}, {"title": "How High", "type": "Movie", "status": "Already Seen", "rating": "8 - Great", "genres": "Comedy", "dateWatched": "", "runtime": "1h 33m", "director": "Jesse Dylan", "released": "2001-12-21", "metacritic": 29, "country": "United States", "ageRating": "R", "url": "https://trakt.tv/movies/how-high-2001", "available": null}, {"title": "How the Grinch Stole Christmas", "type": "Movie", "status": "Already Seen", "rating": "8 - Great", "genres": "Comedy, Family, Fantasy, Holiday", "dateWatched": "", "runtime": "1h 45m", "director": "Ron Howard", "released": "2000-11-17", "metacritic": 46, "country": "United States", "ageRating": "PG", "url": "https://trakt.tv/movies/how-the-grinch-stole-christmas-2000", "available": null}, {"title": "How to Train Your Dragon", "type": "Movie", "status": "Already Seen", "rating": "7 - Good", "genres": "Adventure, Animation, Fantasy, Family", "dateWatched": "2026-05-28", "runtime": "1h 38m", "director": "Chris Sanders", "released": "2010-03-26", "metacritic": 75, "country": "United States", "ageRating": "PG", "url": "https://trakt.tv/movies/how-to-train-your-dragon-2010", "available": null}, {"title": "How to Train Your Dragon 2", "type": "Movie", "status": "Already Seen", "rating": "8 - Great", "genres": "Action, Adventure, Animation, Fantasy, Family", "dateWatched": "2026-05-29", "runtime": "1h 42m", "director": "Dean DeBlois", "released": "2014-06-13", "metacritic": 77, "country": "United States", "ageRating": "PG", "url": "https://trakt.tv/movies/how-to-train-your-dragon-2-2014", "available": null}, {"title": "How to Train Your Dragon: The Hidden World", "type": "Movie", "status": "Already Seen", "rating": "9 - Excellent", "genres": "Adventure, Animation, Family", "dateWatched": "2026-06-03", "runtime": "1h 44m", "director": "Dean DeBlois", "released": "2019-02-22", "metacritic": 71, "country": "United States", "ageRating": "PG", "url": "https://trakt.tv/movies/how-to-train-your-dragon-the-hidden-world-2019", "available": null}, {"title": "Howl's Moving Castle", "type": "Movie", "status": "Already Seen", "rating": "10 - Masterpiece", "genres": "Adventure, Anime, Fantasy", "dateWatched": "", "runtime": "1h 59m", "director": "Hayao Miyazaki", "released": "2004-11-19", "metacritic": 82, "country": "Japan", "ageRating": "PG", "url": "https://trakt.tv/movies/howl-s-moving-castle-2004", "available": null}, {"title": "Immortals", "type": "Movie", "status": "Already Seen", "rating": "6 - Fine", "genres": "Action, Drama, Fantasy", "dateWatched": "2026-05-20", "runtime": "1h 50m", "director": "Garrett Warren", "released": "2011-11-11", "metacritic": 46, "country": "United States", "ageRating": "R", "url": "https://trakt.tv/movies/immortals-2011", "available": null}, {"title": "Incantation", "type": "Movie", "status": "Already Seen", "rating": "8 - Great", "genres": "Horror", "dateWatched": "", "runtime": "1h 51m", "director": "Kevin Ko", "released": "2022-03-18", "metacritic": null, "country": "Taiwan", "ageRating": "Unknown", "url": "https://trakt.tv/movies/incantation-2022", "available": null}, {"title": "Inception", "type": "Movie", "status": "Already Seen", "rating": "6 - Fine", "genres": "Action, Adventure, Sci-Fi", "dateWatched": "", "runtime": "2h 28m", "director": "Christopher Nolan", "released": "2010-07-16", "metacritic": 74, "country": "United States", "ageRating": "PG-13", "url": "https://trakt.tv/movies/inception-2010", "available": null}, {"title": "Insidious: The Red Door", "type": "Movie", "status": "Already Seen", "rating": "6 - Fine", "genres": "Horror, Thriller", "dateWatched": "", "runtime": "1h 47m", "director": "Patrick Wilson", "released": "2023-07-07", "metacritic": 45, "country": "United States", "ageRating": "PG-13", "url": "https://trakt.tv/movies/insidious-the-red-door-2023", "available": null}, {"title": "Interstellar", "type": "Movie", "status": "Already Seen", "rating": "9 - Excellent", "genres": "Adventure, Drama, Sci-Fi", "dateWatched": "", "runtime": "2h 49m", "director": "Christopher Nolan", "released": "2014-11-05", "metacritic": 74, "country": "United States", "ageRating": "PG-13", "url": "https://trakt.tv/movies/interstellar-2014", "available": null}, {"title": "Journey to the Center of the Earth", "type": "Movie", "status": "Watchlist", "rating": "", "genres": "Action, Adventure, Comedy, Science-Fiction, Family", "dateWatched": "", "runtime": "1h 33m", "director": "Eric Brevig", "released": "2008-07-11", "metacritic": 57, "country": "United States", "ageRating": "PG", "url": "https://trakt.tv/movies/journey-to-the-center-of-the-earth-2008-07-11", "available": null}, {"title": "Jumanji", "type": "Movie", "status": "Already Seen", "rating": "8 - Great", "genres": "Adventure, Family, Fantasy", "dateWatched": "2026-03-28", "runtime": "1h 44m", "director": "Joe Johnston", "released": "1995-12-15", "metacritic": 41, "country": "United States", "ageRating": "PG", "url": "https://trakt.tv/movies/jumanji-1995", "available": null}, {"title": "Jumanji: Open World", "type": "Movie", "status": "Watchlist", "rating": "", "genres": "Fantasy, Adventure, Comedy", "dateWatched": "", "runtime": "", "director": "Jake Kasdan", "released": "2026-12-25", "metacritic": null, "country": "United States", "ageRating": "", "url": "https://trakt.tv/movies/jumanji-open-world-2026", "available": null}, {"title": "Jumanji: The Next Level", "type": "Movie", "status": "Watchlist", "rating": "", "genres": "Adventure, Comedy, Fantasy", "dateWatched": "", "runtime": "2h 3m", "director": "Jake Kasdan", "released": "2019-12-13", "metacritic": 58, "country": "United States", "ageRating": "PG-13", "url": "https://trakt.tv/movies/jumanji-the-next-level-2019", "available": null}, {"title": "Jumanji: Welcome to the Jungle", "type": "Movie", "status": "Already Seen", "rating": "7 - Good", "genres": "Action, Adventure, Comedy, Fantasy", "dateWatched": "2026-03-28", "runtime": "1h 59m", "director": "Jake Kasdan", "released": "2017-12-20", "metacritic": 58, "country": "United States", "ageRating": "PG-13", "url": "https://trakt.tv/movies/jumanji-welcome-to-the-jungle-2017", "available": null}, {"title": "Kingdom of Heaven", "type": "Movie", "status": "Already Seen", "rating": "9 - Excellent", "genres": "Action, Adventure, Drama, History, War", "dateWatched": "", "runtime": "2h 24m", "director": "Ridley Scott", "released": "2005-05-06", "metacritic": 63, "country": "United States", "ageRating": "R", "url": "https://trakt.tv/movies/kingdom-of-heaven-2005", "available": null}, {"title": "Knives Out", "type": "Movie", "status": "Watchlist", "rating": "", "genres": "Comedy, Crime, Mystery", "dateWatched": "", "runtime": "2h 11m", "director": "Rian Johnson", "released": "2019-11-27", "metacritic": 82, "country": "United States", "ageRating": "PG-13", "url": "https://trakt.tv/movies/knives-out-2019", "available": null}, {"title": "Kung Fu Panda", "type": "Movie", "status": "Already Seen", "rating": "9 - Excellent", "genres": "Action, Adventure, Animation, Comedy, Family", "dateWatched": "", "runtime": "1h 30m", "director": "Mark Osborne", "released": "2008-06-06", "metacritic": 74, "country": "United States", "ageRating": "PG", "url": "https://trakt.tv/movies/kung-fu-panda-2008", "available": null}, {"title": "Kung Fu Panda 2", "type": "Movie", "status": "Already Seen", "rating": "9 - Excellent", "genres": "Animation, Comedy, Family", "dateWatched": "", "runtime": "1h 31m", "director": "Jennifer Yuh Nelson", "released": "2011-05-26", "metacritic": 67, "country": "United States", "ageRating": "PG", "url": "https://trakt.tv/movies/kung-fu-panda-2-2011", "available": null}, {"title": "Kung Fu Panda 3", "type": "Movie", "status": "Already Seen", "rating": "7 - Good", "genres": "Action, Adventure, Animation, Comedy, Family", "dateWatched": "", "runtime": "1h 35m", "director": "Jennifer Yuh Nelson", "released": "2016-01-29", "metacritic": 66, "country": "United States", "ageRating": "PG", "url": "https://trakt.tv/movies/kung-fu-panda-3-2016", "available": null}, {"title": "Kung Fu Panda 4", "type": "Movie", "status": "Already Seen", "rating": "7 - Good", "genres": "Action, Adventure, Animation, Comedy, Family, Fantasy", "dateWatched": "", "runtime": "1h 34m", "director": "Mike Mitchell", "released": "2024-03-08", "metacritic": 54, "country": "United States", "ageRating": "PG", "url": "https://trakt.tv/movies/kung-fu-panda-4-2024", "available": null}, {"title": "Madagascar", "type": "Movie", "status": "Already Seen", "rating": "8 - Great", "genres": "Animation, Family, Adventure, Comedy", "dateWatched": "", "runtime": "1h 26m", "director": "Tom McGrath", "released": "2005-05-27", "metacritic": 57, "country": "United States", "ageRating": "PG", "url": "https://trakt.tv/movies/madagascar-2005", "available": null}, {"title": "Madagascar 3: Europe's Most Wanted", "type": "Movie", "status": "Already Seen", "rating": "8 - Great", "genres": "Animation, Family, Comedy, Adventure", "dateWatched": "", "runtime": "1h 33m", "director": "Conrad Vernon", "released": "2012-06-08", "metacritic": 60, "country": "United States", "ageRating": "PG", "url": "https://trakt.tv/movies/madagascar-3-europe-s-most-wanted-2012", "available": null}, {"title": "Madagascar: Escape 2 Africa", "type": "Movie", "status": "Already Seen", "rating": "8 - Great", "genres": "Animation, Family, Comedy, Adventure", "dateWatched": "", "runtime": "1h 29m", "director": "Tom McGrath", "released": "2008-11-06", "metacritic": 61, "country": "United States", "ageRating": "PG", "url": "https://trakt.tv/movies/madagascar-escape-2-africa-2008", "available": null}, {"title": "Mamma Mia!", "type": "Movie", "status": "Already Seen", "rating": "7 - Good", "genres": "Comedy, Romance, Musical", "dateWatched": "2026-06-18", "runtime": "1h 48m", "director": "Phyllida Lloyd", "released": "2008-07-10", "metacritic": 51, "country": "United Kingdom", "ageRating": "PG-13", "url": "https://trakt.tv/movies/mamma-mia-2008", "available": null}, {"title": "Memento", "type": "Movie", "status": "Watchlist", "rating": "", "genres": "Mystery, Thriller", "dateWatched": "", "runtime": "1h 53m", "director": "Christopher Nolan", "released": "2001-03-16", "metacritic": 83, "country": "United States", "ageRating": "R", "url": "https://trakt.tv/movies/memento-2000", "available": null}, {"title": "Mickey 17", "type": "Movie", "status": "Already Seen", "rating": "8 - Great", "genres": "Adventure, Comedy, Sci-Fi", "dateWatched": "", "runtime": "2h 17m", "director": "Bong Joon Ho", "released": "2025-03-07", "metacritic": 72, "country": "United Kingdom", "ageRating": "R", "url": "https://trakt.tv/movies/mickey-17-2025", "available": null}, {"title": "Minions", "type": "Movie", "status": "Already Seen", "rating": "8 - Great", "genres": "Adventure, Animation, Comedy, Family", "dateWatched": "", "runtime": "1h 31m", "director": "Pierre Coffin", "released": "2015-07-10", "metacritic": 56, "country": "United States", "ageRating": "PG", "url": "https://trakt.tv/movies/minions-2015", "available": null}, {"title": "Minions & Monsters", "type": "Movie", "status": "Watchlist", "rating": "", "genres": "Animation, Comedy, Family, Adventure, Fantasy", "dateWatched": "", "runtime": "", "director": "Pierre Coffin", "released": "2026-07-01", "metacritic": null, "country": "United States", "ageRating": "Unknown", "url": "https://trakt.tv/movies/minions-monsters-2026", "available": null}, {"title": "Moana 2", "type": "Movie", "status": "Already Seen", "rating": "7 - Good", "genres": "Adventure, Animation, Comedy, Family, Fantasy, Musical", "dateWatched": "", "runtime": "1h 40m", "director": "Dana Ledoux Miller", "released": "2024-11-27", "metacritic": 58, "country": "United States", "ageRating": "PG", "url": "https://trakt.tv/movies/moana-2-2024", "available": null}, {"title": "Moneyball", "type": "Movie", "status": "Already Seen", "rating": "8 - Great", "genres": "Drama", "dateWatched": "2025-08-04", "runtime": "2h 14m", "director": "Bennett Miller", "released": "2011-09-23", "metacritic": 87, "country": "United States", "ageRating": "PG-13", "url": "https://trakt.tv/movies/moneyball-2011", "available": null}, {"title": "Mortal Kombat", "type": "Movie", "status": "Watchlist", "rating": "", "genres": "Fantasy, Action, Adventure", "dateWatched": "", "runtime": "1h 50m", "director": "Simon McQuoid", "released": "2021-04-23", "metacritic": 44, "country": "United States", "ageRating": "R", "url": "https://trakt.tv/movies/mortal-kombat-2021", "available": null}, {"title": "Mortal Kombat II", "type": "Movie", "status": "Watchlist", "rating": "", "genres": "Action, Fantasy, Adventure", "dateWatched": "", "runtime": "1h 56m", "director": "Simon McQuoid", "released": "2026-05-08", "metacritic": null, "country": "United States", "ageRating": "R", "url": "https://trakt.tv/movies/mortal-kombat-ii-2026", "available": null}, {"title": "mother!", "type": "Movie", "status": "Watchlist", "rating": "", "genres": "Drama, Horror", "dateWatched": "", "runtime": "2h 1m", "director": "Darren Aronofsky", "released": "2017-09-15", "metacritic": 76, "country": "United States", "ageRating": "R", "url": "https://trakt.tv/movies/mother-2017", "available": null}, {"title": "Mr. Nobody", "type": "Movie", "status": "Watchlist", "rating": "", "genres": "Drama, Romance, Sci-Fi", "dateWatched": "", "runtime": "2h 21m", "director": "Jaco Van Dormael", "released": "2009-09-18", "metacritic": 63, "country": "Canada", "ageRating": "R", "url": "https://trakt.tv/movies/mr-nobody-2009", "available": null}, {"title": "Mr. Popper's Penguins", "type": "Movie", "status": "Watchlist", "rating": "", "genres": "Comedy, Family", "dateWatched": "", "runtime": "1h 34m", "director": "Mark Waters", "released": "2011-06-17", "metacritic": 53, "country": "United States", "ageRating": "PG", "url": "https://trakt.tv/movies/mr-popper-s-penguins-2011", "available": null}, {"title": "Mufasa: The Lion King", "type": "Movie", "status": "Already Seen", "rating": "8 - Great", "genres": "Adventure, Animation, Family, Musical", "dateWatched": "2026-01-04", "runtime": "1h 58m", "director": "Barry Jenkins", "released": "2024-12-20", "metacritic": 56, "country": "United States", "ageRating": "PG", "url": "https://trakt.tv/movies/mufasa-the-lion-king-2024", "available": null}, {"title": "Napoleon", "type": "Movie", "status": "Watchlist", "rating": "", "genres": "History, Romance, War", "dateWatched": "", "runtime": "2h 38m", "director": "Ridley Scott", "released": "2023-11-22", "metacritic": 64, "country": "United States", "ageRating": "R", "url": "https://trakt.tv/movies/napoleon-2023", "available": null}, {"title": "Oppenheimer", "type": "Movie", "status": "Already Seen", "rating": "9 - Excellent", "genres": "Drama, History", "dateWatched": "2025-12-05", "runtime": "3h 1m", "director": "Christopher Nolan", "released": "2023-07-21", "metacritic": 90, "country": "United States", "ageRating": "R", "url": "https://trakt.tv/movies/oppenheimer-2023", "available": null}, {"title": "Pirates of the Caribbean: At World's End", "type": "Movie", "status": "Already Seen", "rating": "8 - Great", "genres": "Action, Adventure, Fantasy", "dateWatched": "2025-06-15", "runtime": "2h 49m", "director": "Gore Verbinski", "released": "2007-05-25", "metacritic": 50, "country": "United States", "ageRating": "PG-13", "url": "https://trakt.tv/movies/pirates-of-the-caribbean-at-world-s-end-2007", "available": null}, {"title": "Pirates of the Caribbean: Dead Man's Chest", "type": "Movie", "status": "Already Seen", "rating": "8 - Great", "genres": "Action, Adventure, Fantasy", "dateWatched": "2025-06-13", "runtime": "2h 31m", "director": "Gore Verbinski", "released": "2006-07-07", "metacritic": 53, "country": "United States", "ageRating": "PG-13", "url": "https://trakt.tv/movies/pirates-of-the-caribbean-dead-man-s-chest-2006", "available": null}, {"title": "Pirates of the Caribbean: Dead Men Tell No Tales", "type": "Movie", "status": "Already Seen", "rating": "9 - Excellent", "genres": "Action, Adventure, Fantasy", "dateWatched": "2025-06-17", "runtime": "2h 9m", "director": "Joachim Rønning", "released": "2017-05-26", "metacritic": 39, "country": "United States", "ageRating": "PG-13", "url": "https://trakt.tv/movies/pirates-of-the-caribbean-dead-men-tell-no-tales-2017", "available": null}, {"title": "Pirates of the Caribbean: On Stranger Tides", "type": "Movie", "status": "Already Seen", "rating": "7 - Good", "genres": "Action, Adventure, Fantasy", "dateWatched": "2025-06-16", "runtime": "2h 16m", "director": "Rob Marshall", "released": "2011-05-18", "metacritic": 45, "country": "United States", "ageRating": "PG-13", "url": "https://trakt.tv/movies/pirates-of-the-caribbean-on-stranger-tides-2011", "available": null}, {"title": "Pirates of the Caribbean: The Curse of the Black Pearl", "type": "Movie", "status": "Already Seen", "rating": "8 - Great", "genres": "Action, Adventure, Fantasy", "dateWatched": "2025-06-13", "runtime": "2h 23m", "director": "Gore Verbinski", "released": "2003-07-09", "metacritic": 63, "country": "United States", "ageRating": "PG-13", "url": "https://trakt.tv/movies/pirates-of-the-caribbean-the-curse-of-the-black-pearl-2003", "available": null}, {"title": "Priest", "type": "Movie", "status": "Watchlist", "rating": "", "genres": "Horror, Action, Fantasy", "dateWatched": "", "runtime": "1h 27m", "director": "Scott Stewart", "released": "2011-05-13", "metacritic": 41, "country": "United States", "ageRating": "PG-13", "url": "https://trakt.tv/movies/priest-2011", "available": null}, {"title": "Project Hail Mary", "type": "Movie", "status": "Already Seen", "rating": "9 - Excellent", "genres": "Science-Fiction, Adventure", "dateWatched": "2026-04-09", "runtime": "2h 37m", "director": "Phil Lord", "released": "2026-03-20", "metacritic": 77, "country": "United States", "ageRating": "PG-13", "url": "https://trakt.tv/movies/project-hail-mary-2026", "available": null}, {"title": "Puss in Boots: The Last Wish", "type": "Movie", "status": "Already Seen", "rating": "9 - Excellent", "genres": "Adventure, Animation, Comedy, Family, Fantasy", "dateWatched": "2026-01-18", "runtime": "1h 43m", "director": "Joel Crawford", "released": "2022-12-21", "metacritic": 73, "country": "United States", "ageRating": "PG", "url": "https://trakt.tv/movies/puss-in-boots-the-last-wish-2022", "available": null}, {"title": "Rosemary's Baby", "type": "Movie", "status": "Already Seen", "rating": "8 - Great", "genres": "Drama, Horror, Thriller", "dateWatched": "", "runtime": "2h 18m", "director": "Roman Polanski", "released": "1968-06-12", "metacritic": 96, "country": "United States", "ageRating": "R", "url": "https://trakt.tv/movies/rosemary-s-baby-1968", "available": null}, {"title": "Runaway Bride", "type": "Movie", "status": "Already Seen", "rating": "3 - Bad", "genres": "Comedy, Romance", "dateWatched": "", "runtime": "1h 56m", "director": "Garry Marshall", "released": "1999-07-30", "metacritic": 39, "country": "United States", "ageRating": "PG", "url": "https://trakt.tv/movies/runaway-bride-1999", "available": null}, {"title": "Sausage Party", "type": "Movie", "status": "Already Seen", "rating": "6 - Fine", "genres": "Animation, Comedy, Adventure, Fantasy", "dateWatched": "", "runtime": "1h 29m", "director": "Conrad Vernon", "released": "2016-08-12", "metacritic": 66, "country": "United States", "ageRating": "R", "url": "https://trakt.tv/movies/sausage-party-2016", "available": null}, {"title": "Saw", "type": "Movie", "status": "Already Seen", "rating": "8 - Great", "genres": "Crime, Horror, Mystery", "dateWatched": "", "runtime": "1h 43m", "director": "James Wan", "released": "2004-10-29", "metacritic": 46, "country": "United States", "ageRating": "R", "url": "https://trakt.tv/movies/saw-2004", "available": null}, {"title": "Saw II", "type": "Movie", "status": "Already Seen", "rating": "7 - Good", "genres": "Horror", "dateWatched": "", "runtime": "1h 33m", "director": "Darren Lynn Bousman", "released": "2005-10-28", "metacritic": 40, "country": "United States", "ageRating": "R", "url": "https://trakt.tv/movies/saw-ii-2005", "available": null}, {"title": "Saw X", "type": "Movie", "status": "Already Seen", "rating": "7 - Good", "genres": "Horror, Mystery", "dateWatched": "", "runtime": "1h 58m", "director": "Kevin Greutert", "released": "2023-09-29", "metacritic": 60, "country": "United States", "ageRating": "R", "url": "https://trakt.tv/movies/saw-x-2023", "available": null}, {"title": "Secret Window", "type": "Movie", "status": "Already Seen", "rating": "8 - Great", "genres": "Mystery, Thriller", "dateWatched": "2026-05-06", "runtime": "1h 36m", "director": "David Koepp", "released": "2004-03-12", "metacritic": 46, "country": "United States", "ageRating": "PG-13", "url": "https://trakt.tv/movies/secret-window-2004", "available": null}, {"title": "Shaolin Soccer", "type": "Movie", "status": "Already Seen", "rating": "7 - Good", "genres": "Action, Comedy", "dateWatched": "", "runtime": "1h 53m", "director": "Stephen Chow", "released": "2001-07-12", "metacritic": 68, "country": "Hong Kong", "ageRating": "PG", "url": "https://trakt.tv/movies/shaolin-soccer-2001", "available": null}, {"title": "Shrek", "type": "Movie", "status": "Already Seen", "rating": "8 - Great", "genres": "Adventure, Animation, Comedy, Fantasy, Family", "dateWatched": "", "runtime": "1h 30m", "director": "Andrew Adamson", "released": "2001-05-18", "metacritic": 84, "country": "United States", "ageRating": "PG", "url": "https://trakt.tv/movies/shrek-2001", "available": null}, {"title": "Shrek 2", "type": "Movie", "status": "Already Seen", "rating": "8 - Great", "genres": "Animation, Comedy, Fantasy, Family, Romance", "dateWatched": "", "runtime": "1h 32m", "director": "Andrew Adamson", "released": "2004-05-19", "metacritic": 75, "country": "United States", "ageRating": "PG", "url": "https://trakt.tv/movies/shrek-2-2004", "available": null}, {"title": "Shrek Forever After", "type": "Movie", "status": "Already Seen", "rating": "8 - Great", "genres": "Adventure, Animation, Comedy, Fantasy, Family", "dateWatched": "", "runtime": "1h 33m", "director": "Mike Mitchell", "released": "2010-05-21", "metacritic": 58, "country": "United States", "ageRating": "PG", "url": "https://trakt.tv/movies/shrek-forever-after-2010", "available": null}, {"title": "Shrek the Third", "type": "Movie", "status": "Already Seen", "rating": "8 - Great", "genres": "Adventure, Animation, Comedy, Fantasy, Family", "dateWatched": "", "runtime": "1h 33m", "director": "Chris Miller", "released": "2007-05-18", "metacritic": 58, "country": "United States", "ageRating": "PG", "url": "https://trakt.tv/movies/shrek-the-third-2007", "available": null}, {"title": "Shutter Island", "type": "Movie", "status": "Already Seen", "rating": "9 - Excellent", "genres": "Drama, Mystery, Thriller", "dateWatched": "2025-07-10", "runtime": "2h 18m", "director": "Martin Scorsese", "released": "2010-02-19", "metacritic": 63, "country": "United States", "ageRating": "R", "url": "https://trakt.tv/movies/shutter-island-2010", "available": null}, {"title": "Silver Skates", "type": "Movie", "status": "Already Seen", "rating": "8 - Great", "genres": "Adventure, Drama, Family, Romance", "dateWatched": "", "runtime": "2h 16m", "director": "Michael Lockshin", "released": "2020-12-10", "metacritic": null, "country": "Russia", "ageRating": "NR", "url": "https://trakt.tv/movies/silver-skates-2020", "available": null}, {"title": "Spider-Man: Far From Home", "type": "Movie", "status": "Already Seen", "rating": "8 - Great", "genres": "Action, Adventure, Science-Fiction, Superhero", "dateWatched": "", "runtime": "2h 9m", "director": "Jon Watts", "released": "2019-07-02", "metacritic": 69, "country": "United States", "ageRating": "PG-13", "url": "https://trakt.tv/movies/spider-man-far-from-home-2019", "available": null}, {"title": "Spider-Man: Homecoming", "type": "Movie", "status": "Already Seen", "rating": "8 - Great", "genres": "Action, Adventure, Science-Fiction, Superhero", "dateWatched": "", "runtime": "2h 13m", "director": "Jon Watts", "released": "2017-07-07", "metacritic": 73, "country": "United States", "ageRating": "PG-13", "url": "https://trakt.tv/movies/spider-man-homecoming-2017", "available": null}, {"title": "Spider-Man: No Way Home", "type": "Movie", "status": "Already Seen", "rating": "9 - Excellent", "genres": "Superhero, Action, Adventure, Science-Fiction", "dateWatched": "", "runtime": "2h 28m", "director": "Jon Watts", "released": "2021-12-17", "metacritic": 71, "country": "United States", "ageRating": "PG-13", "url": "https://trakt.tv/movies/spider-man-no-way-home-2021", "available": null}, {"title": "Tarot", "type": "Movie", "status": "Already Seen", "rating": "5 - Average", "genres": "Horror", "dateWatched": "", "runtime": "1h 32m", "director": "Spenser Cohen", "released": "2024-05-03", "metacritic": 36, "country": "United States", "ageRating": "PG-13", "url": "https://trakt.tv/movies/tarot-2024", "available": null}, {"title": "Tenet", "type": "Movie", "status": "Already Seen", "rating": "8 - Great", "genres": "Action, Thriller, Science-Fiction", "dateWatched": "2026-04-21", "runtime": "2h 30m", "director": "Christopher Nolan", "released": "2020-09-03", "metacritic": 69, "country": "United States", "ageRating": "PG-13", "url": "https://trakt.tv/movies/tenet-2020", "available": null}, {"title": "The 36th Chamber of Shaolin", "type": "Movie", "status": "Watchlist", "rating": "", "genres": "Action, Adventure", "dateWatched": "", "runtime": "1h 56m", "director": "Lau Kar-Leung", "released": "1978-02-02", "metacritic": null, "country": "Hong Kong", "ageRating": "R", "url": "https://trakt.tv/movies/the-36th-chamber-of-shaolin-1978", "available": null}, {"title": "The Angry Birds Movie", "type": "Movie", "status": "Watchlist", "rating": "", "genres": "Animation, Adventure, Comedy, Family", "dateWatched": "", "runtime": "1h 37m", "director": "Clay Kaytis", "released": "2016-05-20", "metacritic": 43, "country": "United States", "ageRating": "PG", "url": "https://trakt.tv/movies/the-angry-birds-movie-2016", "available": null}, {"title": "The Angry Birds Movie 2", "type": "Movie", "status": "Watchlist", "rating": "", "genres": "Animation, Comedy, Adventure, Family", "dateWatched": "", "runtime": "1h 37m", "director": "Thurop Van Orman", "released": "2019-08-14", "metacritic": 60, "country": "United States", "ageRating": "PG", "url": "https://trakt.tv/movies/the-angry-birds-movie-2-2019", "available": null}, {"title": "The Basketball Diaries", "type": "Movie", "status": "Watchlist", "rating": "", "genres": "Crime, Drama", "dateWatched": "", "runtime": "1h 42m", "director": "Scott Kalvert", "released": "1995-04-21", "metacritic": 46, "country": "United States", "ageRating": "R", "url": "https://trakt.tv/movies/the-basketball-diaries-1995", "available": null}, {"title": "The Blair Witch Project", "type": "Movie", "status": "Already Seen", "rating": "6 - Fine", "genres": "Horror, Mystery", "dateWatched": "", "runtime": "1h 21m", "director": "Daniel Myrick", "released": "1999-07-14", "metacritic": 80, "country": "United States", "ageRating": "R", "url": "https://trakt.tv/movies/the-blair-witch-project-1999", "available": null}, {"title": "The Chronicles of Narnia: The Lion, the Witch and the Wardrobe", "type": "Movie", "status": "Already Seen", "rating": "8 - Great", "genres": "Fantasy, Adventure, Family", "dateWatched": "", "runtime": "2h 23m", "director": "Andrew Adamson", "released": "2005-12-09", "metacritic": 75, "country": "United States", "ageRating": "PG", "url": "https://trakt.tv/movies/the-chronicles-of-narnia-the-lion-the-witch-and-the-wardrobe-2005", "available": null}, {"title": "The Conjuring", "type": "Movie", "status": "Already Seen", "rating": "8 - Great", "genres": "Horror, Thriller", "dateWatched": "", "runtime": "1h 52m", "director": "James Wan", "released": "2013-07-19", "metacritic": 68, "country": "United States", "ageRating": "R", "url": "https://trakt.tv/movies/the-conjuring-2013", "available": null}, {"title": "The Conjuring 2", "type": "Movie", "status": "Already Seen", "rating": "7 - Good", "genres": "Horror", "dateWatched": "", "runtime": "2h 14m", "director": "James Wan", "released": "2016-06-10", "metacritic": 65, "country": "United States", "ageRating": "R", "url": "https://trakt.tv/movies/the-conjuring-2-2016", "available": null}, {"title": "The Conjuring: Last Rites", "type": "Movie", "status": "Already Seen", "rating": "8 - Great", "genres": "Horror", "dateWatched": "", "runtime": "2h 16m", "director": "Michael Chaves", "released": "2025-09-05", "metacritic": 54, "country": "United States", "ageRating": "R", "url": "https://trakt.tv/movies/the-conjuring-last-rites-2025", "available": null}, {"title": "The Eagle", "type": "Movie", "status": "Watchlist", "rating": "", "genres": "Drama, Adventure", "dateWatched": "", "runtime": "1h 54m", "director": "Kevin Macdonald", "released": "2011-02-11", "metacritic": 55, "country": "United States", "ageRating": "PG-13", "url": "https://trakt.tv/movies/the-eagle-2011", "available": null}, {"title": "The Fast and the Furious", "type": "Movie", "status": "Already Seen", "rating": "9 - Excellent", "genres": "Action, Crime, Thriller", "dateWatched": "", "runtime": "1h 46m", "director": "Rob Cohen", "released": "2001-06-22", "metacritic": 58, "country": "United States", "ageRating": "PG-13", "url": "https://trakt.tv/movies/the-fast-and-the-furious-2001", "available": null}, {"title": "The Fast and the Furious: Tokyo Drift", "type": "Movie", "status": "Already Seen", "rating": "10 - Masterpiece", "genres": "Action, Crime, Drama, Thriller", "dateWatched": "", "runtime": "1h 44m", "director": "Justin Lin", "released": "2006-06-16", "metacritic": 45, "country": "United States", "ageRating": "PG-13", "url": "https://trakt.tv/movies/the-fast-and-the-furious-tokyo-drift-2006", "available": null}, {"title": "The Fault in Our Stars", "type": "Movie", "status": "Already Seen", "rating": "8 - Great", "genres": "Drama, Romance", "dateWatched": "", "runtime": "2h 6m", "director": "Josh Boone", "released": "2014-06-02", "metacritic": 69, "country": "United States", "ageRating": "PG-13", "url": "https://trakt.tv/movies/the-fault-in-our-stars-2014", "available": null}, {"title": "The Gentlemen", "type": "Movie", "status": "Watchlist", "rating": "", "genres": "Crime, Comedy", "dateWatched": "", "runtime": "1h 53m", "director": "Guy Ritchie", "released": "2020-01-01", "metacritic": null, "country": "United Kingdom", "ageRating": "R", "url": "https://trakt.tv/movies/the-gentlemen-2020", "available": null}, {"title": "The Guilty", "type": "Movie", "status": "Already Seen", "rating": "8 - Great", "genres": "Drama, Thriller", "dateWatched": "", "runtime": "1h 31m", "director": "Antoine Fuqua", "released": "2021-09-24", "metacritic": 63, "country": "United States", "ageRating": "R", "url": "https://trakt.tv/movies/the-guilty-2021", "available": null}, {"title": "The Holiday", "type": "Movie", "status": "Already Seen", "rating": "7 - Good", "genres": "Comedy, Holiday, Romance", "dateWatched": "", "runtime": "2h 16m", "director": "Nancy Meyers", "released": "2006-12-08", "metacritic": 52, "country": "United States", "ageRating": "PG-13", "url": "https://trakt.tv/movies/the-holiday-2006", "available": null}, {"title": "The Hunger Games: The Ballad of Songbirds & Snakes", "type": "Movie", "status": "Already Seen", "rating": "7 - Good", "genres": "Action, Sci-Fi", "dateWatched": "", "runtime": "2h 37m", "director": "Francis Lawrence", "released": "2023-11-17", "metacritic": 54, "country": "United States", "ageRating": "PG-13", "url": "https://trakt.tv/movies/the-hunger-games-the-ballad-of-songbirds-snakes-2023", "available": null}, {"title": "The Karate Kid", "type": "Movie", "status": "Already Seen", "rating": "8 - Great", "genres": "Action, Adventure, Drama, Family", "dateWatched": "", "runtime": "2h 20m", "director": "Harald Zwart", "released": "2010-06-11", "metacritic": 61, "country": "United States", "ageRating": "PG", "url": "https://trakt.tv/movies/the-karate-kid-2010", "available": null}, {"title": "The Land Before Time", "type": "Movie", "status": "Already Seen", "rating": "8 - Great", "genres": "Adventure, Animation, Family", "dateWatched": "2026-03-25", "runtime": "1h 9m", "director": "Don Bluth", "released": "1988-11-18", "metacritic": null, "country": "United States", "ageRating": "G", "url": "https://trakt.tv/movies/the-land-before-time-1988", "available": null}, {"title": "The Land Before Time II: The Great Valley Adventure", "type": "Movie", "status": "Already Seen", "rating": "8 - Great", "genres": "Adventure, Animation, Family", "dateWatched": "2026-03-27", "runtime": "1h 13m", "director": "Roy Allen Smith", "released": "1994-12-13", "metacritic": null, "country": "United States", "ageRating": "G", "url": "https://trakt.tv/movies/the-land-before-time-ii-the-great-valley-adventure-1994", "available": null}, {"title": "The Land Before Time III: The Time of the Great Giving", "type": "Movie", "status": "Already Seen", "rating": "8 - Great", "genres": "Adventure, Animation, Family", "dateWatched": "2026-03-27", "runtime": "1h 10m", "director": "Roy Allen Smith", "released": "1995-12-12", "metacritic": null, "country": "United States", "ageRating": "G", "url": "https://trakt.tv/movies/the-land-before-time-iii-the-time-of-the-great-giving-1995", "available": null}, {"title": "The Land Before Time IV: Journey Through the Mists", "type": "Movie", "status": "Already Seen", "rating": "7 - Good", "genres": "Adventure, Animation, Comedy, Family", "dateWatched": "2026-03-30", "runtime": "1h 14m", "director": "Roy Allen Smith", "released": "1996-12-10", "metacritic": null, "country": "United States", "ageRating": "G", "url": "https://trakt.tv/movies/the-land-before-time-iv-journey-through-the-mists-1996", "available": null}, {"title": "The Land Before Time V: The Mysterious Island", "type": "Movie", "status": "Already Seen", "rating": "8 - Great", "genres": "Adventure, Animation, Family", "dateWatched": "2026-03-30", "runtime": "1h 14m", "director": "Charles Grosvenor", "released": "1997-12-09", "metacritic": null, "country": "United States", "ageRating": "G", "url": "https://trakt.tv/movies/the-land-before-time-v-the-mysterious-island-1997", "available": null}, {"title": "The Lion King", "type": "Movie", "status": "Already Seen", "rating": "8 - Great", "genres": "Adventure, Animation, Drama, Family, Music", "dateWatched": "", "runtime": "1h 29m", "director": "Rob Minkoff", "released": "1994-06-15", "metacritic": 88, "country": "United States", "ageRating": "G", "url": "https://trakt.tv/movies/the-lion-king-1994", "available": null}, {"title": "The Lion King", "type": "Movie", "status": "Already Seen", "rating": "8 - Great", "genres": "Adventure, Animation, Drama, Family, Musical", "dateWatched": "", "runtime": "1h 58m", "director": "Jon Favreau", "released": "2019-07-19", "metacritic": 55, "country": "United States", "ageRating": "PG", "url": "https://trakt.tv/movies/the-lion-king-2019", "available": null}, {"title": "The Mask", "type": "Movie", "status": "Already Seen", "rating": "6 - Fine", "genres": "Comedy, Crime, Fantasy, Romance, Superhero", "dateWatched": "", "runtime": "1h 41m", "director": "Chuck Russell", "released": "1994-07-29", "metacritic": 59, "country": "United States", "ageRating": "PG-13", "url": "https://trakt.tv/movies/the-mask-1994", "available": null}, {"title": "The Monkey", "type": "Movie", "status": "Already Seen", "rating": "4 - Subpar", "genres": "Comedy, Horror", "dateWatched": "", "runtime": "1h 37m", "director": "Osgood Perkins", "released": "2025-02-21", "metacritic": 62, "country": "United States", "ageRating": "R", "url": "https://trakt.tv/movies/the-monkey-2025", "available": null}, {"title": "The Northman", "type": "Movie", "status": "Already Seen", "rating": "6 - Fine", "genres": "Fantasy, Adventure, Action", "dateWatched": "2026-03-26", "runtime": "2h 17m", "director": "Robert Eggers", "released": "2022-04-22", "metacritic": 82, "country": "United States", "ageRating": "R", "url": "https://trakt.tv/movies/the-northman-2022", "available": null}, {"title": "The Nun", "type": "Movie", "status": "Already Seen", "rating": "8 - Great", "genres": "Horror", "dateWatched": "2025-09-07", "runtime": "1h 36m", "director": "Corin Hardy", "released": "2018-09-07", "metacritic": 46, "country": "United States", "ageRating": "R", "url": "https://trakt.tv/movies/the-nun-2018", "available": null}, {"title": "The Pope's Exorcist", "type": "Movie", "status": "Already Seen", "rating": "5 - Average", "genres": "Horror, Thriller", "dateWatched": "", "runtime": "1h 43m", "director": "Julius Avery", "released": "2023-04-14", "metacritic": 45, "country": "United States", "ageRating": "R", "url": "https://trakt.tv/movies/the-pope-s-exorcist-2023", "available": null}, {"title": "The Prestige", "type": "Movie", "status": "Already Seen", "rating": "9 - Excellent", "genres": "Drama, Mystery, Sci-Fi", "dateWatched": "2025-11-20", "runtime": "2h 10m", "director": "Christopher Nolan", "released": "2006-10-17", "metacritic": 66, "country": "United States", "ageRating": "PG-13", "url": "https://trakt.tv/movies/the-prestige-2006", "available": null}, {"title": "The Ritual", "type": "Movie", "status": "Already Seen", "rating": "6 - Fine", "genres": "Horror, Mystery", "dateWatched": "", "runtime": "1h 34m", "director": "David Bruckner", "released": "2017-10-11", "metacritic": 57, "country": "United Kingdom", "ageRating": "R", "url": "https://trakt.tv/movies/the-ritual-2017", "available": null}, {"title": "The Road to El Dorado", "type": "Movie", "status": "Already Seen", "rating": "8 - Great", "genres": "Adventure, Animation, Comedy, Family, Fantasy, Musical", "dateWatched": "2025-08-29", "runtime": "1h 29m", "director": "Bibo Bergeron", "released": "2000-03-31", "metacritic": 51, "country": "United States", "ageRating": "PG", "url": "https://trakt.tv/movies/the-road-to-el-dorado-2000", "available": null}, {"title": "The SpongeBob SquarePants Movie", "type": "Movie", "status": "Already Seen", "rating": "7 - Good", "genres": "Adventure, Animation, Comedy, Family, Fantasy", "dateWatched": "", "runtime": "1h 27m", "director": "Stephen Hillenburg", "released": "2004-11-19", "metacritic": 67, "country": "United States", "ageRating": "PG", "url": "https://trakt.tv/movies/the-spongebob-squarepants-movie-2004", "available": null}, {"title": "The Super Mario Bros. Movie", "type": "Movie", "status": "Watchlist", "rating": "", "genres": "Adventure, Animation, Family, Comedy, Fantasy", "dateWatched": "", "runtime": "1h 33m", "director": "Michael Jelenic", "released": "2023-04-05", "metacritic": 46, "country": "United States", "ageRating": "PG", "url": "https://trakt.tv/movies/the-super-mario-bros-movie-2023", "available": null}, {"title": "The Super Mario Galaxy Movie", "type": "Movie", "status": "Watchlist", "rating": "", "genres": "Animation, Family, Comedy, Adventure, Fantasy", "dateWatched": "", "runtime": "1h 38m", "director": "Aaron Horvath", "released": "2026-04-01", "metacritic": null, "country": "United States", "ageRating": "PG", "url": "https://trakt.tv/movies/the-super-mario-galaxy-movie-2026", "available": null}, {"title": "The Truman Show", "type": "Movie", "status": "Already Seen", "rating": "9 - Excellent", "genres": "Comedy, Drama", "dateWatched": "2025-06-05", "runtime": "1h 43m", "director": "Peter Weir", "released": "1998-06-05", "metacritic": 90, "country": "United States", "ageRating": "PG", "url": "https://trakt.tv/movies/the-truman-show-1998", "available": null}, {"title": "The Twilight Saga: Breaking Dawn - Part 1", "type": "Movie", "status": "Already Seen", "rating": "7 - Good", "genres": "Adventure, Fantasy, Romance", "dateWatched": "", "runtime": "1h 57m", "director": "Bill Condon", "released": "2011-11-17", "metacritic": 45, "country": "United States", "ageRating": "PG-13", "url": "https://trakt.tv/movies/the-twilight-saga-breaking-dawn-part-1-2011", "available": null}, {"title": "The Twilight Saga: Breaking Dawn - Part 2", "type": "Movie", "status": "Already Seen", "rating": "8 - Great", "genres": "Adventure, Drama, Fantasy, Romance", "dateWatched": "", "runtime": "1h 55m", "director": "Bill Condon", "released": "2012-11-16", "metacritic": 52, "country": "United States", "ageRating": "PG-13", "url": "https://trakt.tv/movies/the-twilight-saga-breaking-dawn-part-2-2012", "available": null}, {"title": "The Twilight Saga: Eclipse", "type": "Movie", "status": "Already Seen", "rating": "7 - Good", "genres": "Adventure, Drama, Fantasy, Romance", "dateWatched": "", "runtime": "2h 4m", "director": "David Slade", "released": "2010-06-23", "metacritic": 58, "country": "United States", "ageRating": "PG-13", "url": "https://trakt.tv/movies/the-twilight-saga-eclipse-2010", "available": null}, {"title": "The Twilight Saga: New Moon", "type": "Movie", "status": "Already Seen", "rating": "7 - Good", "genres": "Adventure, Drama, Fantasy, Romance", "dateWatched": "", "runtime": "2h 11m", "director": "Chris Weitz", "released": "2009-11-20", "metacritic": 44, "country": "United States", "ageRating": "PG-13", "url": "https://trakt.tv/movies/the-twilight-saga-new-moon-2009", "available": null}, {"title": "The Wolf of Wall Street", "type": "Movie", "status": "Already Seen", "rating": "8 - Great", "genres": "Comedy, Crime, Drama", "dateWatched": "2026-05-27", "runtime": "3h 0m", "director": "Martin Scorsese", "released": "2013-12-25", "metacritic": 75, "country": "United States", "ageRating": "R", "url": "https://trakt.tv/movies/the-wolf-of-wall-street-2013", "available": null}, {"title": "This Is the End", "type": "Movie", "status": "Already Seen", "rating": "6 - Fine", "genres": "Action, Comedy", "dateWatched": "2026-03-24", "runtime": "1h 46m", "director": "Seth Rogen", "released": "2013-06-12", "metacritic": 67, "country": "United States", "ageRating": "R", "url": "https://trakt.tv/movies/this-is-the-end-2013", "available": null}, {"title": "Tiflis", "type": "TV Show", "status": "Already Seen", "rating": "9 - Excellent", "genres": "Documentary, War", "dateWatched": "", "runtime": "20h / (16ep)", "director": "Levan Dabrundashvili", "released": "2014-10-24", "metacritic": null, "country": "Georgia", "ageRating": "Unknown", "url": "https://trakt.tv/shows/tiflis", "available": null}, {"title": "Treasure Planet", "type": "Movie", "status": "Watchlist", "rating": "", "genres": "Adventure, Animation, Fantasy, Science-Fiction, Family", "dateWatched": "", "runtime": "1h 36m", "director": "Ron Clements", "released": "2002-11-27", "metacritic": 60, "country": "United States", "ageRating": "PG", "url": "https://trakt.tv/movies/treasure-planet-2002", "available": null}, {"title": "Troy", "type": "Movie", "status": "Already Seen", "rating": "9 - Excellent", "genres": "History, War, Action", "dateWatched": "2026-03-18", "runtime": "2h 43m", "director": "Wolfgang Petersen", "released": "2004-05-14", "metacritic": 56, "country": "United States", "ageRating": "R", "url": "https://trakt.tv/movies/troy-2004", "available": null}, {"title": "Turbo", "type": "Movie", "status": "Already Seen", "rating": "7 - Good", "genres": "Animation, Family", "dateWatched": "", "runtime": "1h 36m", "director": "David Soren", "released": "2013-07-19", "metacritic": 58, "country": "United States", "ageRating": "PG", "url": "https://trakt.tv/movies/turbo-2013", "available": null}, {"title": "Twilight", "type": "Movie", "status": "Already Seen", "rating": "8 - Great", "genres": "Drama, Fantasy, Romance", "dateWatched": "", "runtime": "2h 2m", "director": "Catherine Hardwicke", "released": "2008-11-21", "metacritic": 56, "country": "United States", "ageRating": "PG-13", "url": "https://trakt.tv/movies/twilight-2008", "available": null}, {"title": "Wake Up Dead Man: A Knives Out Mystery", "type": "Movie", "status": "Watchlist", "rating": "", "genres": "Comedy, Mystery, Thriller", "dateWatched": "", "runtime": "2h 25m", "director": "Rian Johnson", "released": "2025-11-26", "metacritic": 80, "country": "United States", "ageRating": "PG-13", "url": "https://trakt.tv/movies/wake-up-dead-man-a-knives-out-mystery-2025", "available": null}, {"title": "Warcraft", "type": "Movie", "status": "Already Seen", "rating": "8 - Great", "genres": "Action, Adventure, Fantasy", "dateWatched": "2026-05-27", "runtime": "2h 3m", "director": "Duncan Jones", "released": "2016-06-10", "metacritic": 32, "country": "United States", "ageRating": "PG-13", "url": "https://trakt.tv/movies/warcraft-2016", "available": null}, {"title": "Weapons", "type": "Movie", "status": "Already Seen", "rating": "8 - Great", "genres": "Horror, Mystery", "dateWatched": "2025-08-29", "runtime": "2h 9m", "director": "Zach Cregger", "released": "2025-08-08", "metacritic": 81, "country": "United States", "ageRating": "R", "url": "https://trakt.tv/movies/weapons-2025", "available": null}, {"title": "Wonka", "type": "Movie", "status": "Already Seen", "rating": "6 - Fine", "genres": "Comedy, Family, Fantasy, Musical", "dateWatched": "", "runtime": "1h 57m", "director": "Paul King", "released": "2023-12-08", "metacritic": 66, "country": "United Kingdom", "ageRating": "PG", "url": "https://trakt.tv/movies/wonka-2023", "available": null}, {"title": "You Don't Mess with the Zohan", "type": "Movie", "status": "Already Seen", "rating": "7 - Good", "genres": "Action, Comedy", "dateWatched": "", "runtime": "1h 53m", "director": "Dennis Dugan", "released": "2008-06-06", "metacritic": 54, "country": "United States", "ageRating": "PG-13", "url": "https://trakt.tv/movies/you-don-t-mess-with-the-zohan-2008", "available": null}, {"title": "Zambezia", "type": "Movie", "status": "Watchlist", "rating": "", "genres": "Animation, Comedy, Adventure, Family", "dateWatched": "", "runtime": "1h 23m", "director": "Wayne Thornley", "released": "2012-07-07", "metacritic": null, "country": "United States", "ageRating": "G", "url": "https://trakt.tv/movies/zambezia-2012", "available": null}, {"title": "Zoolander", "type": "Movie", "status": "Already Seen", "rating": "8 - Great", "genres": "Comedy", "dateWatched": "2026-06-13", "runtime": "1h 29m", "director": "Ben Stiller", "released": "2001-09-28", "metacritic": 61, "country": "United States", "ageRating": "PG-13", "url": "https://trakt.tv/movies/zoolander-2001", "available": null}, {"title": "Zootopia", "type": "Movie", "status": "Already Seen", "rating": "8 - Great", "genres": "Adventure, Animation, Comedy, Family", "dateWatched": "", "runtime": "1h 49m", "director": "Byron Howard", "released": "2016-03-04", "metacritic": 78, "country": "United States", "ageRating": "PG", "url": "https://trakt.tv/movies/zootopia-2016", "available": null}, {"title": "Zootopia 2", "type": "Movie", "status": "Already Seen", "rating": "8 - Great", "genres": "Adventure, Animation, Comedy, Family, Mystery", "dateWatched": "2026-01-21", "runtime": "1h 47m", "director": "Jared Bush", "released": "2025-11-26", "metacritic": 73, "country": "United States", "ageRating": "PG", "url": "https://trakt.tv/movies/zootopia-2-2025", "available": null}];
 const SERIES = [{"title": "One Piece", "watched": 145, "total": 1155, "remaining": 1010, "pct": 12.55}];
@@ -599,6 +657,7 @@ let typeFilter = 'all';
 let seriesStatusFilter = 'all';
 let currentModalMovie = null;   // PHASE 1: track which movie the open modal refers to
 let currentModalSeries = null;  // PHASE 2: track which series the open modal refers to
+let analyticsBuilt = false;     // PHASE 4: only build charts once (lazy, on first visit to the tab)
 
 const PAGE_SIZE = 48;
 let visibleCount = PAGE_SIZE;
@@ -608,17 +667,31 @@ let visibleSeriesCount = SERIES_PAGE_SIZE;
 function switchView(view) {
   const moviesPage = document.getElementById('page-movies');
   const seriesPage = document.getElementById('page-series');
+  const analyticsPage = document.getElementById('page-analytics');
   const btnMovies = document.getElementById('viewBtnMovies');
   const btnSeries = document.getElementById('viewBtnSeries');
+  const btnAnalytics = document.getElementById('viewBtnAnalytics');
   const headerCount = document.getElementById('headerCount');
 
+  moviesPage.classList.remove('active');
+  seriesPage.classList.remove('active');
+  analyticsPage.classList.remove('active');
+  btnMovies.classList.remove('active');
+  btnSeries.classList.remove('active','series-active');
+  btnAnalytics.classList.remove('active','analytics-active');
+
   if (view === 'series') {
-    moviesPage.classList.remove('active'); seriesPage.classList.add('active');
-    btnMovies.classList.remove('active'); btnSeries.classList.add('active','series-active');
+    seriesPage.classList.add('active');
+    btnSeries.classList.add('active','series-active');
     headerCount.textContent = SERIES.length + ' shows tracked';
+  } else if (view === 'analytics') {
+    analyticsPage.classList.add('active');
+    btnAnalytics.classList.add('active','analytics-active');
+    headerCount.textContent = MOVIES.length + ' entries analyzed';
+    if (!analyticsBuilt) { renderAnalytics(); analyticsBuilt = true; }
   } else {
-    seriesPage.classList.remove('active'); moviesPage.classList.add('active');
-    btnSeries.classList.remove('active','series-active'); btnMovies.classList.add('active');
+    moviesPage.classList.add('active');
+    btnMovies.classList.add('active');
     headerCount.textContent = MOVIES.length + ' entries';
   }
 }
@@ -763,6 +836,21 @@ function renderGrid() {
 }
 
 function loadMore() { visibleCount += PAGE_SIZE; renderGrid(); }
+
+// PHASE 4 / filter UX: reset all movie filters back to defaults in one click
+function clearFilters() {
+  document.getElementById('searchBox').value = '';
+  document.getElementById('genreFilter').value = '';
+  document.getElementById('ratingFilter').value = 'all';
+  document.getElementById('sortFilter').value = 'alpha_asc';
+  statusFilter = 'all';
+  typeFilter = 'all';
+  document.querySelectorAll('[data-status]').forEach(b => b.classList.remove('active','active-watch','active-drop'));
+  document.querySelector('[data-status="all"]').classList.add('active');
+  document.querySelectorAll('[data-type]').forEach(b => b.classList.remove('active'));
+  document.querySelector('[data-type="all"]').classList.add('active');
+  render();
+}
 
 function initLazyLoading() {
   const observer = new IntersectionObserver((entries, obs) => {
@@ -975,6 +1063,16 @@ function renderSeriesGrid() {
 
 function loadMoreSeries() { visibleSeriesCount += SERIES_PAGE_SIZE; renderSeriesGrid(); }
 
+// Series filter UX: reset all series filters back to defaults in one click
+function clearSeriesFilters() {
+  document.getElementById('seriesSearchBox').value = '';
+  document.getElementById('seriesSortFilter').value = 'alpha_asc';
+  seriesStatusFilter = 'all';
+  document.querySelectorAll('[data-sstatus]').forEach(b => b.classList.remove('active'));
+  document.querySelector('[data-sstatus="all"]').classList.add('active');
+  renderSeries();
+}
+
 // PHASE 2: store the open series + toggle the increment button's disabled state
 function openSeriesModal(idx) {
   const s = SERIES[idx];
@@ -1166,6 +1264,134 @@ async function addShowToBackend(title, totalEpisodes) {
     }
   } catch (err) {
     statusDisplay.textContent = `Error adding show. Check Colab console.`;
+  }
+}
+
+// ==================== PHASE 4: ANALYTICS ====================
+function parseRuntimeToMinutes(rt) {
+  if (!rt) return 0;
+  let total = 0;
+  const hMatch = rt.match(/(\d+)h/);
+  const mMatch = rt.match(/(\d+)m/);
+  if (hMatch) total += parseInt(hMatch[1]) * 60;
+  if (mMatch) total += parseInt(mMatch[1]);
+  return total;
+}
+
+function monthKey(dateStr) { return dateStr ? dateStr.substring(0, 7) : null; } // 'YYYY-MM'
+
+function monthLabel(key) {
+  const [y, m] = key.split('-');
+  const d = new Date(parseInt(y), parseInt(m) - 1, 1);
+  return d.toLocaleDateString('en-US', { month: 'short', year: '2-digit' });
+}
+
+const CHART_COLORS = ['#b8893f', '#e67e58', '#56624c', '#8ba6a8', '#9b9485', '#bf6545', '#7d9168', '#cfa055', '#8fae72', '#a9c7c9'];
+
+function renderAnalytics() {
+  const watchedMovies = MOVIES.filter(m => m.dateWatched);
+
+  // -- Timeline: titles watched per month --
+  const timelineCounts = {};
+  watchedMovies.forEach(m => {
+    const key = monthKey(m.dateWatched);
+    if (key) timelineCounts[key] = (timelineCounts[key] || 0) + 1;
+  });
+  const timelineKeys = Object.keys(timelineCounts).sort();
+
+  if (timelineKeys.length === 0) {
+    document.getElementById('chartTimeline').replaceWith(Object.assign(document.createElement('div'), { className: 'chart-empty', textContent: 'No "Date Watched" values yet -- nothing to chart.' }));
+  } else {
+    new Chart(document.getElementById('chartTimeline'), {
+      type: 'bar',
+      data: {
+        labels: timelineKeys.map(monthLabel),
+        datasets: [{ label: 'Titles watched', data: timelineKeys.map(k => timelineCounts[k]), backgroundColor: '#e67e58', borderRadius: 2 }]
+      },
+      options: {
+        responsive: true,
+        plugins: { legend: { display: false } },
+        scales: {
+          x: { ticks: { color: '#8a8171' }, grid: { color: '#3f3a2d' } },
+          y: { beginAtZero: true, ticks: { color: '#8a8171', precision: 0 }, grid: { color: '#3f3a2d' } }
+        }
+      }
+    });
+  }
+
+  // -- Genre distribution --
+  const genreCounts = {};
+  MOVIES.forEach(m => {
+    if (!m.genres) return;
+    m.genres.split(', ').forEach(g => { g = g.trim(); if (g) genreCounts[g] = (genreCounts[g] || 0) + 1; });
+  });
+  const genreEntries = Object.entries(genreCounts).sort((a, b) => b[1] - a[1]).slice(0, 10);
+
+  if (genreEntries.length === 0) {
+    document.getElementById('chartGenres').replaceWith(Object.assign(document.createElement('div'), { className: 'chart-empty', textContent: 'No genre data yet.' }));
+  } else {
+    new Chart(document.getElementById('chartGenres'), {
+      type: 'doughnut',
+      data: {
+        labels: genreEntries.map(e => e[0]),
+        datasets: [{ data: genreEntries.map(e => e[1]), backgroundColor: CHART_COLORS, borderColor: '#1c1a14', borderWidth: 2 }]
+      },
+      options: { responsive: true, plugins: { legend: { position: 'right', labels: { color: '#d4ccbd', boxWidth: 12, font: { size: 10 } } } } }
+    });
+  }
+
+  // -- Rating distribution --
+  const ratingCounts = {};
+  for (let i = 1; i <= 10; i++) ratingCounts[i] = 0;
+  MOVIES.forEach(m => { const n = ratingNum(m.rating); if (n >= 1 && n <= 10) ratingCounts[n]++; });
+  const hasRatings = Object.values(ratingCounts).some(v => v > 0);
+
+  if (!hasRatings) {
+    document.getElementById('chartRatings').replaceWith(Object.assign(document.createElement('div'), { className: 'chart-empty', textContent: 'No ratings logged yet.' }));
+  } else {
+    new Chart(document.getElementById('chartRatings'), {
+      type: 'bar',
+      data: {
+        labels: Object.keys(ratingCounts),
+        datasets: [{ label: 'Titles', data: Object.values(ratingCounts), backgroundColor: '#b8893f', borderRadius: 2 }]
+      },
+      options: {
+        responsive: true,
+        plugins: { legend: { display: false } },
+        scales: {
+          x: { ticks: { color: '#8a8171' }, grid: { display: false } },
+          y: { beginAtZero: true, ticks: { color: '#8a8171', precision: 0 }, grid: { color: '#3f3a2d' } }
+        }
+      }
+    });
+  }
+
+  // -- Runtime per month --
+  const runtimeByMonth = {};
+  watchedMovies.forEach(m => {
+    const key = monthKey(m.dateWatched);
+    if (key) runtimeByMonth[key] = (runtimeByMonth[key] || 0) + parseRuntimeToMinutes(m.runtime);
+  });
+  const runtimeKeys = Object.keys(runtimeByMonth).sort();
+
+  if (runtimeKeys.length === 0) {
+    document.getElementById('chartRuntime').replaceWith(Object.assign(document.createElement('div'), { className: 'chart-empty', textContent: 'No runtime + watch-date data yet -- nothing to chart.' }));
+  } else {
+    new Chart(document.getElementById('chartRuntime'), {
+      type: 'line',
+      data: {
+        labels: runtimeKeys.map(monthLabel),
+        datasets: [{ label: 'Minutes watched', data: runtimeKeys.map(k => runtimeByMonth[k]), borderColor: '#56624c', backgroundColor: 'rgba(86,98,76,0.25)', fill: true, tension: 0.3, pointRadius: 3, pointBackgroundColor: '#9fc285' }]
+      },
+      options: {
+        responsive: true,
+        plugins: { legend: { display: false } },
+        scales: {
+          x: { ticks: { color: '#8a8171' }, grid: { color: '#3f3a2d' } },
+          y: { beginAtZero: true, ticks: { color: '#8a8171' }, grid: { color: '#3f3a2d' } }
+        }
+      }
+    });
   }
 }
 
