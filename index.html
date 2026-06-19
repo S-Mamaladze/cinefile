@@ -961,9 +961,16 @@ function initLazyLoading() {
   document.querySelectorAll('#grid .movie-card').forEach(card => observer.observe(card));
 }
 
-function mykadriSearchUrl(title) {
-  const cleaned = title.replace(/[:'"!?,.]/g, '').trim();
-  const query = encodeURIComponent(cleaned).replace(/%20/g, '+');
+function mykadriSearchUrl(title, year) {
+  const cleanedTitle = title.replace(/[:'"!?,.]/g, '').trim();
+  
+  // Combine title and year to force an exact match
+  let searchString = cleanedTitle;
+  if (year) {
+    searchString += ' ' + year;
+  }
+  
+  const query = encodeURIComponent(searchString).replace(/%20/g, '+');
   return `https://mykadri.tv/?story=${query}&do=search&subaction=search`;
 }
 
@@ -980,7 +987,10 @@ function openModal(idx) {
   
   // Link generation
   document.getElementById('mTrakt').href = m.url;
-  document.getElementById('mWatch').href = mykadriSearchUrl(m.title); // <-- FIXED: Added this line so the MyKadri button works!
+  
+  // Extract the 4-digit year from the release date
+  const year = m.released ? m.released.substring(0, 4) : '';
+  document.getElementById('mWatch').href = mykadriSearchUrl(m.title, year);
   
   document.getElementById('modalOverlay').classList.add('open');
 }
