@@ -962,16 +962,13 @@ function initLazyLoading() {
 }
 
 function mykadriSearchUrl(title) {
-  // Strip out punctuation that might break the search
+  // Clean the title for a standard search query
   const cleanedTitle = title.replace(/[:'"!?,.]/g, '').trim();
-  
-  // Format with plus signs for the URL
   const query = encodeURIComponent(cleanedTitle).replace(/%20/g, '+');
   
-  // Reverted to title-only search until we get the exact year parameter
+  // This is the direct search URL for their engine
   return `https://mykadri.tv/?story=${query}&do=search&subaction=search`;
 }
-
 function openModal(idx) {
   const m = MOVIES[idx];
   document.getElementById('mType').textContent = m.type.toUpperCase() + ' - ' + (m.status || 'Watchlist');
