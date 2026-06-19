@@ -3,334 +3,676 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>🎬 My Movie Database</title>
+<title>Cinefile -- Personal Ledger</title>
 <style>
- @import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@300;400;500;600;700&display=swap');
+  @import url('https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600;9..144,700&family=Archivo:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap');
 
- :root { --bg: #0a0a0f; --surface: #111118; --card: #16161f; --border: #1e1e2e; --red: #e50914; --gold: #f5c518; --text: #e8e8f0; --muted: #6b6b80; --accent: #4f46e5; --accent2: #7c3aed; --green: #22c55e; }
- * { box-sizing: border-box; margin: 0; padding: 0; }
- body { background: var(--bg); color: var(--text); font-family: 'Inter', sans-serif; min-height: 100vh; overflow-x: hidden; }
+  :root {
+    --paper:     #f4eee1;
+    --paper-dim: #e8dfca;
+    --ink:       #15130f;
+    --ink-soft:  #4a443a;
+    --rule:      #cdbf9f;
+    --sienna:    #bd5530;
+    --sienna-deep:#8f3c1f;
+    --moss:      #56624c;
+    --moss-deep: #3c4536;
+    --brass:     #b8893f;
+    --night:     #15130f;
+    --night-card:#1c1a14;
+    --night-rule:#332f24;
+    --paper-on-night: #ece3cf;
+  }
 
- /* ── HEADER ── */
- .header { background: linear-gradient(180deg, #000 0%, transparent 100%); padding: 18px 40px; display: flex; align-items: center; justify-content: space-between; position: sticky; top: 0; z-index: 100; backdrop-filter: blur(12px); border-bottom: 1px solid var(--border); }
- .logo { font-family: 'Bebas Neue', sans-serif; font-size: 2rem; color: var(--red); letter-spacing: 3px; text-shadow: 0 0 30px rgba(229,9,20,0.5); }
- .logo span { color: var(--text); font-size: 1rem; font-family: 'Inter', sans-serif; font-weight: 300; letter-spacing: 1px; margin-left: 8px; }
- .header-right { display: flex; align-items: center; gap: 16px; }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
 
- /* ── VIEW SWITCHER ── */
- .view-switcher { display: flex; gap: 4px; background: var(--card); border: 1px solid var(--border); border-radius: 10px; padding: 4px; }
- .view-btn { background: transparent; border: none; color: var(--muted); padding: 7px 16px; border-radius: 7px; font-size: 0.8rem; font-weight: 600; cursor: pointer; font-family: 'Inter', sans-serif; transition: all 0.15s; white-space: nowrap; }
- .view-btn:hover { color: var(--text); }
- .view-btn.active { background: var(--red); color: #fff; }
- .view-btn.active.series-active { background: var(--accent); }
- .view-page { display: none; }
- .view-page.active { display: block; }
+  html { scroll-behavior: smooth; }
 
- /* ── HERO STATS ── */
- .hero { padding: 40px 40px 30px; background: linear-gradient(135deg, rgba(229,9,20,0.06) 0%, rgba(79,70,229,0.04) 50%, transparent 100%); border-bottom: 1px solid var(--border); }
- .hero-title { font-family: 'Bebas Neue', sans-serif; font-size: clamp(2.5rem, 5vw, 4rem); line-height: 1; margin-bottom: 6px; background: linear-gradient(90deg, #fff 0%, #aaa 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
- .hero-sub { color: var(--muted); font-size: 0.9rem; margin-bottom: 30px; font-weight: 300; }
+  body {
+    background: var(--night);
+    color: var(--paper-on-night);
+    font-family: 'Archivo', sans-serif;
+    min-height: 100vh;
+    overflow-x: hidden;
+    background-image:
+      radial-gradient(ellipse at top, rgba(184,137,63,0.08), transparent 60%),
+      repeating-linear-gradient(0deg, rgba(255,255,255,0.012) 0px, rgba(255,255,255,0.012) 1px, transparent 1px, transparent 3px);
+  }
 
- .stats-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 12px; max-width: 900px; }
- .stat-card { background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 16px 20px; position: relative; overflow: hidden; }
- .stat-card::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 2px; }
- .stat-card.red::before { background: var(--red); }
- .stat-card.gold::before { background: var(--gold); }
- .stat-card.purple::before { background: var(--accent); }
- .stat-card.green::before { background: var(--green); }
- .stat-card.blue::before { background: #38bdf8; }
+  .mono { font-family: 'JetBrains Mono', monospace; }
 
- .stat-num { font-family: 'Bebas Neue', sans-serif; font-size: 2.2rem; line-height: 1; color: var(--text); }
- .stat-label { font-size: 0.72rem; color: var(--muted); text-transform: uppercase; letter-spacing: 1px; margin-top: 4px; }
+  /* -- HEADER / MASTHEAD -- */
+  .masthead {
+    padding: 22px 44px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    background: rgba(21,19,15,0.92);
+    backdrop-filter: blur(10px);
+    border-bottom: 1px solid var(--night-rule);
+  }
+  .masthead-mark {
+    display: flex;
+    align-items: baseline;
+    gap: 10px;
+  }
+  .masthead-mark .reel {
+    font-family: 'Fraunces', serif;
+    font-size: 1.65rem;
+    font-weight: 600;
+    font-variation-settings: 'opsz' 40;
+    letter-spacing: -0.01em;
+    color: var(--paper-on-night);
+  }
+  .masthead-mark .reel em {
+    font-style: italic;
+    color: var(--brass);
+  }
+  .masthead-sub {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.66rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--ink-soft);
+    border-left: 1px solid var(--night-rule);
+    padding-left: 10px;
+  }
+  .header-right { display: flex; align-items: center; gap: 18px; }
 
- /* ── CONTROLS ── */
- .controls { padding: 24px 40px 16px; display: flex; flex-wrap: wrap; gap: 12px; align-items: center; border-bottom: 1px solid var(--border); background: var(--surface); position: sticky; top: 61px; z-index: 90; }
- .search-wrap { position: relative; flex: 1; min-width: 200px; max-width: 320px; }
- .search-wrap svg { position: absolute; left: 12px; top: 50%; transform: translateY(-50%); opacity: 0.4; }
- .search-box { width: 100%; background: var(--card); border: 1px solid var(--border); border-radius: 8px; color: var(--text); font-size: 0.875rem; padding: 9px 12px 9px 36px; font-family: 'Inter', sans-serif; outline: none; transition: border-color 0.2s; }
- .search-box:focus { border-color: var(--red); }
- .search-box::placeholder { color: var(--muted); }
+  /* -- VIEW SWITCHER (ticket tabs) -- */
+  .view-switcher { display: flex; gap: 0; border: 1px solid var(--night-rule); border-radius: 3px; overflow: hidden; }
+  .view-btn {
+    background: transparent;
+    border: none;
+    border-right: 1px solid var(--night-rule);
+    color: var(--ink-soft);
+    padding: 8px 18px;
+    font-size: 0.72rem;
+    font-weight: 600;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    cursor: pointer;
+    font-family: 'Archivo', sans-serif;
+    transition: all 0.15s;
+    white-space: nowrap;
+  }
+  .view-btn:last-child { border-right: none; }
+  .view-btn:hover { color: var(--paper-on-night); background: rgba(255,255,255,0.03); }
+  .view-btn.active { background: var(--sienna); color: var(--paper); }
+  .view-btn.active.series-active { background: var(--moss); color: var(--paper); }
+  .view-page { display: none; }
+  .view-page.active { display: block; }
 
- .filter-group { display: flex; gap: 6px; flex-wrap: wrap; }
- .filter-btn { background: var(--card); border: 1px solid var(--border); color: var(--muted); padding: 7px 14px; border-radius: 20px; font-size: 0.8rem; cursor: pointer; font-family: 'Inter', sans-serif; transition: all 0.15s; white-space: nowrap; }
- .filter-btn:hover { border-color: var(--red); color: var(--text); }
- .filter-btn.active { background: var(--red); border-color: var(--red); color: #fff; }
- .filter-btn.active-watch { background: var(--accent); border-color: var(--accent); color: #fff; }
+  #headerCount {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.7rem;
+    color: var(--ink-soft);
+    letter-spacing: 0.04em;
+  }
 
- select.filter-select { background: var(--card); border: 1px solid var(--border); color: var(--text); padding: 7px 12px; border-radius: 8px; font-size: 0.8rem; cursor: pointer; font-family: 'Inter', sans-serif; outline: none; appearance: none; }
- select.filter-select:focus { border-color: var(--red); }
+  /* -- HERO -- */
+  .hero {
+    padding: 56px 44px 36px;
+    border-bottom: 1px solid var(--night-rule);
+    position: relative;
+  }
+  .hero-eyebrow {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.7rem;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--brass);
+    margin-bottom: 14px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .hero-eyebrow::before {
+    content: '';
+    width: 22px; height: 1px;
+    background: var(--brass);
+  }
+  .hero-title {
+    font-family: 'Fraunces', serif;
+    font-weight: 600;
+    font-variation-settings: 'opsz' 90;
+    font-size: clamp(2.6rem, 6vw, 4.6rem);
+    line-height: 0.98;
+    letter-spacing: -0.01em;
+    color: var(--paper-on-night);
+    max-width: 14ch;
+  }
+  .hero-title em { font-style: italic; color: var(--sienna); font-weight: 500; }
+  .hero-sub {
+    color: var(--ink-soft);
+    font-size: 0.95rem;
+    margin-top: 14px;
+    margin-bottom: 34px;
+    font-weight: 400;
+    max-width: 46ch;
+  }
 
- .count-badge { background: var(--card); border: 1px solid var(--border); color: var(--muted); padding: 7px 14px; border-radius: 20px; font-size: 0.8rem; margin-left: auto; }
- .count-badge span { color: var(--text); font-weight: 600; }
+  .stats-row {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(135px, 1fr));
+    gap: 0;
+    max-width: 920px;
+    border: 1px solid var(--night-rule);
+    border-radius: 2px;
+  }
+  .stat-card {
+    padding: 16px 18px;
+    position: relative;
+    border-right: 1px solid var(--night-rule);
+  }
+  .stat-card:last-child { border-right: none; }
+  .stat-num {
+    font-family: 'Fraunces', serif;
+    font-weight: 600;
+    font-variation-settings: 'opsz' 40;
+    font-size: 2.1rem;
+    line-height: 1;
+    color: var(--paper-on-night);
+  }
+  .stat-card.red .stat-num { color: var(--sienna); }
+  .stat-card.gold .stat-num { color: var(--brass); }
+  .stat-card.green .stat-num { color: var(--moss); }
+  .stat-label {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.62rem;
+    color: var(--ink-soft);
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    margin-top: 6px;
+  }
 
- /* ── GRID ── */
- .grid-section { padding: 24px 40px 40px; }
- .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 16px; }
+  /* -- CONTROLS / LEDGER BAR -- */
+  .controls {
+    padding: 18px 44px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    align-items: center;
+    border-bottom: 1px solid var(--night-rule);
+    background: rgba(28,26,20,0.55);
+    position: sticky;
+    top: 67px;
+    z-index: 90;
+  }
+  .search-wrap { position: relative; flex: 1; min-width: 200px; max-width: 300px; }
+  .search-wrap svg { position: absolute; left: 11px; top: 50%; transform: translateY(-50%); opacity: 0.45; }
+  .search-box {
+    width: 100%;
+    background: var(--night-card);
+    border: 1px solid var(--night-rule);
+    border-radius: 2px;
+    color: var(--paper-on-night);
+    font-size: 0.82rem;
+    padding: 8px 12px 8px 34px;
+    font-family: 'Archivo', sans-serif;
+    outline: none;
+    transition: border-color 0.2s;
+  }
+  .search-box:focus { border-color: var(--brass); }
+  .search-box::placeholder { color: var(--ink-soft); }
 
- /* ── CARD ── */
- .movie-card { background: var(--card); border: 1px solid var(--border); border-radius: 12px; overflow: hidden; cursor: pointer; transition: transform 0.2s, box-shadow 0.2s, border-color 0.2s; position: relative; }
- .movie-card:hover { transform: translateY(-4px); box-shadow: 0 16px 40px rgba(0,0,0,0.6); border-color: rgba(229,9,20,0.4); }
+  .filter-group { display: flex; gap: 5px; flex-wrap: wrap; }
+  .filter-btn {
+    background: var(--night-card);
+    border: 1px solid var(--night-rule);
+    color: var(--ink-soft);
+    padding: 7px 13px;
+    border-radius: 2px;
+    font-size: 0.72rem;
+    font-weight: 500;
+    cursor: pointer;
+    font-family: 'Archivo', sans-serif;
+    transition: all 0.15s;
+    white-space: nowrap;
+  }
+  .filter-btn:hover { border-color: var(--brass); color: var(--paper-on-night); }
+  .filter-btn.active { background: var(--sienna); border-color: var(--sienna); color: var(--paper); }
+  .filter-btn.active-watch { background: var(--moss); border-color: var(--moss); color: var(--paper); }
 
- .card-poster { height: 140px; display: flex; align-items: center; justify-content: center; font-family: 'Bebas Neue', sans-serif; font-size: 1rem; letter-spacing: 2px; color: rgba(255,255,255,0.15); position: relative; overflow: hidden; padding: 12px; text-align: center; word-break: break-word; }
- .card-poster-title { font-family: 'Bebas Neue', sans-serif; font-size: clamp(1rem, 2.5vw, 1.4rem); letter-spacing: 1.5px; color: rgba(255,255,255,0.85); text-shadow: 0 2px 8px rgba(0,0,0,0.8); line-height: 1.2; z-index: 1; }
- 
- .poster-img { position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover; opacity: 0; transition: opacity 0.5s ease; z-index: 2; }
- .poster-img.loaded { opacity: 1; }
+  select.filter-select {
+    background: var(--night-card);
+    border: 1px solid var(--night-rule);
+    color: var(--paper-on-night);
+    padding: 7px 10px;
+    border-radius: 2px;
+    font-size: 0.72rem;
+    cursor: pointer;
+    font-family: 'Archivo', sans-serif;
+    outline: none;
+    appearance: none;
+  }
+  select.filter-select:focus { border-color: var(--brass); }
 
- .card-status-bar { position: absolute; top: 0; left: 0; right: 0; height: 3px; z-index: 3; }
- .card-status-bar.seen { background: linear-gradient(90deg, var(--red), var(--accent)); }
- .card-status-bar.watchlist { background: linear-gradient(90deg, var(--accent), var(--accent2)); }
- .card-status-bar.series { background: linear-gradient(90deg, var(--gold), var(--red)); }
+  .count-badge {
+    font-family: 'JetBrains Mono', monospace;
+    color: var(--ink-soft);
+    font-size: 0.7rem;
+    margin-left: auto;
+    letter-spacing: 0.02em;
+  }
+  .count-badge strong { color: var(--brass); font-weight: 600; }
 
- .card-type-badge { position: absolute; top: 10px; right: 10px; font-size: 0.6rem; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; padding: 3px 7px; border-radius: 4px; z-index: 3; }
- .type-movie { background: rgba(229,9,20,0.2); color: var(--red); border: 1px solid rgba(229,9,20,0.3); backdrop-filter: blur(4px);}
- .type-anime { background: rgba(245,197,24,0.15); color: var(--gold); border: 1px solid rgba(245,197,24,0.3); backdrop-filter: blur(4px);}
- .type-show { background: rgba(79,70,229,0.2); color: #818cf8; border: 1px solid rgba(79,70,229,0.3); backdrop-filter: blur(4px);}
+  /* -- GRID -- */
+  .grid-section { padding: 30px 44px 56px; }
+  .grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(208px, 1fr));
+    gap: 18px;
+  }
 
- .card-body { padding: 12px 14px 14px; }
- .card-title { font-weight: 600; font-size: 0.875rem; line-height: 1.3; margin-bottom: 6px; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
- .card-meta { display: flex; gap: 6px; align-items: center; flex-wrap: wrap; }
+  /* -- CARD: film-cell / ticket-stub -- */
+  .movie-card {
+    background: var(--night-card);
+    border: 1px solid var(--night-rule);
+    border-radius: 3px;
+    overflow: hidden;
+    cursor: pointer;
+    transition: transform 0.18s ease, border-color 0.18s ease, box-shadow 0.18s ease;
+    position: relative;
+  }
+  .movie-card:hover {
+    transform: translateY(-3px);
+    border-color: var(--brass);
+    box-shadow: 0 14px 32px rgba(0,0,0,0.5);
+  }
 
- .rating-pill { font-size: 0.7rem; font-weight: 700; padding: 2px 8px; border-radius: 4px; }
- .r10 { background: rgba(245,197,24,0.2); color: var(--gold); }
- .r9  { background: rgba(34,197,94,0.15); color: #4ade80; }
- .r8  { background: rgba(79,70,229,0.2); color: #818cf8; }
- .r7  { background: rgba(56,189,248,0.15); color: #38bdf8; }
- .r6  { background: rgba(148,163,184,0.15); color: #94a3b8; }
- .r5  { background: rgba(148,163,184,0.1); color: #64748b; }
- .r-low { background: rgba(229,9,20,0.1); color: #f87171; }
- .r-none { background: rgba(79,70,229,0.12); color: #6366f1; font-style: italic; }
+  /* perforation strip down the left, like a film cell */
+  .movie-card::before {
+    content: '';
+    position: absolute;
+    left: 0; top: 0; bottom: 0;
+    width: 7px;
+    background-image: radial-gradient(circle, var(--night) 2px, transparent 2.4px);
+    background-size: 7px 13px;
+    background-position: center;
+    z-index: 4;
+    opacity: 0.85;
+  }
 
- .meta-year, .meta-runtime { font-size: 0.72rem; color: var(--muted); }
- .meta-age { font-size: 0.65rem; border: 1px solid var(--border); color: var(--muted); padding: 1px 5px; border-radius: 3px; }
- .card-genres { margin-top: 6px; display: flex; flex-wrap: wrap; gap: 4px; }
- .genre-tag { font-size: 0.65rem; color: var(--muted); background: rgba(255,255,255,0.04); padding: 2px 6px; border-radius: 3px; }
- .metacritic { display: inline-flex; align-items: center; gap: 4px; font-size: 0.7rem; font-weight: 700; padding: 2px 7px; border-radius: 4px; margin-top: 6px; }
- .mc-good { background: rgba(34,197,94,0.1); color: #4ade80; }
- .mc-mid  { background: rgba(245,197,24,0.1); color: var(--gold); }
- .mc-low  { background: rgba(229,9,20,0.1); color: #f87171; }
+  .card-poster {
+    height: 142px;
+    margin-left: 7px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    overflow: hidden;
+    padding: 12px;
+    text-align: center;
+    word-break: break-word;
+    background: linear-gradient(160deg, var(--night-card) 0%, #232017 100%);
+  }
+  .card-poster-title {
+    font-family: 'Fraunces', serif;
+    font-weight: 600;
+    font-variation-settings: 'opsz' 30;
+    font-size: clamp(0.95rem, 2.4vw, 1.25rem);
+    letter-spacing: -0.01em;
+    color: rgba(244,238,225,0.78);
+    line-height: 1.15;
+    z-index: 1;
+  }
 
- .card-progress-wrap { margin-top: 10px; }
- .card-progress-label { display: flex; justify-content: space-between; font-size: 0.68rem; color: var(--muted); margin-bottom: 5px; }
- .card-progress-label strong { color: var(--text); }
- .card-progress-bar { background: var(--border); border-radius: 99px; height: 6px; overflow: hidden; }
- .card-progress-fill { height: 100%; background: linear-gradient(90deg, var(--gold), var(--red)); border-radius: 99px; }
- .card-progress-pct { font-size: 0.68rem; color: var(--muted); margin-top: 4px; }
+  .poster-img { position: absolute; top: 0; left: 7px; right: 0; bottom: 0; width: calc(100% - 7px); height: 100%; object-fit: cover; opacity: 0; transition: opacity 0.5s ease; z-index: 2; }
+  .poster-img.loaded { opacity: 1; }
 
- .op-bar-wrap { background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 16px 20px; margin-top: 12px; max-width: 400px; }
- .op-bar-label { font-size: 0.8rem; color: var(--muted); margin-bottom: 8px; display: flex; justify-content: space-between; }
- .op-bar-label strong { color: var(--text); }
- .op-bar { background: var(--border); border-radius: 99px; height: 8px; overflow: hidden; }
- .op-bar-fill { height: 100%; background: linear-gradient(90deg, var(--red), var(--gold)); border-radius: 99px; transition: width 1s ease; }
+  .card-status-bar { position: absolute; top: 0; left: 7px; right: 0; height: 3px; z-index: 3; }
+  .card-status-bar.seen { background: var(--moss); }
+  .card-status-bar.watchlist { background: var(--brass); }
+  .card-status-bar.series { background: linear-gradient(90deg, var(--brass), var(--sienna)); }
 
- /* ── MODAL ── */
- .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.85); z-index: 200; backdrop-filter: blur(6px); align-items: center; justify-content: center; padding: 20px; }
- .modal-overlay.open { display: flex; }
- .modal { background: var(--card); border: 1px solid var(--border); border-radius: 16px; max-width: 600px; width: 100%; max-height: 90vh; overflow-y: auto; position: relative; }
- .modal-header { padding: 28px 28px 20px; border-bottom: 1px solid var(--border); }
- .modal-type { font-size: 0.72rem; text-transform: uppercase; letter-spacing: 2px; color: var(--red); font-weight: 700; margin-bottom: 6px; }
- .modal-title { font-family: 'Bebas Neue', sans-serif; font-size: 2rem; line-height: 1.1; margin-bottom: 10px; }
- .modal-rating { display: inline-flex; align-items: center; gap: 8px; }
- .modal-close { position: absolute; top: 16px; right: 16px; background: rgba(255,255,255,0.07); border: 1px solid var(--border); color: var(--text); width: 32px; height: 32px; border-radius: 50%; cursor: pointer; font-size: 1rem; display: flex; align-items: center; justify-content: center; transition: background 0.15s; }
- .modal-close:hover { background: rgba(229,9,20,0.2); }
- .modal-body { padding: 20px 28px 28px; }
- .modal-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 16px; }
- .modal-field-label { font-size: 0.7rem; text-transform: uppercase; letter-spacing: 1px; color: var(--muted); margin-bottom: 3px; }
- .modal-field-val { font-size: 0.9rem; font-weight: 500; }
- .modal-genres { display: flex; flex-wrap: wrap; gap: 6px; margin: 12px 0; }
- .modal-genre { font-size: 0.75rem; padding: 4px 10px; border-radius: 20px; background: rgba(79,70,229,0.1); border: 1px solid rgba(79,70,229,0.2); color: #818cf8; }
- .modal-trakt { display: inline-flex; align-items: center; gap: 6px; margin-top: 12px; background: rgba(237,88,38,0.1); border: 1px solid rgba(237,88,38,0.2); color: #fb923c; padding: 8px 16px; border-radius: 8px; text-decoration: none; font-size: 0.85rem; font-weight: 600; transition: background 0.15s; }
- .modal-trakt:hover { background: rgba(237,88,38,0.2); }
+  .card-type-badge {
+    position: absolute;
+    top: 9px;
+    right: 9px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.58rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    padding: 3px 7px;
+    border-radius: 2px;
+    z-index: 3;
+    background: rgba(21,19,15,0.72);
+    backdrop-filter: blur(3px);
+    border: 1px solid rgba(244,238,225,0.18);
+    color: var(--paper-on-night);
+  }
 
- .empty { text-align: center; padding: 80px 20px; color: var(--muted); }
- .empty-icon { font-size: 3rem; margin-bottom: 12px; }
- .empty p { font-size: 0.9rem; }
+  .card-body { padding: 13px 14px 14px 18px; }
+  .card-title {
+    font-family: 'Fraunces', serif;
+    font-weight: 600;
+    font-variation-settings: 'opsz' 22;
+    font-size: 0.95rem;
+    line-height: 1.25;
+    margin-bottom: 7px;
+    color: var(--paper-on-night);
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+  .card-meta { display: flex; gap: 7px; align-items: center; flex-wrap: wrap; }
 
- @media (max-width: 768px) {
-   .header, .controls, .hero, .grid-section { padding-left: 16px; padding-right: 16px; }
-   .grid { grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 10px; }
-   .modal-grid { grid-template-columns: 1fr; }
-   .stats-row { grid-template-columns: repeat(3, 1fr); }
-   .header { flex-direction: column; align-items: flex-start; gap: 12px; }
- }
+  /* rating shown as a stamped seal */
+  .rating-pill {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.66rem;
+    font-weight: 600;
+    padding: 2px 7px;
+    border-radius: 2px;
+    border: 1px solid currentColor;
+  }
+  .r10 { color: var(--brass); background: rgba(184,137,63,0.12); }
+  .r9  { color: #7d9168; background: rgba(86,98,76,0.14); }
+  .r8  { color: var(--moss); background: rgba(86,98,76,0.1); }
+  .r7  { color: #8ba6a8; background: rgba(139,166,168,0.1); }
+  .r6  { color: #9b9485; background: rgba(155,148,133,0.1); }
+  .r5  { color: #8a8275; background: rgba(138,130,117,0.08); }
+  .r-low { color: var(--sienna); background: rgba(189,85,48,0.1); }
+  .r-none { color: var(--ink-soft); background: rgba(244,238,225,0.04); font-style: italic; border-style: dashed; }
 
- ::-webkit-scrollbar { width: 6px; }
- ::-webkit-scrollbar-track { background: var(--bg); }
- ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+  .meta-year, .meta-runtime { font-family: 'JetBrains Mono', monospace; font-size: 0.68rem; color: var(--ink-soft); }
+  .meta-age { font-family: 'JetBrains Mono', monospace; font-size: 0.6rem; border: 1px solid var(--night-rule); color: var(--ink-soft); padding: 1px 5px; border-radius: 2px; }
+
+  .card-genres { margin-top: 7px; display: flex; flex-wrap: wrap; gap: 4px; }
+  .genre-tag { font-size: 0.64rem; color: var(--ink-soft); background: rgba(244,238,225,0.04); padding: 2px 6px; border-radius: 2px; }
+
+  .metacritic {
+    display: inline-flex; align-items: center; gap: 4px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.64rem; font-weight: 600;
+    padding: 2px 7px; border-radius: 2px; margin-top: 7px;
+  }
+  .mc-good { background: rgba(86,98,76,0.14); color: #7d9168; }
+  .mc-mid  { background: rgba(184,137,63,0.12); color: var(--brass); }
+  .mc-low  { background: rgba(189,85,48,0.1); color: var(--sienna); }
+
+  /* -- series progress card -- */
+  .card-progress-wrap { margin-top: 11px; }
+  .card-progress-label { display: flex; justify-content: space-between; font-family: 'JetBrains Mono', monospace; font-size: 0.64rem; color: var(--ink-soft); margin-bottom: 5px; }
+  .card-progress-label strong { color: var(--paper-on-night); }
+  .card-progress-bar { background: var(--night-rule); border-radius: 1px; height: 5px; overflow: hidden; }
+  .card-progress-fill { height: 100%; background: linear-gradient(90deg, var(--brass), var(--sienna)); }
+  .card-progress-pct { font-family: 'JetBrains Mono', monospace; font-size: 0.64rem; color: var(--ink-soft); margin-top: 5px; }
+
+  /* -- MODAL: ticket-stub blow-up -- */
+  .modal-overlay {
+    display: none;
+    position: fixed; inset: 0;
+    background: rgba(10,9,7,0.86);
+    z-index: 200;
+    backdrop-filter: blur(6px);
+    align-items: center; justify-content: center;
+    padding: 20px;
+  }
+  .modal-overlay.open { display: flex; }
+  .modal {
+    background: var(--night-card);
+    border: 1px solid var(--night-rule);
+    border-radius: 4px;
+    max-width: 600px; width: 100%;
+    max-height: 90vh;
+    overflow-y: auto;
+    position: relative;
+  }
+  .modal::before {
+    content: '';
+    position: absolute; left: 0; top: 0; bottom: 0;
+    width: 10px;
+    background-image: radial-gradient(circle, var(--night) 3px, transparent 3.4px);
+    background-size: 10px 18px;
+    background-position: center;
+    opacity: 0.85;
+  }
+  .modal-header { padding: 30px 30px 20px 38px; border-bottom: 1px solid var(--night-rule); }
+  .modal-type {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.68rem; text-transform: uppercase; letter-spacing: 0.1em;
+    color: var(--brass); font-weight: 600; margin-bottom: 8px;
+  }
+  .modal-title {
+    font-family: 'Fraunces', serif;
+    font-weight: 600;
+    font-variation-settings: 'opsz' 60;
+    font-size: 2rem; line-height: 1.08; margin-bottom: 12px;
+    color: var(--paper-on-night);
+  }
+  .modal-close {
+    position: absolute; top: 16px; right: 16px;
+    background: rgba(244,238,225,0.06);
+    border: 1px solid var(--night-rule);
+    color: var(--paper-on-night);
+    width: 30px; height: 30px; border-radius: 50%;
+    cursor: pointer; font-size: 0.95rem;
+    display: flex; align-items: center; justify-content: center;
+    transition: background 0.15s;
+  }
+  .modal-close:hover { background: rgba(189,85,48,0.18); border-color: var(--sienna); }
+  .modal-body { padding: 22px 30px 30px 38px; }
+  .modal-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 13px; margin-bottom: 18px; }
+  .modal-field-label { font-family: 'JetBrains Mono', monospace; font-size: 0.62rem; text-transform: uppercase; letter-spacing: 0.06em; color: var(--ink-soft); margin-bottom: 4px; }
+  .modal-field-val { font-size: 0.88rem; font-weight: 500; color: var(--paper-on-night); }
+  .modal-genres { display: flex; flex-wrap: wrap; gap: 6px; margin: 14px 0; }
+  .modal-genre { font-size: 0.74rem; padding: 4px 10px; border-radius: 2px; background: rgba(86,98,76,0.12); border: 1px solid rgba(86,98,76,0.3); color: #8ba87a; }
+  .modal-trakt {
+    display: inline-flex; align-items: center; gap: 6px; margin-top: 12px;
+    background: rgba(189,85,48,0.1); border: 1px solid rgba(189,85,48,0.3);
+    color: var(--sienna); padding: 9px 16px; border-radius: 2px;
+    text-decoration: none; font-size: 0.84rem; font-weight: 600;
+    transition: background 0.15s;
+  }
+  .modal-trakt:hover { background: rgba(189,85,48,0.2); }
+
+  /* -- series progress bar (legacy one-piece-style block) -- */
+  .op-bar-wrap { background: var(--night-card); border: 1px solid var(--night-rule); border-radius: 3px; padding: 16px 20px; margin-top: 0; max-width: none; }
+  .op-bar-label { font-family: 'JetBrains Mono', monospace; font-size: 0.74rem; color: var(--ink-soft); margin-bottom: 10px; display: flex; justify-content: space-between; }
+  .op-bar-label strong { color: var(--paper-on-night); }
+  .op-bar { background: var(--night-rule); border-radius: 1px; height: 7px; overflow: hidden; }
+  .op-bar-fill { height: 100%; background: linear-gradient(90deg, var(--brass), var(--sienna)); transition: width 1s ease; }
+
+  .empty { text-align: center; padding: 90px 20px; color: var(--ink-soft); }
+  .empty-icon { font-size: 2.4rem; margin-bottom: 14px; opacity: 0.5; }
+  .empty p { font-size: 0.9rem; font-family: 'JetBrains Mono', monospace; }
+
+  @media (max-width: 768px) {
+    .masthead, .controls, .hero, .grid-section { padding-left: 18px; padding-right: 18px; }
+    .grid { grid-template-columns: repeat(auto-fill, minmax(155px, 1fr)); gap: 12px; }
+    .modal-grid { grid-template-columns: 1fr; }
+    .stats-row { grid-template-columns: repeat(3, 1fr); }
+    .masthead { flex-direction: column; align-items: flex-start; gap: 12px; }
+    .controls { top: 0; position: static; }
+  }
+
+  ::-webkit-scrollbar { width: 7px; }
+  ::-webkit-scrollbar-track { background: var(--night); }
+  ::-webkit-scrollbar-thumb { background: var(--night-rule); border-radius: 3px; }
 </style>
 </head>
 <body>
 
-<header class="header">
- <div class="logo">CINEFILE <span>· Personal Database</span></div>
- <div class="header-right">
-   <div class="view-switcher">
-     <button class="view-btn active" id="viewBtnMovies" onclick="switchView('movies')">🎬 Movies &amp; Anime</button>
-     <button class="view-btn" id="viewBtnSeries" onclick="switchView('series')">📺 Series</button>
-   </div>
-   <div style="font-size:0.75rem;color:var(--muted);" id="headerCount">191 titles tracked</div>
- </div>
+<header class="masthead">
+  <div class="masthead-mark">
+    <div class="reel">Cine<em>file</em></div>
+    <div class="masthead-sub">personal ledger</div>
+  </div>
+  <div class="header-right">
+    <div class="view-switcher">
+      <button class="view-btn active" id="viewBtnMovies" onclick="switchView('movies')">Films &amp; Anime</button>
+      <button class="view-btn" id="viewBtnSeries" onclick="switchView('series')">Series</button>
+    </div>
+    <div id="headerCount">191 entries</div>
+  </div>
 </header>
 
 <div class="view-page active" id="page-movies">
- <section class="hero">
-   <div class="hero-title">My Watch History</div>
-   <div class="hero-sub">Every film &amp; anime — rated, tracked, catalogued.</div>
-   <div class="stats-row">
-     <div class="stat-card red"><div class="stat-num" id="s-total">0</div><div class="stat-label">Total Titles</div></div>
-     <div class="stat-card green"><div class="stat-num" id="s-seen">0</div><div class="stat-label">Already Seen</div></div>
-     <div class="stat-card purple"><div class="stat-num" id="s-watchlist">0</div><div class="stat-label">Watchlist</div></div>
-     <div class="stat-card gold"><div class="stat-num" id="s-masterpiece">0</div><div class="stat-label">Masterpieces</div></div>
-     <div class="stat-card blue"><div class="stat-num" id="s-excellent">0</div><div class="stat-label">9+ Rated</div></div>
-   </div>
- </section>
+  <section class="hero">
+    <div class="hero-eyebrow">Volume One</div>
+    <div class="hero-title">Everything I've <em>watched</em>, in one ledger.</div>
+    <div class="hero-sub">Every film and anime -- rated, dated, catalogued like a logbook, not a feed.</div>
+    <div class="stats-row">
+      <div class="stat-card"><div class="stat-num" id="s-total">0</div><div class="stat-label">Total entries</div></div>
+      <div class="stat-card green"><div class="stat-num" id="s-seen">0</div><div class="stat-label">Already seen</div></div>
+      <div class="stat-card gold"><div class="stat-num" id="s-watchlist">0</div><div class="stat-label">On watchlist</div></div>
+      <div class="stat-card red"><div class="stat-num" id="s-masterpiece">0</div><div class="stat-label">Masterpieces</div></div>
+      <div class="stat-card"><div class="stat-num" id="s-excellent">0</div><div class="stat-label">Rated 9+</div></div>
+    </div>
+  </section>
 
- <div class="controls">
-   <div class="search-wrap">
-     <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
-     <input class="search-box" id="searchBox" placeholder="Search title, director, genre…" autocomplete="off">
-   </div>
+  <div class="controls">
+    <div class="search-wrap">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+      <input class="search-box" id="searchBox" placeholder="Search title, director, genre..." autocomplete="off">
+    </div>
 
-   <div class="filter-group">
-     <button class="filter-btn active" data-status="all" onclick="setStatus(this,'all')">All</button>
-     <button class="filter-btn" data-status="seen" onclick="setStatus(this,'seen')">✅ Seen</button>
-     <button class="filter-btn" data-status="watchlist" onclick="setStatus(this,'watchlist')">🔖 Watchlist</button>
-   </div>
+    <div class="filter-group">
+      <button class="filter-btn active" data-status="all" onclick="setStatus(this,'all')">All</button>
+      <button class="filter-btn" data-status="seen" onclick="setStatus(this,'seen')">Seen</button>
+      <button class="filter-btn" data-status="watchlist" onclick="setStatus(this,'watchlist')">Watchlist</button>
+    </div>
 
-   <div class="filter-group">
-     <button class="filter-btn active" data-type="all" onclick="setType(this,'all')">All Types</button>
-     <button class="filter-btn" data-type="Movie" onclick="setType(this,'Movie')">🎬 Movie</button>
-     <button class="filter-btn" data-type="Anime" onclick="setType(this,'Anime')">⚡ Anime</button>
-   </div>
+    <div class="filter-group">
+      <button class="filter-btn active" data-type="all" onclick="setType(this,'all')">All Types</button>
+      <button class="filter-btn" data-type="Movie" onclick="setType(this,'Movie')">Movie</button>
+      <button class="filter-btn" data-type="Anime" onclick="setType(this,'Anime')">Anime</button>
+    </div>
 
-   <select class="filter-select" id="genreFilter" onchange="render()">
-     <option value="">All Genres</option>
-   </select>
-   
-   <!-- ADD THIS: Full 1-10 Rating Filter -->
-   <select class="filter-select" id="ratingFilter" onchange="render()">
-     <option value="all">All Ratings</option>
-     <option value="10">10 Stars</option>
-     <option value="9">9 Stars</option>
-     <option value="8">8 Stars</option>
-     <option value="7">7 Stars</option>
-     <option value="6">6 Stars</option>
-     <option value="5">5 Stars</option>
-     <option value="4">4 Stars</option>
-     <option value="3">3 Stars</option>
-     <option value="2">2 Stars</option>
-     <option value="1">1 Star</option>
-   </select>
+    <select class="filter-select" id="genreFilter" onchange="render()">
+      <option value="">All Genres</option>
+    </select>
 
-   <!-- REPLACE YOUR CURRENT SORT FILTER WITH THIS -->
-   <select class="filter-select" id="sortFilter" onchange="render()">
-     <option value="alpha_asc">A → Z</option>
-     <option value="alpha_desc">Z → A</option>
-     <option value="rating_desc">Rating ↓</option>
-     <option value="rating_asc">Rating ↑</option>
-     <option value="released_desc">Year ↓</option>
-     <option value="released_asc">Year ↑</option>
-     <option value="metacritic_desc">Metacritic ↓</option>
-     <option value="metacritic_asc">Metacritic ↑</option>
-     <option value="watched_desc">Date Watched ↓</option>
-     <option value="watched_asc">Date Watched ↑</option>
-   </select>
+    <select class="filter-select" id="ratingFilter" onchange="render()">
+      <option value="all">All Ratings</option>
+      <option value="10">10 -- Masterpiece</option>
+      <option value="9">9 -- Excellent</option>
+      <option value="8">8 -- Great</option>
+      <option value="7">7 -- Good</option>
+      <option value="6">6 -- Fine</option>
+      <option value="5">5 -- Average</option>
+      <option value="4">4 -- Subpar</option>
+      <option value="3">3 -- Bad</option>
+      <option value="2">2</option>
+      <option value="1">1</option>
+    </select>
 
-   <div class="count-badge">Showing <span id="countBadge">0</span> titles</div>
- </div>
+    <select class="filter-select" id="sortFilter" onchange="render()">
+      <option value="alpha_asc">A -> Z</option>
+      <option value="alpha_desc">Z -> A</option>
+      <option value="rating_desc">Rating (down)</option>
+      <option value="rating_asc">Rating (up)</option>
+      <option value="released_desc">Year (down)</option>
+      <option value="released_asc">Year (up)</option>
+      <option value="metacritic_desc">Metacritic (down)</option>
+      <option value="metacritic_asc">Metacritic (up)</option>
+      <option value="watched_desc">Date watched (down)</option>
+      <option value="watched_asc">Date watched (up)</option>
+    </select>
 
- <div class="grid-section">
-   <div class="grid" id="grid"></div>
-   <div class="empty" id="emptyState" style="display:none">
-     <div class="empty-icon">🎬</div>
-     <p>No titles match your filters.</p>
-   </div>
- </div>
+    <div class="count-badge">Showing <strong id="countBadge">0</strong> entries</div>
+  </div>
+
+  <div class="grid-section">
+    <div class="grid" id="grid"></div>
+    <div class="empty" id="emptyState" style="display:none">
+      <div class="empty-icon">X</div>
+      <p>NO ENTRIES MATCH THESE FILTERS</p>
+    </div>
+  </div>
 </div>
 
 <div class="view-page" id="page-series">
- <section class="hero">
-   <div class="hero-title">Series Tracker</div>
-   <div class="hero-sub">Episode-by-episode progress for every show I'm watching.</div>
-   <div class="stats-row">
-     <div class="stat-card red"><div class="stat-num" id="sr-total">0</div><div class="stat-label">Shows Tracked</div></div>
-     <div class="stat-card green"><div class="stat-num" id="sr-completed">0</div><div class="stat-label">Completed</div></div>
-     <div class="stat-card purple"><div class="stat-num" id="sr-inprogress">0</div><div class="stat-label">In Progress</div></div>
-     <div class="stat-card gold"><div class="stat-num" id="sr-episodes-watched">0</div><div class="stat-label">Episodes Watched</div></div>
-     <div class="stat-card blue"><div class="stat-num" id="sr-episodes-remaining">0</div><div class="stat-label">Episodes Remaining</div></div>
-   </div>
- </section>
+  <section class="hero">
+    <div class="hero-eyebrow">Volume Two</div>
+    <div class="hero-title">Series, <em>tracked</em> episode by episode.</div>
+    <div class="hero-sub">Long-form progress for every show currently in rotation.</div>
+    <div class="stats-row">
+      <div class="stat-card"><div class="stat-num" id="sr-total">0</div><div class="stat-label">Shows tracked</div></div>
+      <div class="stat-card green"><div class="stat-num" id="sr-completed">0</div><div class="stat-label">Completed</div></div>
+      <div class="stat-card gold"><div class="stat-num" id="sr-inprogress">0</div><div class="stat-label">In progress</div></div>
+      <div class="stat-card"><div class="stat-num" id="sr-episodes-watched">0</div><div class="stat-label">Episodes watched</div></div>
+      <div class="stat-card red"><div class="stat-num" id="sr-episodes-remaining">0</div><div class="stat-label">Episodes left</div></div>
+    </div>
+  </section>
 
- <div class="controls">
-   <div class="search-wrap">
-     <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
-     <input class="search-box" id="seriesSearchBox" placeholder="Search show…" autocomplete="off">
-   </div>
+  <div class="controls">
+    <div class="search-wrap">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+      <input class="search-box" id="seriesSearchBox" placeholder="Search show..." autocomplete="off">
+    </div>
 
-   <div class="filter-group">
-     <button class="filter-btn active" data-sstatus="all" onclick="setSeriesStatus(this,'all')">All</button>
-     <button class="filter-btn" data-sstatus="progress" onclick="setSeriesStatus(this,'progress')">▶️ In Progress</button>
-     <button class="filter-btn" data-sstatus="completed" onclick="setSeriesStatus(this,'completed')">✅ Completed</button>
-     <button class="filter-btn" data-sstatus="notstarted" onclick="setSeriesStatus(this,'notstarted')">⏳ Not Started</button>
-   </div>
+    <div class="filter-group">
+      <button class="filter-btn active" data-sstatus="all" onclick="setSeriesStatus(this,'all')">All</button>
+      <button class="filter-btn" data-sstatus="progress" onclick="setSeriesStatus(this,'progress')">In Progress</button>
+      <button class="filter-btn" data-sstatus="completed" onclick="setSeriesStatus(this,'completed')">Completed</button>
+      <button class="filter-btn" data-sstatus="notstarted" onclick="setSeriesStatus(this,'notstarted')">Not Started</button>
+    </div>
 
-   <select class="filter-select" id="seriesSortFilter" onchange="renderSeries()">
-     <option value="alpha_asc">A → Z</option>
-     <option value="alpha_desc">Z → A</option>
-     <option value="pct_desc">Progress ↓</option>
-     <option value="pct_asc">Progress ↑</option>
-     <option value="remaining_desc">Episodes Remaining ↓</option>
-     <option value="remaining_asc">Episodes Remaining ↑</option>
-   </select>
+    <select class="filter-select" id="seriesSortFilter" onchange="renderSeries()">
+      <option value="alpha_asc">A -> Z</option>
+      <option value="alpha_desc">Z -> A</option>
+      <option value="pct_desc">Progress (down)</option>
+      <option value="pct_asc">Progress (up)</option>
+      <option value="remaining_desc">Episodes left (down)</option>
+      <option value="remaining_asc">Episodes left (up)</option>
+    </select>
 
-   <div class="count-badge">Showing <span id="seriesCountBadge">0</span> shows</div>
- </div>
+    <div class="count-badge">Showing <strong id="seriesCountBadge">0</strong> shows</div>
+  </div>
 
- <div class="grid-section">
-   <div class="grid" id="seriesGrid"></div>
-   <div class="empty" id="seriesEmptyState" style="display:none"><div class="empty-icon">📺</div><p>No shows match your filters.</p></div>
- </div>
+  <div class="grid-section">
+    <div class="grid" id="seriesGrid"></div>
+    <div class="empty" id="seriesEmptyState" style="display:none"><div class="empty-icon">X</div><p>NO SHOWS MATCH THESE FILTERS</p></div>
+  </div>
 </div>
 
 <div class="modal-overlay" id="modalOverlay" onclick="closeModal(event)">
- <div class="modal" id="modalBox">
-   <button class="modal-close" onclick="closeModalBtn()">✕</button>
-   <div class="modal-header">
-     <div class="modal-type" id="mType"></div>
-     <div class="modal-title" id="mTitle"></div>
-     <div class="modal-rating" id="mRating"></div>
-   </div>
-   <div class="modal-body">
-     <div class="modal-grid" id="mGrid"></div>
-     <div class="modal-genres" id="mGenres"></div>
-     <a class="modal-trakt" id="mTrakt" target="_blank" rel="noopener">🔗 View on Trakt.tv</a>
-   </div>
- </div>
+  <div class="modal" id="modalBox">
+    <button class="modal-close" onclick="closeModalBtn()">x</button>
+    <div class="modal-header">
+      <div class="modal-type" id="mType"></div>
+      <div class="modal-title" id="mTitle"></div>
+      <div class="modal-rating" id="mRating"></div>
+    </div>
+    <div class="modal-body">
+      <div class="modal-grid" id="mGrid"></div>
+      <div class="modal-genres" id="mGenres"></div>
+      <a class="modal-trakt" id="mTrakt" target="_blank" rel="noopener">View on Trakt.tv -></a>
+    </div>
+  </div>
 </div>
 
 <div class="modal-overlay" id="seriesModalOverlay" onclick="closeSeriesModal(event)">
- <div class="modal" id="seriesModalBox">
-   <button class="modal-close" onclick="closeSeriesModalBtn()">✕</button>
-   <div class="modal-header">
-     <div class="modal-type" id="smType">SERIES</div>
-     <div class="modal-title" id="smTitle"></div>
-   </div>
-   <div class="modal-body">
-     <div class="op-bar-wrap" style="max-width:none;margin-top:0;">
-       <div class="op-bar-label">
-         <span>Progress</span>
-         <strong id="smProgressLabel"></strong>
-       </div>
-       <div class="op-bar"><div class="op-bar-fill" id="smProgressFill" style="width:0%"></div></div>
-       <div style="font-size:0.72rem;color:var(--muted);margin-top:4px;" id="smProgressSub"></div>
-     </div>
-   </div>
- </div>
+  <div class="modal" id="seriesModalBox">
+    <button class="modal-close" onclick="closeSeriesModalBtn()">x</button>
+    <div class="modal-header">
+      <div class="modal-type" id="smType">SERIES</div>
+      <div class="modal-title" id="smTitle"></div>
+    </div>
+    <div class="modal-body">
+      <div class="op-bar-wrap">
+        <div class="op-bar-label">
+          <span>Progress</span>
+          <strong id="smProgressLabel"></strong>
+        </div>
+        <div class="op-bar"><div class="op-bar-fill" id="smProgressFill" style="width:0%"></div></div>
+        <div style="font-family:'JetBrains Mono',monospace;font-size:0.7rem;color:var(--ink-soft);margin-top:6px;" id="smProgressSub"></div>
+      </div>
+    </div>
+  </div>
 </div>
 
 <script>
 const MOVIES = [{"title": "1922", "type": "Movie", "status": "Already Seen", "rating": "7 - Good", "genres": "Crime, Drama, Horror", "dateWatched": "", "runtime": "1h 42m", "director": "Zak Hilditch", "released": "2017-10-20", "metacritic": 70, "country": "Canada", "ageRating": "Unknown", "url": "https://trakt.tv/movies/1922-2017"}, {"title": "17 Again", "type": "Movie", "status": "Already Seen", "rating": "6 - Fine", "genres": "Comedy, Drama, Fantasy, Romance", "dateWatched": "2026-02-27", "runtime": "1h 42m", "director": "Burr Steers", "released": "2009-04-17", "metacritic": 48, "country": "United States", "ageRating": "PG-13", "url": "https://trakt.tv/movies/17-again-2009"}, {"title": "2 Fast 2 Furious", "type": "Movie", "status": "Already Seen", "rating": "8 - Great", "genres": "Action, Crime, Thriller", "dateWatched": "", "runtime": "1h 48m", "director": "John Singleton", "released": "2003-06-06", "metacritic": 38, "country": "United States", "ageRating": "PG-13", "url": "https://trakt.tv/movies/2-fast-2-furious-2003"}, {"title": "300", "type": "Movie", "status": "Already Seen", "rating": "8 - Great", "genres": "Action, Adventure, War", "dateWatched": "2026-03-23", "runtime": "1h 56m", "director": "Martin Walters", "released": "2007-03-09", "metacritic": 52, "country": "United States", "ageRating": "R", "url": "https://trakt.tv/movies/300-2007"}, {"title": "8 Mile", "type": "Movie", "status": "Already Seen", "rating": "8 - Great", "genres": "Drama, Music", "dateWatched": "", "runtime": "1h 51m", "director": "Curtis Hanson", "released": "2025-01-05", "metacritic": 77, "country": "United States", "ageRating": "R", "url": "https://trakt.tv/movies/8-mile-2002"}, {"title": "8 Minutes", "type": "Movie", "status": "Already Seen", "rating": "8 - Great", "genres": "Drama, Sci-Fi", "dateWatched": "", "runtime": "13m", "director": "Giorgi Gogichaishvili", "released": "2017-09-25", "metacritic": null, "country": "Georgia", "ageRating": "Unknown", "url": "https://trakt.tv/movies/8-minutes-2017"}, {"title": "A Bronx Tale", "type": "Movie", "status": "Already Seen", "rating": "9 - Excellent", "genres": "Crime, Drama", "dateWatched": "", "runtime": "2h 1m", "director": "Robert De Niro", "released": "1993-10-01", "metacritic": 80, "country": "United States", "ageRating": "R", "url": "https://trakt.tv/movies/a-bronx-tale-1993"}, {"title": "A Minecraft Movie", "type": "Movie", "status": "Already Seen", "rating": "7 - Good", "genres": "Action, Adventure, Comedy, Family, Fantasy", "dateWatched": "2025-07-12", "runtime": "1h 41m", "director": "Jared Hess", "released": "2025-04-04", "metacritic": 45, "country": "United States", "ageRating": "PG", "url": "https://trakt.tv/movies/a-minecraft-movie-2025"}, {"title": "Accepted", "type": "Movie", "status": "Already Seen", "rating": "7 - Good", "genres": "Comedy", "dateWatched": "", "runtime": "1h 33m", "director": "Steve Pink", "released": "2006-08-18", "metacritic": 47, "country": "United States", "ageRating": "PG-13", "url": "https://trakt.tv/movies/accepted-2006"}, {"title": "Ace Ventura: Pet Detective", "type": "Movie", "status": "Already Seen", "rating": "8 - Great", "genres": "Crime, Mystery, Comedy", "dateWatched": "", "runtime": "1h 26m", "director": "Tom Shadyac", "released": "1994-02-04", "metacritic": 37, "country": "United States", "ageRating": "PG-13", "url": "https://trakt.tv/movies/ace-ventura-pet-detective-1994"}, {"title": "Ace Ventura: When Nature Calls", "type": "Movie", "status": "Already Seen", "rating": "8 - Great", "genres": "Adventure, Comedy, Crime", "dateWatched": "", "runtime": "1h 30m", "director": "Steve Oedekerk", "released": "1995-11-10", "metacritic": 43, "country": "United States", "ageRating": "PG-13", "url": "https://trakt.tv/movies/ace-ventura-when-nature-calls-1995"}, {"title": "Aladdin", "type": "Movie", "status": "Already Seen", "rating": "9 - Excellent", "genres": "Adventure, Animation, Fantasy, Romance, Family, Musical", "dateWatched": "", "runtime": "1h 31m", "director": "Ron Clements", "released": "1992-11-25", "metacritic": 86, "country": "United States", "ageRating": "G", "url": "https://trakt.tv/movies/aladdin-1992"}, {"title": "Aladdin", "type": "Movie", "status": "Already Seen", "rating": "8 - Great", "genres": "Romance, Adventure, Fantasy, Family, Musical", "dateWatched": "", "runtime": "2h 7m", "director": "Guy Ritchie", "released": "2019-05-24", "metacritic": 53, "country": "United States", "ageRating": "PG", "url": "https://trakt.tv/movies/aladdin-2019"}, {"title": "Alexander", "type": "Movie", "status": "Already Seen", "rating": "7 - Good", "genres": "Action, Adventure, Drama, History, Romance, War", "dateWatched": "2026-05-08", "runtime": "2h 56m", "director": "Oliver Stone", "released": "2004-11-24", "metacritic": 40, "country": "United States", "ageRating": "R", "url": "https://trakt.tv/movies/alexander-2004"}, {"title": "Alien", "type": "Movie", "status": "Watchlist", "rating": "", "genres": "Horror, Science-Fiction", "dateWatched": "", "runtime": "1h 57m", "director": "Ridley Scott", "released": "1979-05-25", "metacritic": 89, "country": "United States", "ageRating": "R", "url": "https://trakt.tv/movies/alien-1979"}, {"title": "Alien: Romulus", "type": "Movie", "status": "Already Seen", "rating": "8 - Great", "genres": "Horror, Sci-Fi", "dateWatched": "", "runtime": "1h 59m", "director": "Fede Álvarez", "released": "2024-08-16", "metacritic": 64, "country": "United States", "ageRating": "R", "url": "https://trakt.tv/movies/alien-romulus-2024"}, {"title": "Armageddon", "type": "Movie", "status": "Already Seen", "rating": "8 - Great", "genres": "Action, Adventure, Sci-Fi, Thriller", "dateWatched": "", "runtime": "2h 31m", "director": "Michael Bay", "released": "1998-07-01", "metacritic": 42, "country": "United States", "ageRating": "PG-13", "url": "https://trakt.tv/movies/armageddon-1998"}, {"title": "Arrival", "type": "Movie", "status": "Already Seen", "rating": "8 - Great", "genres": "Drama, Mystery, Sci-Fi", "dateWatched": "2026-01-25", "runtime": "1h 56m", "director": "Denis Villeneuve", "released": "2016-11-11", "metacritic": 81, "country": "United States", "ageRating": "PG-13", "url": "https://trakt.tv/movies/arrival-2016"}, {"title": "Assassin's Creed", "type": "Movie", "status": "Already Seen", "rating": "6 - Fine", "genres": "Action, Adventure, Sci-Fi", "dateWatched": "2026-03-25", "runtime": "1h 56m", "director": "Justin Kurzel", "released": "2016-12-21", "metacritic": 36, "country": "France", "ageRating": "PG-13", "url": "https://trakt.tv/movies/assassin-s-creed-2016"}, {"title": "Attack on Titan", "type": "Anime", "status": "Already Seen", "rating": "8 - Great", "genres": "Action, Adventure, Anime, Fantasy", "dateWatched": "", "runtime": "1d 10h 47m / (87ep)", "director": "Production I.G", "released": "2013-04-06", "metacritic": null, "country": "Japan", "ageRating": "TV-MA", "url": "https://trakt.tv/shows/attack-on-titan"}, {"title": "Backrooms", "type": "Movie", "status": "Already Seen", "rating": "7 - Good", "genres": "Science-Fiction, Horror, Mystery", "dateWatched": "2026-06-05", "runtime": "1h 45m", "director": "Kane Parsons", "released": "2026-05-29", "metacritic": 77, "country": "United States", "ageRating": "R", "url": "https://trakt.tv/movies/backrooms-2026"}, {"title": "Barbarian", "type": "Movie", "status": "Already Seen", "rating": "5 - Average", "genres": "Horror, Thriller", "dateWatched": "", "runtime": "1h 43m", "director": "Zach Cregger", "released": "2022-09-09", "metacritic": 78, "country": "United States", "ageRating": "R", "url": "https://trakt.tv/movies/barbarian-2022"}, {"title": "Bohemian Rhapsody", "type": "Movie", "status": "Already Seen", "rating": "9 - Excellent", "genres": "Drama, Music", "dateWatched": "", "runtime": "2h 15m", "director": "Bryan Singer", "released": "2018-11-02", "metacritic": 49, "country": "United States", "ageRating": "PG-13", "url": "https://trakt.tv/movies/bohemian-rhapsody-2018"}, {"title": "Broker", "type": "Movie", "status": "Already Seen", "rating": "7 - Good", "genres": "Comedy, Crime, Drama", "dateWatched": "", "runtime": "2h 9m", "director": "Hirokazu Kore-eda", "released": "2022-06-08", "metacritic": 77, "country": "South Korea", "ageRating": "R", "url": "https://trakt.tv/movies/broker-2022"}, {"title": "Cars", "type": "Movie", "status": "Already Seen", "rating": "8 - Great", "genres": "Adventure, Animation, Comedy, Family", "dateWatched": "2026-05-20", "runtime": "1h 57m", "director": "John Lasseter", "released": "2006-06-09", "metacritic": 73, "country": "United States", "ageRating": "G", "url": "https://trakt.tv/movies/cars-2006"}, {"title": "Cars 2", "type": "Movie", "status": "Already Seen", "rating": "9 - Excellent", "genres": "Adventure, Animation, Comedy, Family", "dateWatched": "2026-05-25", "runtime": "1h 46m", "director": "John Lasseter", "released": "2011-06-24", "metacritic": 57, "country": "United States", "ageRating": "G", "url": "https://trakt.tv/movies/cars-2-2011"}, {"title": "Cars 3", "type": "Movie", "status": "Already Seen", "rating": "8 - Great", "genres": "Comedy, Adventure, Animation, Family, Drama", "dateWatched": "2026-05-25", "runtime": "1h 42m", "director": "Brian Fee", "released": "2017-06-16", "metacritic": 59, "country": "United States", "ageRating": "G", "url": "https://trakt.tv/movies/cars-3-2017"}, {"title": "Chainsaw Man - The Movie: Reze Arc", "type": "Movie", "status": "Already Seen", "rating": "6 - Fine", "genres": "Action, Anime, Fantasy, Romance", "dateWatched": "2025-11-03", "runtime": "1h 40m", "director": "Tatsuya Yoshihara", "released": "2025-09-19", "metacritic": 71, "country": "Japan", "ageRating": "R", "url": "https://trakt.tv/movies/chainsaw-man-the-movie-reze-arc-2025"}, {"title": "Charlie and the Chocolate Factory", "type": "Movie", "status": "Already Seen", "rating": "9 - Excellent", "genres": "Adventure, Comedy, Family, Fantasy", "dateWatched": "", "runtime": "1h 55m", "director": "Tim Burton", "released": "2005-07-15", "metacritic": 72, "country": "United States", "ageRating": "PG", "url": "https://trakt.tv/movies/charlie-and-the-chocolate-factory-2005"}, {"title": "Coherence", "type": "Movie", "status": "Already Seen", "rating": "7 - Good", "genres": "Science-Fiction, Thriller", "dateWatched": "2026-05-06", "runtime": "1h 29m", "director": "James Ward Byrkit", "released": "2014-08-06", "metacritic": 65, "country": "United States", "ageRating": "NR", "url": "https://trakt.tv/movies/coherence-2014"}, {"title": "Conjuring", "type": "Movie", "status": "Already Seen", "rating": "8 - Great", "genres": "Horror", "dateWatched": "2025-09-06", "runtime": "1m", "director": "Georges Méliès", "released": "1896-06-15", "metacritic": null, "country": "France", "ageRating": "Unknown", "url": "https://trakt.tv/movies/conjuring-1896"}, {"title": "Deck the Halls", "type": "Movie", "status": "Already Seen", "rating": "5 - Average", "genres": "Comedy, Family, Holiday", "dateWatched": "2025-10-24", "runtime": "1h 33m", "director": "John Whitesell", "released": "2006-11-22", "metacritic": 28, "country": "United States", "ageRating": "PG", "url": "https://trakt.tv/movies/deck-the-halls-2006"}, {"title": "Despicable Me", "type": "Movie", "status": "Already Seen", "rating": "8 - Great", "genres": "Animation, Family, Comedy, Science-Fiction, Crime", "dateWatched": "", "runtime": "1h 35m", "director": "Pierre Coffin", "released": "2010-07-09", "metacritic": 72, "country": "United States", "ageRating": "PG", "url": "https://trakt.tv/movies/despicable-me-2010"}, {"title": "Despicable Me 2", "type": "Movie", "status": "Already Seen", "rating": "8 - Great", "genres": "Animation, Comedy, Family", "dateWatched": "", "runtime": "1h 38m", "director": "Pierre Coffin", "released": "2013-07-03", "metacritic": 62, "country": "United States", "ageRating": "PG", "url": "https://trakt.tv/movies/despicable-me-2-2013"}, {"title": "Despicable Me 3", "type": "Movie", "status": "Already Seen", "rating": "8 - Great", "genres": "Animation, Comedy, Action, Family, Adventure", "dateWatched": "", "runtime": "1h 30m", "director": "Kyle Balda", "released": "2017-06-30", "metacritic": 49, "country": "United States", "ageRating": "PG", "url": "https://trakt.tv/movies/despicable-me-3-2017"}, {"title": "Despicable Me 4", "type": "Movie", "status": "Already Seen", "rating": "8 - Great", "genres": "Animation, Family, Comedy, Superhero, Science-Fiction, Action", "dateWatched": "", "runtime": "1h 34m", "director": "Chris Renaud", "released": "2024-07-03", "metacritic": 52, "country": "United States", "ageRating": "PG", "url": "https://trakt.tv/movies/despicable-me-4-2024"}, {"title": "Dracula Untold", "type": "Movie", "status": "Already Seen", "rating": "7 - Good", "genres": "Action, Fantasy, Horror", "dateWatched": "", "runtime": "1h 32m", "director": "Gary Shore", "released": "2014-10-03", "metacritic": 40, "country": "United States", "ageRating": "PG-13", "url": "https://trakt.tv/movies/dracula-untold-2014"}, {"title": "Dumb and Dumber", "type": "Movie", "status": "Already Seen", "rating": "8 - Great", "genres": "Comedy", "dateWatched": "", "runtime": "1h 47m", "director": "Peter Farrelly", "released": "1994-12-16", "metacritic": 41, "country": "United States", "ageRating": "PG-13", "url": "https://trakt.tv/movies/dumb-and-dumber-1994"}, {"title": "Dumb and Dumber To", "type": "Movie", "status": "Already Seen", "rating": "8 - Great", "genres": "Comedy", "dateWatched": "", "runtime": "1h 50m", "director": "Bobby Farrelly", "released": "2014-11-14", "metacritic": 36, "country": "United States", "ageRating": "PG-13", "url": "https://trakt.tv/movies/dumb-and-dumber-to-2014"}, {"title": "Dune", "type": "Movie", "status": "Watchlist", "rating": "", "genres": "Science-Fiction, Adventure", "dateWatched": "", "runtime": "2h 35m", "director": "Denis Villeneuve", "released": "2021-10-21", "metacritic": 74, "country": "United States", "ageRating": "PG-13", "url": "https://trakt.tv/movies/dune-2021"}, {"title": "Dune: Part Three", "type": "Movie", "status": "Watchlist", "rating": "", "genres": "Science-Fiction, Adventure", "dateWatched": "", "runtime": "", "director": "Denis Villeneuve", "released": "2026-12-18", "metacritic": null, "country": "United States", "ageRating": "", "url": "https://trakt.tv/movies/dune-part-three-2026"}, {"title": "Dune: Part Two", "type": "Movie", "status": "Watchlist", "rating": "", "genres": "Science-Fiction, Adventure, Romance", "dateWatched": "", "runtime": "2h 47m", "director": "Denis Villeneuve", "released": "2024-03-01", "metacritic": 79, "country": "United States", "ageRating": "PG-13", "url": "https://trakt.tv/movies/dune-part-two-2024"}, {"title": "Eddie the Eagle", "type": "Movie", "status": "Watchlist", "rating": "", "genres": "Comedy, History, Drama, Adventure", "dateWatched": "", "runtime": "1h 46m", "director": "Dexter Fletcher", "released": "2016-02-26", "metacritic": 54, "country": "United States", "ageRating": "PG-13", "url": "https://trakt.tv/movies/eddie-the-eagle-2016"}, {"title": "EuroTrip", "type": "Movie", "status": "Already Seen", "rating": "7 - Good", "genres": "Comedy", "dateWatched": "", "runtime": "1h 32m", "director": "Jeff Schaffer", "released": "2004-02-20", "metacritic": 45, "country": "United States", "ageRating": "R", "url": "https://trakt.tv/movies/eurotrip-2004"}, {"title": "Fifty Shades of Grey", "type": "Movie", "status": "Already Seen", "rating": "8 - Great", "genres": "Drama, Romance, Thriller", "dateWatched": "", "runtime": "2h 5m", "director": "Sam Taylor-Johnson", "released": "2015-02-13", "metacritic": 46, "country": "United States", "ageRating": "R", "url": "https://trakt.tv/movies/fifty-shades-of-grey-2015"}, {"title": "Forrest Gump", "type": "Movie", "status": "Already Seen", "rating": "7 - Good", "genres": "Comedy, Drama, Romance", "dateWatched": "", "runtime": "2h 22m", "director": "Robert Zemeckis", "released": "1994-07-06", "metacritic": 82, "country": "United States", "ageRating": "PG-13", "url": "https://trakt.tv/movies/forrest-gump-1994"}, {"title": "Frankenstein", "type": "Movie", "status": "Already Seen", "rating": "9 - Excellent", "genres": "Drama, Fantasy, Horror", "dateWatched": "2025-11-16", "runtime": "2h 30m", "director": "Guillermo del Toro", "released": "2025-10-17", "metacritic": 78, "country": "United States", "ageRating": "R", "url": "https://trakt.tv/movies/frankenstein-2025"}, {"title": "Frozen", "type": "Movie", "status": "Already Seen", "rating": "8 - Great", "genres": "Adventure, Animation, Family, Musical, Fantasy", "dateWatched": "", "runtime": "1h 42m", "director": "Chris Buck", "released": "2013-11-27", "metacritic": 75, "country": "United States", "ageRating": "PG", "url": "https://trakt.tv/movies/frozen-2013"}, {"title": "Frozen II", "type": "Movie", "status": "Already Seen", "rating": "8 - Great", "genres": "Animation, Family, Adventure, Comedy, Fantasy, Musical", "dateWatched": "", "runtime": "1h 43m", "director": "Jennifer Lee", "released": "2019-11-22", "metacritic": 64, "country": "United States", "ageRating": "PG", "url": "https://trakt.tv/movies/frozen-ii-2019"}, {"title": "Gladiator", "type": "Movie", "status": "Already Seen", "rating": "8 - Great", "genres": "Action, Adventure, Drama", "dateWatched": "2026-03-19", "runtime": "2h 35m", "director": "Ridley Scott", "released": "2000-05-05", "metacritic": 67, "country": "United States", "ageRating": "R", "url": "https://trakt.tv/movies/gladiator-2000"}, {"title": "Gladiator II", "type": "Movie", "status": "Already Seen", "rating": "8 - Great", "genres": "Action, Adventure, Drama", "dateWatched": "2026-03-20", "runtime": "2h 28m", "director": "Ridley Scott", "released": "2024-11-22", "metacritic": 64, "country": "United States", "ageRating": "R", "url": "https://trakt.tv/movies/gladiator-ii-2024"}, {"title": "Glass Onion: A Knives Out Mystery", "type": "Movie", "status": "Watchlist", "rating": "", "genres": "Comedy, Crime, Mystery", "dateWatched": "", "runtime": "2h 20m", "director": "Rian Johnson", "released": "2022-11-23", "metacritic": 81, "country": "United States", "ageRating": "PG-13", "url": "https://trakt.tv/movies/glass-onion-a-knives-out-mystery-2022"}, {"title": "God Loves Caviar", "type": "Movie", "status": "Already Seen", "rating": "5 - Average", "genres": "Adventure, History", "dateWatched": "2025-06-30", "runtime": "1h 39m", "director": "Yannis Smaragdis", "released": "2012-10-11", "metacritic": null, "country": "Greece", "ageRating": "Unknown", "url": "https://trakt.tv/movies/god-loves-caviar-2012"}, {"title": "Hacksaw Ridge", "type": "Movie", "status": "Already Seen", "rating": "7 - Good", "genres": "Drama, History, War", "dateWatched": "", "runtime": "2h 19m", "director": "Mel Gibson", "released": "2016-10-07", "metacritic": 71, "country": "Australia", "ageRating": "R", "url": "https://trakt.tv/movies/hacksaw-ridge-2016"}, {"title": "Hereditary", "type": "Movie", "status": "Already Seen", "rating": "5 - Average", "genres": "Horror, Mystery, Thriller", "dateWatched": "", "runtime": "2h 8m", "director": "Ari Aster", "released": "2018-06-08", "metacritic": 87, "country": "United States", "ageRating": "R", "url": "https://trakt.tv/movies/hereditary-2018"}, {"title": "How High", "type": "Movie", "status": "Already Seen", "rating": "8 - Great", "genres": "Comedy", "dateWatched": "", "runtime": "1h 33m", "director": "Jesse Dylan", "released": "2001-12-21", "metacritic": 29, "country": "United States", "ageRating": "R", "url": "https://trakt.tv/movies/how-high-2001"}, {"title": "How the Grinch Stole Christmas", "type": "Movie", "status": "Already Seen", "rating": "8 - Great", "genres": "Comedy, Family, Fantasy, Holiday", "dateWatched": "", "runtime": "1h 45m", "director": "Ron Howard", "released": "2000-11-17", "metacritic": 46, "country": "United States", "ageRating": "PG", "url": "https://trakt.tv/movies/how-the-grinch-stole-christmas-2000"}, {"title": "How to Train Your Dragon", "type": "Movie", "status": "Already Seen", "rating": "7 - Good", "genres": "Adventure, Animation, Fantasy, Family", "dateWatched": "2026-05-28", "runtime": "1h 38m", "director": "Chris Sanders", "released": "2010-03-26", "metacritic": 75, "country": "United States", "ageRating": "PG", "url": "https://trakt.tv/movies/how-to-train-your-dragon-2010"}, {"title": "How to Train Your Dragon 2", "type": "Movie", "status": "Already Seen", "rating": "8 - Great", "genres": "Action, Adventure, Animation, Fantasy, Family", "dateWatched": "2026-05-29", "runtime": "1h 42m", "director": "Dean DeBlois", "released": "2014-06-13", "metacritic": 77, "country": "United States", "ageRating": "PG", "url": "https://trakt.tv/movies/how-to-train-your-dragon-2-2014"}, {"title": "How to Train Your Dragon: The Hidden World", "type": "Movie", "status": "Watchlist", "rating": "", "genres": "Adventure, Animation, Family", "dateWatched": "", "runtime": "1h 44m", "director": "Dean DeBlois", "released": "2019-02-22", "metacritic": 71, "country": "United States", "ageRating": "PG", "url": "https://trakt.tv/movies/how-to-train-your-dragon-the-hidden-world-2019"}, {"title": "Howl's Moving Castle", "type": "Movie", "status": "Already Seen", "rating": "10 - Masterpiece", "genres": "Adventure, Anime, Fantasy", "dateWatched": "", "runtime": "1h 59m", "director": "Hayao Miyazaki", "released": "2004-11-19", "metacritic": 82, "country": "Japan", "ageRating": "PG", "url": "https://trakt.tv/movies/howl-s-moving-castle-2004"}, {"title": "Immortals", "type": "Movie", "status": "Already Seen", "rating": "6 - Fine", "genres": "Action, Drama, Fantasy", "dateWatched": "2026-05-20", "runtime": "1h 50m", "director": "Garrett Warren", "released": "2011-11-11", "metacritic": 46, "country": "United States", "ageRating": "R", "url": "https://trakt.tv/movies/immortals-2011"}, {"title": "Incantation", "type": "Movie", "status": "Already Seen", "rating": "8 - Great", "genres": "Horror", "dateWatched": "", "runtime": "1h 51m", "director": "Kevin Ko", "released": "2022-03-18", "metacritic": null, "country": "Taiwan", "ageRating": "Unknown", "url": "https://trakt.tv/movies/incantation-2022"}, {"title": "Inception", "type": "Movie", "status": "Already Seen", "rating": "6 - Fine", "genres": "Action, Adventure, Sci-Fi", "dateWatched": "", "runtime": "2h 28m", "director": "Christopher Nolan", "released": "2010-07-16", "metacritic": 74, "country": "United States", "ageRating": "PG-13", "url": "https://trakt.tv/movies/inception-2010"}, {"title": "Insidious: The Red Door", "type": "Movie", "status": "Already Seen", "rating": "6 - Fine", "genres": "Horror, Thriller", "dateWatched": "", "runtime": "1h 47m", "director": "Patrick Wilson", "released": "2023-07-07", "metacritic": 45, "country": "United States", "ageRating": "PG-13", "url": "https://trakt.tv/movies/insidious-the-red-door-2023"}, {"title": "Interstellar", "type": "Movie", "status": "Already Seen", "rating": "9 - Excellent", "genres": "Adventure, Drama, Sci-Fi", "dateWatched": "", "runtime": "2h 49m", "director": "Christopher Nolan", "released": "2014-11-05", "metacritic": 74, "country": "United States", "ageRating": "PG-13", "url": "https://trakt.tv/movies/interstellar-2014"}, {"title": "Journey to the Center of the Earth", "type": "Movie", "status": "Watchlist", "rating": "", "genres": "Action, Adventure, Comedy, Science-Fiction, Family", "dateWatched": "", "runtime": "1h 33m", "director": "Eric Brevig", "released": "2008-07-11", "metacritic": 57, "country": "United States", "ageRating": "PG", "url": "https://trakt.tv/movies/journey-to-the-center-of-the-earth-2008-07-11"}, {"title": "Jumanji", "type": "Movie", "status": "Already Seen", "rating": "8 - Great", "genres": "Adventure, Family, Fantasy", "dateWatched": "2026-03-28", "runtime": "1h 44m", "director": "Joe Johnston", "released": "1995-12-15", "metacritic": 41, "country": "United States", "ageRating": "PG", "url": "https://trakt.tv/movies/jumanji-1995"}, {"title": "Jumanji 3", "type": "Movie", "status": "Watchlist", "rating": "", "genres": "Fantasy, Adventure, Comedy", "dateWatched": "", "runtime": "", "director": "Jake Kasdan", "released": "2026-12-25", "metacritic": null, "country": "United States", "ageRating": "", "url": "https://trakt.tv/movies/jumanji-3-2026"}, {"title": "Jumanji: The Next Level", "type": "Movie", "status": "Watchlist", "rating": "", "genres": "Adventure, Comedy, Fantasy", "dateWatched": "", "runtime": "2h 3m", "director": "Jake Kasdan", "released": "2019-12-13", "metacritic": 58, "country": "United States", "ageRating": "PG-13", "url": "https://trakt.tv/movies/jumanji-the-next-level-2019"}, {"title": "Jumanji: Welcome to the Jungle", "type": "Movie", "status": "Already Seen", "rating": "7 - Good", "genres": "Action, Adventure, Comedy, Fantasy", "dateWatched": "2026-03-28", "runtime": "1h 59m", "director": "Jake Kasdan", "released": "2017-12-20", "metacritic": 58, "country": "United States", "ageRating": "PG-13", "url": "https://trakt.tv/movies/jumanji-welcome-to-the-jungle-2017"}, {"title": "Kingdom of Heaven", "type": "Movie", "status": "Already Seen", "rating": "9 - Excellent", "genres": "Action, Adventure, Drama, History, War", "dateWatched": "", "runtime": "2h 24m", "director": "Ridley Scott", "released": "2005-05-06", "metacritic": 63, "country": "United States", "ageRating": "R", "url": "https://trakt.tv/movies/kingdom-of-heaven-2005"}, {"title": "Knives Out", "type": "Movie", "status": "Watchlist", "rating": "", "genres": "Comedy, Crime, Mystery", "dateWatched": "", "runtime": "2h 11m", "director": "Rian Johnson", "released": "2019-11-27", "metacritic": 82, "country": "United States", "ageRating": "PG-13", "url": "https://trakt.tv/movies/knives-out-2019"}, {"title": "Kung Fu Panda", "type": "Movie", "status": "Already Seen", "rating": "9 - Excellent", "genres": "Action, Adventure, Animation, Comedy, Family", "dateWatched": "", "runtime": "1h 30m", "director": "Mark Osborne", "released": "2008-06-06", "metacritic": 74, "country": "United States", "ageRating": "PG", "url": "https://trakt.tv/movies/kung-fu-panda-2008"}, {"title": "Kung Fu Panda 2", "type": "Movie", "status": "Already Seen", "rating": "9 - Excellent", "genres": "Animation, Comedy, Family", "dateWatched": "", "runtime": "1h 31m", "director": "Jennifer Yuh Nelson", "released": "2011-05-26", "metacritic": 67, "country": "United States", "ageRating": "PG", "url": "https://trakt.tv/movies/kung-fu-panda-2-2011"}, {"title": "Kung Fu Panda 3", "type": "Movie", "status": "Already Seen", "rating": "7 - Good", "genres": "Action, Adventure, Animation, Comedy, Family", "dateWatched": "", "runtime": "1h 35m", "director": "Jennifer Yuh Nelson", "released": "2016-01-29", "metacritic": 66, "country": "United States", "ageRating": "PG", "url": "https://trakt.tv/movies/kung-fu-panda-3-2016"}, {"title": "Kung Fu Panda 4", "type": "Movie", "status": "Already Seen", "rating": "7 - Good", "genres": "Action, Adventure, Animation, Comedy, Family, Fantasy", "dateWatched": "", "runtime": "1h 34m", "director": "Mike Mitchell", "released": "2024-03-08", "metacritic": 54, "country": "United States", "ageRating": "PG", "url": "https://trakt.tv/movies/kung-fu-panda-4-2024"}, {"title": "Madagascar", "type": "Movie", "status": "Already Seen", "rating": "8 - Great", "genres": "Animation, Family, Adventure, Comedy", "dateWatched": "", "runtime": "1h 26m", "director": "Tom McGrath", "released": "2005-05-27", "metacritic": 57, "country": "United States", "ageRating": "PG", "url": "https://trakt.tv/movies/madagascar-2005"}, {"title": "Madagascar 3: Europe's Most Wanted", "type": "Movie", "status": "Already Seen", "rating": "8 - Great", "genres": "Animation, Family, Comedy, Adventure", "dateWatched": "", "runtime": "1h 33m", "director": "Conrad Vernon", "released": "2012-06-08", "metacritic": 60, "country": "United States", "ageRating": "PG", "url": "https://trakt.tv/movies/madagascar-3-europe-s-most-wanted-2012"}, {"title": "Madagascar: Escape 2 Africa", "type": "Movie", "status": "Already Seen", "rating": "8 - Great", "genres": "Animation, Family, Comedy, Adventure", "dateWatched": "", "runtime": "1h 29m", "director": "Tom McGrath", "released": "2008-11-06", "metacritic": 61, "country": "United States", "ageRating": "PG", "url": "https://trakt.tv/movies/madagascar-escape-2-africa-2008"}, {"title": "Memento", "type": "Movie", "status": "Watchlist", "rating": "", "genres": "Mystery, Thriller", "dateWatched": "", "runtime": "1h 53m", "director": "Christopher Nolan", "released": "2001-03-16", "metacritic": 83, "country": "United States", "ageRating": "R", "url": "https://trakt.tv/movies/memento-2000"}, {"title": "Mickey 17", "type": "Movie", "status": "Already Seen", "rating": "8 - Great", "genres": "Adventure, Comedy, Sci-Fi", "dateWatched": "", "runtime": "2h 17m", "director": "Bong Joon Ho", "released": "2025-03-07", "metacritic": 72, "country": "United Kingdom", "ageRating": "R", "url": "https://trakt.tv/movies/mickey-17-2025"}, {"title": "Minions", "type": "Movie", "status": "Already Seen", "rating": "8 - Great", "genres": "Adventure, Animation, Comedy, Family", "dateWatched": "", "runtime": "1h 31m", "director": "Pierre Coffin", "released": "2015-07-10", "metacritic": 56, "country": "United States", "ageRating": "PG", "url": "https://trakt.tv/movies/minions-2015"}, {"title": "Minions & Monsters", "type": "Movie", "status": "Watchlist", "rating": "", "genres": "Animation, Comedy, Family, Adventure, Fantasy", "dateWatched": "", "runtime": "", "director": "Pierre Coffin", "released": "2026-07-01", "metacritic": null, "country": "United States", "ageRating": "Unknown", "url": "https://trakt.tv/movies/minions-monsters-2026"}, {"title": "Moana 2", "type": "Movie", "status": "Already Seen", "rating": "7 - Good", "genres": "Adventure, Animation, Comedy, Family, Fantasy, Musical", "dateWatched": "", "runtime": "1h 40m", "director": "Dana Ledoux Miller", "released": "2024-11-27", "metacritic": 58, "country": "United States", "ageRating": "PG", "url": "https://trakt.tv/movies/moana-2-2024"}, {"title": "Moneyball", "type": "Movie", "status": "Already Seen", "rating": "8 - Great", "genres": "Drama", "dateWatched": "2025-08-04", "runtime": "2h 14m", "director": "Bennett Miller", "released": "2011-09-23", "metacritic": 87, "country": "United States", "ageRating": "PG-13", "url": "https://trakt.tv/movies/moneyball-2011"}, {"title": "Mortal Kombat", "type": "Movie", "status": "Watchlist", "rating": "", "genres": "Fantasy, Action, Adventure", "dateWatched": "", "runtime": "1h 50m", "director": "Simon McQuoid", "released": "2021-04-23", "metacritic": 44, "country": "United States", "ageRating": "R", "url": "https://trakt.tv/movies/mortal-kombat-2021"}, {"title": "Mortal Kombat II", "type": "Movie", "status": "Watchlist", "rating": "", "genres": "Action, Fantasy, Adventure", "dateWatched": "", "runtime": "1h 56m", "director": "Simon McQuoid", "released": "2026-05-08", "metacritic": null, "country": "United States", "ageRating": "R", "url": "https://trakt.tv/movies/mortal-kombat-ii-2026"}, {"title": "mother!", "type": "Movie", "status": "Watchlist", "rating": "", "genres": "Drama, Horror", "dateWatched": "", "runtime": "2h 1m", "director": "Darren Aronofsky", "released": "2017-09-15", "metacritic": 76, "country": "United States", "ageRating": "R", "url": "https://trakt.tv/movies/mother-2017"}, {"title": "Mr. Nobody", "type": "Movie", "status": "Watchlist", "rating": "", "genres": "Drama, Romance, Sci-Fi", "dateWatched": "", "runtime": "2h 21m", "director": "Jaco Van Dormael", "released": "2009-09-18", "metacritic": 63, "country": "Canada", "ageRating": "R", "url": "https://trakt.tv/movies/mr-nobody-2009"}, {"title": "Mr. Popper's Penguins", "type": "Movie", "status": "Watchlist", "rating": "", "genres": "Comedy, Family", "dateWatched": "", "runtime": "1h 34m", "director": "Mark Waters", "released": "2011-06-17", "metacritic": 53, "country": "United States", "ageRating": "PG", "url": "https://trakt.tv/movies/mr-popper-s-penguins-2011"}, {"title": "Mufasa: The Lion King", "type": "Movie", "status": "Already Seen", "rating": "8 - Great", "genres": "Adventure, Animation, Family, Musical", "dateWatched": "2026-01-04", "runtime": "1h 58m", "director": "Barry Jenkins", "released": "2024-12-20", "metacritic": 56, "country": "United States", "ageRating": "PG", "url": "https://trakt.tv/movies/mufasa-the-lion-king-2024"}, {"title": "Napoleon", "type": "Movie", "status": "Watchlist", "rating": "", "genres": "History, Romance, War", "dateWatched": "", "runtime": "2h 38m", "director": "Ridley Scott", "released": "2023-11-22", "metacritic": 64, "country": "United States", "ageRating": "R", "url": "https://trakt.tv/movies/napoleon-2023"}, {"title": "Oppenheimer", "type": "Movie", "status": "Already Seen", "rating": "9 - Excellent", "genres": "Drama, History", "dateWatched": "2025-12-05", "runtime": "3h 1m", "director": "Christopher Nolan", "released": "2023-07-21", "metacritic": 90, "country": "United States", "ageRating": "R", "url": "https://trakt.tv/movies/oppenheimer-2023"}, {"title": "Pirates of the Caribbean: At World's End", "type": "Movie", "status": "Already Seen", "rating": "8 - Great", "genres": "Action, Adventure, Fantasy", "dateWatched": "2025-06-15", "runtime": "2h 49m", "director": "Gore Verbinski", "released": "2007-05-25", "metacritic": 50, "country": "United States", "ageRating": "PG-13", "url": "https://trakt.tv/movies/pirates-of-the-caribbean-at-world-s-end-2007"}, {"title": "Pirates of the Caribbean: Dead Man's Chest", "type": "Movie", "status": "Already Seen", "rating": "8 - Great", "genres": "Action, Adventure, Fantasy", "dateWatched": "2025-06-13", "runtime": "2h 31m", "director": "Gore Verbinski", "released": "2006-07-07", "metacritic": 53, "country": "United States", "ageRating": "PG-13", "url": "https://trakt.tv/movies/pirates-of-the-caribbean-dead-man-s-chest-2006"}, {"title": "Pirates of the Caribbean: Dead Men Tell No Tales", "type": "Movie", "status": "Already Seen", "rating": "9 - Excellent", "genres": "Action, Adventure, Fantasy", "dateWatched": "2025-06-17", "runtime": "2h 9m", "director": "Joachim Rønning", "released": "2017-05-26", "metacritic": 39, "country": "United States", "ageRating": "PG-13", "url": "https://trakt.tv/movies/pirates-of-the-caribbean-dead-men-tell-no-tales-2017"}, {"title": "Pirates of the Caribbean: On Stranger Tides", "type": "Movie", "status": "Already Seen", "rating": "7 - Good", "genres": "Action, Adventure, Fantasy", "dateWatched": "2025-06-16", "runtime": "2h 16m", "director": "Rob Marshall", "released": "2011-05-18", "metacritic": 45, "country": "United States", "ageRating": "PG-13", "url": "https://trakt.tv/movies/pirates-of-the-caribbean-on-stranger-tides-2011"}, {"title": "Pirates of the Caribbean: The Curse of the Black Pearl", "type": "Movie", "status": "Already Seen", "rating": "8 - Great", "genres": "Action, Adventure, Fantasy", "dateWatched": "2025-06-13", "runtime": "2h 23m", "director": "Gore Verbinski", "released": "2003-07-09", "metacritic": 63, "country": "United States", "ageRating": "PG-13", "url": "https://trakt.tv/movies/pirates-of-the-caribbean-the-curse-of-the-black-pearl-2003"}, {"title": "Priest", "type": "Movie", "status": "Watchlist", "rating": "", "genres": "Horror, Action, Fantasy", "dateWatched": "", "runtime": "1h 27m", "director": "Scott Stewart", "released": "2011-05-13", "metacritic": 41, "country": "United States", "ageRating": "PG-13", "url": "https://trakt.tv/movies/priest-2011"}, {"title": "Project Hail Mary", "type": "Movie", "status": "Already Seen", "rating": "9 - Excellent", "genres": "Science-Fiction, Adventure", "dateWatched": "2026-04-09", "runtime": "2h 37m", "director": "Phil Lord", "released": "2026-03-20", "metacritic": 77, "country": "United States", "ageRating": "PG-13", "url": "https://trakt.tv/movies/project-hail-mary-2026"}, {"title": "Puss in Boots: The Last Wish", "type": "Movie", "status": "Already Seen", "rating": "9 - Excellent", "genres": "Adventure, Animation, Comedy, Family, Fantasy", "dateWatched": "2026-01-18", "runtime": "1h 43m", "director": "Joel Crawford", "released": "2022-12-21", "metacritic": 73, "country": "United States", "ageRating": "PG", "url": "https://trakt.tv/movies/puss-in-boots-the-last-wish-2022"}, {"title": "Rosemary's Baby", "type": "Movie", "status": "Already Seen", "rating": "8 - Great", "genres": "Drama, Horror, Thriller", "dateWatched": "", "runtime": "2h 18m", "director": "Roman Polanski", "released": "1968-06-12", "metacritic": 96, "country": "United States", "ageRating": "R", "url": "https://trakt.tv/movies/rosemary-s-baby-1968"}, {"title": "Runaway Bride", "type": "Movie", "status": "Already Seen", "rating": "3 - Bad", "genres": "Comedy, Romance", "dateWatched": "", "runtime": "1h 56m", "director": "Garry Marshall", "released": "1999-07-30", "metacritic": 39, "country": "United States", "ageRating": "PG", "url": "https://trakt.tv/movies/runaway-bride-1999"}, {"title": "Sausage Party", "type": "Movie", "status": "Already Seen", "rating": "6 - Fine", "genres": "Animation, Comedy, Adventure, Fantasy", "dateWatched": "", "runtime": "1h 29m", "director": "Conrad Vernon", "released": "2016-08-12", "metacritic": 66, "country": "United States", "ageRating": "R", "url": "https://trakt.tv/movies/sausage-party-2016"}, {"title": "Saw", "type": "Movie", "status": "Already Seen", "rating": "8 - Great", "genres": "Crime, Horror, Mystery", "dateWatched": "", "runtime": "1h 43m", "director": "James Wan", "released": "2004-10-29", "metacritic": 46, "country": "United States", "ageRating": "R", "url": "https://trakt.tv/movies/saw-2004"}, {"title": "Saw II", "type": "Movie", "status": "Already Seen", "rating": "7 - Good", "genres": "Horror", "dateWatched": "", "runtime": "1h 33m", "director": "Darren Lynn Bousman", "released": "2005-10-28", "metacritic": 40, "country": "United States", "ageRating": "R", "url": "https://trakt.tv/movies/saw-ii-2005"}, {"title": "Saw X", "type": "Movie", "status": "Already Seen", "rating": "7 - Good", "genres": "Horror, Mystery", "dateWatched": "", "runtime": "1h 58m", "director": "Kevin Greutert", "released": "2023-09-29", "metacritic": 60, "country": "United States", "ageRating": "R", "url": "https://trakt.tv/movies/saw-x-2023"}, {"title": "Secret Window", "type": "Movie", "status": "Already Seen", "rating": "8 - Great", "genres": "Mystery, Thriller", "dateWatched": "2026-05-06", "runtime": "1h 36m", "director": "David Koepp", "released": "2004-03-12", "metacritic": 46, "country": "United States", "ageRating": "PG-13", "url": "https://trakt.tv/movies/secret-window-2004"}, {"title": "Shaolin Soccer", "type": "Movie", "status": "Already Seen", "rating": "7 - Good", "genres": "Action, Comedy", "dateWatched": "", "runtime": "1h 53m", "director": "Stephen Chow", "released": "2001-07-12", "metacritic": 68, "country": "Hong Kong", "ageRating": "PG", "url": "https://trakt.tv/movies/shaolin-soccer-2001"}, {"title": "Shrek", "type": "Movie", "status": "Already Seen", "rating": "8 - Great", "genres": "Adventure, Animation, Comedy, Fantasy, Family", "dateWatched": "", "runtime": "1h 30m", "director": "Andrew Adamson", "released": "2001-05-18", "metacritic": 84, "country": "United States", "ageRating": "PG", "url": "https://trakt.tv/movies/shrek-2001"}, {"title": "Shrek 2", "type": "Movie", "status": "Already Seen", "rating": "8 - Great", "genres": "Animation, Comedy, Fantasy, Family, Romance", "dateWatched": "", "runtime": "1h 32m", "director": "Andrew Adamson", "released": "2004-05-19", "metacritic": 75, "country": "United States", "ageRating": "PG", "url": "https://trakt.tv/movies/shrek-2-2004"}, {"title": "Shrek Forever After", "type": "Movie", "status": "Already Seen", "rating": "8 - Great", "genres": "Adventure, Animation, Comedy, Fantasy, Family", "dateWatched": "", "runtime": "1h 33m", "director": "Mike Mitchell", "released": "2010-05-21", "metacritic": 58, "country": "United States", "ageRating": "PG", "url": "https://trakt.tv/movies/shrek-forever-after-2010"}, {"title": "Shrek the Third", "type": "Movie", "status": "Already Seen", "rating": "8 - Great", "genres": "Adventure, Animation, Comedy, Fantasy, Family", "dateWatched": "", "runtime": "1h 33m", "director": "Chris Miller", "released": "2007-05-18", "metacritic": 58, "country": "United States", "ageRating": "PG", "url": "https://trakt.tv/movies/shrek-the-third-2007"}, {"title": "Shutter Island", "type": "Movie", "status": "Already Seen", "rating": "9 - Excellent", "genres": "Drama, Mystery, Thriller", "dateWatched": "2025-07-10", "runtime": "2h 18m", "director": "Martin Scorsese", "released": "2010-02-19", "metacritic": 63, "country": "United States", "ageRating": "R", "url": "https://trakt.tv/movies/shutter-island-2010"}, {"title": "Silver Skates", "type": "Movie", "status": "Already Seen", "rating": "8 - Great", "genres": "Adventure, Drama, Family, Romance", "dateWatched": "", "runtime": "2h 16m", "director": "Michael Lockshin", "released": "2020-12-10", "metacritic": null, "country": "Russia", "ageRating": "NR", "url": "https://trakt.tv/movies/silver-skates-2020"}, {"title": "Spider-Man: Far From Home", "type": "Movie", "status": "Already Seen", "rating": "8 - Great", "genres": "Action, Adventure, Science-Fiction, Superhero", "dateWatched": "", "runtime": "2h 9m", "director": "Jon Watts", "released": "2019-07-02", "metacritic": 69, "country": "United States", "ageRating": "PG-13", "url": "https://trakt.tv/movies/spider-man-far-from-home-2019"}, {"title": "Spider-Man: Homecoming", "type": "Movie", "status": "Already Seen", "rating": "8 - Great", "genres": "Action, Adventure, Science-Fiction, Superhero", "dateWatched": "", "runtime": "2h 13m", "director": "Jon Watts", "released": "2017-07-07", "metacritic": 73, "country": "United States", "ageRating": "PG-13", "url": "https://trakt.tv/movies/spider-man-homecoming-2017"}, {"title": "Spider-Man: No Way Home", "type": "Movie", "status": "Already Seen", "rating": "9 - Excellent", "genres": "Superhero, Action, Adventure, Science-Fiction", "dateWatched": "", "runtime": "2h 28m", "director": "Jon Watts", "released": "2021-12-17", "metacritic": 71, "country": "United States", "ageRating": "PG-13", "url": "https://trakt.tv/movies/spider-man-no-way-home-2021"}, {"title": "Tarot", "type": "Movie", "status": "Already Seen", "rating": "5 - Average", "genres": "Horror", "dateWatched": "", "runtime": "1h 32m", "director": "Spenser Cohen", "released": "2024-05-03", "metacritic": 36, "country": "United States", "ageRating": "PG-13", "url": "https://trakt.tv/movies/tarot-2024"}, {"title": "Tenet", "type": "Movie", "status": "Already Seen", "rating": "8 - Great", "genres": "Action, Thriller, Science-Fiction", "dateWatched": "2026-04-21", "runtime": "2h 30m", "director": "Christopher Nolan", "released": "2020-09-03", "metacritic": 69, "country": "United States", "ageRating": "PG-13", "url": "https://trakt.tv/movies/tenet-2020"}, {"title": "The 36th Chamber of Shaolin", "type": "Movie", "status": "Watchlist", "rating": "", "genres": "Action, Adventure", "dateWatched": "", "runtime": "1h 56m", "director": "Lau Kar-Leung", "released": "1978-02-02", "metacritic": null, "country": "Hong Kong", "ageRating": "R", "url": "https://trakt.tv/movies/the-36th-chamber-of-shaolin-1978"}, {"title": "The Angry Birds Movie", "type": "Movie", "status": "Watchlist", "rating": "", "genres": "Animation, Adventure, Comedy, Family", "dateWatched": "", "runtime": "1h 37m", "director": "Clay Kaytis", "released": "2016-05-20", "metacritic": 43, "country": "United States", "ageRating": "PG", "url": "https://trakt.tv/movies/the-angry-birds-movie-2016"}, {"title": "The Angry Birds Movie 2", "type": "Movie", "status": "Watchlist", "rating": "", "genres": "Animation, Comedy, Adventure, Family", "dateWatched": "", "runtime": "1h 37m", "director": "Thurop Van Orman", "released": "2019-08-14", "metacritic": 60, "country": "United States", "ageRating": "PG", "url": "https://trakt.tv/movies/the-angry-birds-movie-2-2019"}, {"title": "The Basketball Diaries", "type": "Movie", "status": "Watchlist", "rating": "", "genres": "Crime, Drama", "dateWatched": "", "runtime": "1h 42m", "director": "Scott Kalvert", "released": "1995-04-21", "metacritic": 46, "country": "United States", "ageRating": "R", "url": "https://trakt.tv/movies/the-basketball-diaries-1995"}, {"title": "The Blair Witch Project", "type": "Movie", "status": "Already Seen", "rating": "6 - Fine", "genres": "Horror, Mystery", "dateWatched": "", "runtime": "1h 21m", "director": "Daniel Myrick", "released": "1999-07-14", "metacritic": 80, "country": "United States", "ageRating": "R", "url": "https://trakt.tv/movies/the-blair-witch-project-1999"}, {"title": "The Chronicles of Narnia: The Lion, the Witch and the Wardrobe", "type": "Movie", "status": "Already Seen", "rating": "8 - Great", "genres": "Fantasy, Adventure, Family", "dateWatched": "", "runtime": "2h 23m", "director": "Andrew Adamson", "released": "2005-12-09", "metacritic": 75, "country": "United States", "ageRating": "PG", "url": "https://trakt.tv/movies/the-chronicles-of-narnia-the-lion-the-witch-and-the-wardrobe-2005"}, {"title": "The Conjuring", "type": "Movie", "status": "Already Seen", "rating": "8 - Great", "genres": "Horror, Thriller", "dateWatched": "", "runtime": "1h 52m", "director": "James Wan", "released": "2013-07-19", "metacritic": 68, "country": "United States", "ageRating": "R", "url": "https://trakt.tv/movies/the-conjuring-2013"}, {"title": "The Conjuring 2", "type": "Movie", "status": "Already Seen", "rating": "7 - Good", "genres": "Horror", "dateWatched": "", "runtime": "2h 14m", "director": "James Wan", "released": "2016-06-10", "metacritic": 65, "country": "United States", "ageRating": "R", "url": "https://trakt.tv/movies/the-conjuring-2-2016"}, {"title": "The Conjuring: Last Rites", "type": "Movie", "status": "Already Seen", "rating": "8 - Great", "genres": "Horror", "dateWatched": "", "runtime": "2h 16m", "director": "Michael Chaves", "released": "2025-09-05", "metacritic": 54, "country": "United States", "ageRating": "R", "url": "https://trakt.tv/movies/the-conjuring-last-rites-2025"}, {"title": "The Eagle", "type": "Movie", "status": "Watchlist", "rating": "", "genres": "Drama, Adventure", "dateWatched": "", "runtime": "1h 54m", "director": "Kevin Macdonald", "released": "2011-02-11", "metacritic": 55, "country": "United States", "ageRating": "PG-13", "url": "https://trakt.tv/movies/the-eagle-2011"}, {"title": "The Fast and the Furious", "type": "Movie", "status": "Already Seen", "rating": "9 - Excellent", "genres": "Action, Crime, Thriller", "dateWatched": "", "runtime": "1h 46m", "director": "Rob Cohen", "released": "2001-06-22", "metacritic": 58, "country": "United States", "ageRating": "PG-13", "url": "https://trakt.tv/movies/the-fast-and-the-furious-2001"}, {"title": "The Fast and the Furious: Tokyo Drift", "type": "Movie", "status": "Already Seen", "rating": "10 - Masterpiece", "genres": "Action, Crime, Drama, Thriller", "dateWatched": "", "runtime": "1h 44m", "director": "Justin Lin", "released": "2006-06-16", "metacritic": 45, "country": "United States", "ageRating": "PG-13", "url": "https://trakt.tv/movies/the-fast-and-the-furious-tokyo-drift-2006"}, {"title": "The Fault in Our Stars", "type": "Movie", "status": "Already Seen", "rating": "8 - Great", "genres": "Drama, Romance", "dateWatched": "", "runtime": "2h 6m", "director": "Josh Boone", "released": "2014-06-02", "metacritic": 69, "country": "United States", "ageRating": "PG-13", "url": "https://trakt.tv/movies/the-fault-in-our-stars-2014"}, {"title": "The Gentlemen", "type": "Movie", "status": "Watchlist", "rating": "", "genres": "Crime, Comedy", "dateWatched": "", "runtime": "1h 53m", "director": "Guy Ritchie", "released": "2020-01-01", "metacritic": null, "country": "United Kingdom", "ageRating": "R", "url": "https://trakt.tv/movies/the-gentlemen-2020"}, {"title": "The Guilty", "type": "Movie", "status": "Already Seen", "rating": "8 - Great", "genres": "Drama, Thriller", "dateWatched": "", "runtime": "1h 31m", "director": "Antoine Fuqua", "released": "2021-09-24", "metacritic": 63, "country": "United States", "ageRating": "R", "url": "https://trakt.tv/movies/the-guilty-2021"}, {"title": "The Holiday", "type": "Movie", "status": "Already Seen", "rating": "7 - Good", "genres": "Comedy, Holiday, Romance", "dateWatched": "", "runtime": "2h 16m", "director": "Nancy Meyers", "released": "2006-12-08", "metacritic": 52, "country": "United States", "ageRating": "PG-13", "url": "https://trakt.tv/movies/the-holiday-2006"}, {"title": "The Hunger Games: The Ballad of Songbirds & Snakes", "type": "Movie", "status": "Already Seen", "rating": "7 - Good", "genres": "Action, Sci-Fi", "dateWatched": "", "runtime": "2h 37m", "director": "Francis Lawrence", "released": "2023-11-17", "metacritic": 54, "country": "United States", "ageRating": "PG-13", "url": "https://trakt.tv/movies/the-hunger-games-the-ballad-of-songbirds-snakes-2023"}, {"title": "The Karate Kid", "type": "Movie", "status": "Already Seen", "rating": "8 - Great", "genres": "Action, Adventure, Drama, Family", "dateWatched": "", "runtime": "2h 20m", "director": "Harald Zwart", "released": "2010-06-11", "metacritic": 61, "country": "United States", "ageRating": "PG", "url": "https://trakt.tv/movies/the-karate-kid-2010"}, {"title": "The Land Before Time", "type": "Movie", "status": "Already Seen", "rating": "8 - Great", "genres": "Adventure, Animation, Family", "dateWatched": "2026-03-25", "runtime": "1h 9m", "director": "Don Bluth", "released": "1988-11-18", "metacritic": null, "country": "United States", "ageRating": "G", "url": "https://trakt.tv/movies/the-land-before-time-1988"}, {"title": "The Land Before Time II: The Great Valley Adventure", "type": "Movie", "status": "Already Seen", "rating": "8 - Great", "genres": "Adventure, Animation, Family", "dateWatched": "2026-03-27", "runtime": "1h 13m", "director": "Roy Allen Smith", "released": "1994-12-13", "metacritic": null, "country": "United States", "ageRating": "G", "url": "https://trakt.tv/movies/the-land-before-time-ii-the-great-valley-adventure-1994"}, {"title": "The Land Before Time III: The Time of the Great Giving", "type": "Movie", "status": "Already Seen", "rating": "8 - Great", "genres": "Adventure, Animation, Family", "dateWatched": "2026-03-27", "runtime": "1h 10m", "director": "Roy Allen Smith", "released": "1995-12-12", "metacritic": null, "country": "United States", "ageRating": "G", "url": "https://trakt.tv/movies/the-land-before-time-iii-the-time-of-the-great-giving-1995"}, {"title": "The Land Before Time IV: Journey Through the Mists", "type": "Movie", "status": "Already Seen", "rating": "7 - Good", "genres": "Adventure, Animation, Comedy, Family", "dateWatched": "2026-03-30", "runtime": "1h 14m", "director": "Roy Allen Smith", "released": "1996-12-10", "metacritic": null, "country": "United States", "ageRating": "G", "url": "https://trakt.tv/movies/the-land-before-time-iv-journey-through-the-mists-1996"}, {"title": "The Land Before Time IX: Journey to Big Water", "type": "Movie", "status": "Watchlist", "rating": "", "genres": "Adventure, Animation, Family", "dateWatched": "", "runtime": "1h 11m", "director": "Charles Grosvenor", "released": "2002-12-17", "metacritic": null, "country": "United States", "ageRating": "G", "url": "https://trakt.tv/movies/the-land-before-time-ix-journey-to-big-water-2002"}, {"title": "The Land Before Time V: The Mysterious Island", "type": "Movie", "status": "Already Seen", "rating": "8 - Great", "genres": "Adventure, Animation, Family", "dateWatched": "2026-03-30", "runtime": "1h 14m", "director": "Charles Grosvenor", "released": "1997-12-09", "metacritic": null, "country": "United States", "ageRating": "G", "url": "https://trakt.tv/movies/the-land-before-time-v-the-mysterious-island-1997"}, {"title": "The Land Before Time VI: The Secret of Saurus Rock", "type": "Movie", "status": "Watchlist", "rating": "", "genres": "Adventure, Animation, Family", "dateWatched": "", "runtime": "1h 17m", "director": "Charles Grosvenor", "released": "1998-12-01", "metacritic": null, "country": "United States", "ageRating": "G", "url": "https://trakt.tv/movies/the-land-before-time-vi-the-secret-of-saurus-rock-1998"}, {"title": "The Land Before Time VII: The Stone of Cold Fire", "type": "Movie", "status": "Watchlist", "rating": "", "genres": "Adventure, Animation, Drama, Family", "dateWatched": "", "runtime": "1h 15m", "director": "Charles Grosvenor", "released": "2000-12-05", "metacritic": null, "country": "United States", "ageRating": "G", "url": "https://trakt.tv/movies/the-land-before-time-vii-the-stone-of-cold-fire-2000"}, {"title": "The Land Before Time VIII: The Big Freeze", "type": "Movie", "status": "Watchlist", "rating": "", "genres": "Adventure, Animation, Family", "dateWatched": "", "runtime": "1h 15m", "director": "Charles Grosvenor", "released": "2001-12-04", "metacritic": null, "country": "United States", "ageRating": "G", "url": "https://trakt.tv/movies/the-land-before-time-viii-the-big-freeze-2001"}, {"title": "The Land Before Time X: The Great Longneck Migration", "type": "Movie", "status": "Watchlist", "rating": "", "genres": "Adventure, Animation, Family", "dateWatched": "", "runtime": "1h 24m", "director": "Charles Grosvenor", "released": "2003-12-02", "metacritic": null, "country": "United States", "ageRating": "G", "url": "https://trakt.tv/movies/the-land-before-time-x-the-great-longneck-migration-2003"}, {"title": "The Land Before Time XI: Invasion of the Tinysauruses", "type": "Movie", "status": "Watchlist", "rating": "", "genres": "Adventure, Animation, Family, Fantasy", "dateWatched": "", "runtime": "1h 22m", "director": "Charles Grosvenor", "released": "2005-01-11", "metacritic": null, "country": "United States", "ageRating": "G", "url": "https://trakt.tv/movies/the-land-before-time-xi-invasion-of-the-tinysauruses-2005"}, {"title": "The Land Before Time XII: The Great Day of the Flyers", "type": "Movie", "status": "Watchlist", "rating": "", "genres": "Adventure, Animation, Family", "dateWatched": "", "runtime": "1h 17m", "director": "Charles Grosvenor", "released": "2006-02-27", "metacritic": null, "country": "United States", "ageRating": "G", "url": "https://trakt.tv/movies/the-land-before-time-xii-the-great-day-of-the-flyers-2006"}, {"title": "The Land Before Time XIII: The Wisdom of Friends", "type": "Movie", "status": "Watchlist", "rating": "", "genres": "Adventure, Animation, Family", "dateWatched": "", "runtime": "1h 16m", "director": "Charles Grosvenor", "released": "2007-11-27", "metacritic": null, "country": "United States", "ageRating": "G", "url": "https://trakt.tv/movies/the-land-before-time-xiii-the-wisdom-of-friends-2007"}, {"title": "The Land Before Time XIV: Journey of the Brave", "type": "Movie", "status": "Watchlist", "rating": "", "genres": "Adventure, Animation, Family", "dateWatched": "", "runtime": "1h 22m", "director": "Tony Tupilano", "released": "2016-02-02", "metacritic": null, "country": "United States", "ageRating": "G", "url": "https://trakt.tv/movies/the-land-before-time-xiv-journey-of-the-brave-2016"}, {"title": "The Lion King", "type": "Movie", "status": "Already Seen", "rating": "8 - Great", "genres": "Adventure, Animation, Drama, Family, Music", "dateWatched": "", "runtime": "1h 29m", "director": "Rob Minkoff", "released": "1994-06-15", "metacritic": 88, "country": "United States", "ageRating": "G", "url": "https://trakt.tv/movies/the-lion-king-1994"}, {"title": "The Lion King", "type": "Movie", "status": "Already Seen", "rating": "8 - Great", "genres": "Adventure, Animation, Drama, Family, Musical", "dateWatched": "", "runtime": "1h 58m", "director": "Jon Favreau", "released": "2019-07-19", "metacritic": 55, "country": "United States", "ageRating": "PG", "url": "https://trakt.tv/movies/the-lion-king-2019"}, {"title": "The Mask", "type": "Movie", "status": "Already Seen", "rating": "6 - Fine", "genres": "Comedy, Crime, Fantasy, Romance, Superhero", "dateWatched": "", "runtime": "1h 41m", "director": "Chuck Russell", "released": "1994-07-29", "metacritic": 59, "country": "United States", "ageRating": "PG-13", "url": "https://trakt.tv/movies/the-mask-1994"}, {"title": "The Monkey", "type": "Movie", "status": "Already Seen", "rating": "4 - Subpar", "genres": "Comedy, Horror", "dateWatched": "", "runtime": "1h 37m", "director": "Osgood Perkins", "released": "2025-02-21", "metacritic": 62, "country": "United States", "ageRating": "R", "url": "https://trakt.tv/movies/the-monkey-2025"}, {"title": "The Northman", "type": "Movie", "status": "Already Seen", "rating": "6 - Fine", "genres": "Fantasy, Adventure, Action", "dateWatched": "2026-03-26", "runtime": "2h 17m", "director": "Robert Eggers", "released": "2022-04-22", "metacritic": 82, "country": "United States", "ageRating": "R", "url": "https://trakt.tv/movies/the-northman-2022"}, {"title": "The Nun", "type": "Movie", "status": "Already Seen", "rating": "8 - Great", "genres": "Horror", "dateWatched": "2025-09-07", "runtime": "1h 36m", "director": "Corin Hardy", "released": "2018-09-07", "metacritic": 46, "country": "United States", "ageRating": "R", "url": "https://trakt.tv/movies/the-nun-2018"}, {"title": "The Pope's Exorcist", "type": "Movie", "status": "Already Seen", "rating": "5 - Average", "genres": "Horror, Thriller", "dateWatched": "", "runtime": "1h 43m", "director": "Julius Avery", "released": "2023-04-14", "metacritic": 45, "country": "United States", "ageRating": "R", "url": "https://trakt.tv/movies/the-pope-s-exorcist-2023"}, {"title": "The Prestige", "type": "Movie", "status": "Already Seen", "rating": "9 - Excellent", "genres": "Drama, Mystery, Sci-Fi", "dateWatched": "2025-11-20", "runtime": "2h 10m", "director": "Christopher Nolan", "released": "2006-10-17", "metacritic": 66, "country": "United States", "ageRating": "PG-13", "url": "https://trakt.tv/movies/the-prestige-2006"}, {"title": "The Ritual", "type": "Movie", "status": "Already Seen", "rating": "6 - Fine", "genres": "Horror, Mystery", "dateWatched": "", "runtime": "1h 34m", "director": "David Bruckner", "released": "2017-10-11", "metacritic": 57, "country": "United Kingdom", "ageRating": "R", "url": "https://trakt.tv/movies/the-ritual-2017"}, {"title": "The Road to El Dorado", "type": "Movie", "status": "Already Seen", "rating": "8 - Great", "genres": "Adventure, Animation, Comedy, Family, Fantasy, Musical", "dateWatched": "2025-08-29", "runtime": "1h 29m", "director": "Bibo Bergeron", "released": "2000-03-31", "metacritic": 51, "country": "United States", "ageRating": "PG", "url": "https://trakt.tv/movies/the-road-to-el-dorado-2000"}, {"title": "The SpongeBob SquarePants Movie", "type": "Movie", "status": "Already Seen", "rating": "7 - Good", "genres": "Adventure, Animation, Comedy, Family, Fantasy", "dateWatched": "", "runtime": "1h 27m", "director": "Stephen Hillenburg", "released": "2004-11-19", "metacritic": 67, "country": "United States", "ageRating": "PG", "url": "https://trakt.tv/movies/the-spongebob-squarepants-movie-2004"}, {"title": "The Super Mario Bros. Movie", "type": "Movie", "status": "Watchlist", "rating": "", "genres": "Adventure, Animation, Family, Comedy, Fantasy", "dateWatched": "", "runtime": "1h 33m", "director": "Michael Jelenic", "released": "2023-04-05", "metacritic": 46, "country": "United States", "ageRating": "PG", "url": "https://trakt.tv/movies/the-super-mario-bros-movie-2023"}, {"title": "The Super Mario Galaxy Movie", "type": "Movie", "status": "Watchlist", "rating": "", "genres": "Animation, Family, Comedy, Adventure, Fantasy", "dateWatched": "", "runtime": "1h 38m", "director": "Aaron Horvath", "released": "2026-04-01", "metacritic": null, "country": "United States", "ageRating": "PG", "url": "https://trakt.tv/movies/the-super-mario-galaxy-movie-2026"}, {"title": "The Truman Show", "type": "Movie", "status": "Already Seen", "rating": "9 - Excellent", "genres": "Comedy, Drama", "dateWatched": "2025-06-05", "runtime": "1h 43m", "director": "Peter Weir", "released": "1998-06-05", "metacritic": 90, "country": "United States", "ageRating": "PG", "url": "https://trakt.tv/movies/the-truman-show-1998"}, {"title": "The Twilight Saga: Breaking Dawn - Part 1", "type": "Movie", "status": "Already Seen", "rating": "7 - Good", "genres": "Adventure, Fantasy, Romance", "dateWatched": "", "runtime": "1h 57m", "director": "Bill Condon", "released": "2011-11-17", "metacritic": 45, "country": "United States", "ageRating": "PG-13", "url": "https://trakt.tv/movies/the-twilight-saga-breaking-dawn-part-1-2011"}, {"title": "The Twilight Saga: Breaking Dawn - Part 2", "type": "Movie", "status": "Already Seen", "rating": "8 - Great", "genres": "Adventure, Drama, Fantasy, Romance", "dateWatched": "", "runtime": "1h 55m", "director": "Bill Condon", "released": "2012-11-16", "metacritic": 52, "country": "United States", "ageRating": "PG-13", "url": "https://trakt.tv/movies/the-twilight-saga-breaking-dawn-part-2-2012"}, {"title": "The Twilight Saga: Eclipse", "type": "Movie", "status": "Already Seen", "rating": "7 - Good", "genres": "Adventure, Drama, Fantasy, Romance", "dateWatched": "", "runtime": "2h 4m", "director": "David Slade", "released": "2010-06-23", "metacritic": 58, "country": "United States", "ageRating": "PG-13", "url": "https://trakt.tv/movies/the-twilight-saga-eclipse-2010"}, {"title": "The Twilight Saga: New Moon", "type": "Movie", "status": "Already Seen", "rating": "7 - Good", "genres": "Adventure, Drama, Fantasy, Romance", "dateWatched": "", "runtime": "2h 11m", "director": "Chris Weitz", "released": "2009-11-20", "metacritic": 44, "country": "United States", "ageRating": "PG-13", "url": "https://trakt.tv/movies/the-twilight-saga-new-moon-2009"}, {"title": "The Wolf of Wall Street", "type": "Movie", "status": "Already Seen", "rating": "8 - Great", "genres": "Comedy, Crime, Drama", "dateWatched": "2026-05-27", "runtime": "3h 0m", "director": "Martin Scorsese", "released": "2013-12-25", "metacritic": 75, "country": "United States", "ageRating": "R", "url": "https://trakt.tv/movies/the-wolf-of-wall-street-2013"}, {"title": "This Is the End", "type": "Movie", "status": "Already Seen", "rating": "6 - Fine", "genres": "Action, Comedy", "dateWatched": "2026-03-24", "runtime": "1h 46m", "director": "Seth Rogen", "released": "2013-06-12", "metacritic": 67, "country": "United States", "ageRating": "R", "url": "https://trakt.tv/movies/this-is-the-end-2013"}, {"title": "Tiflis", "type": "TV Show", "status": "Already Seen", "rating": "9 - Excellent", "genres": "Documentary, War", "dateWatched": "", "runtime": "20h / (16ep)", "director": "Levan Dabrundashvili", "released": "2014-10-24", "metacritic": null, "country": "Georgia", "ageRating": "Unknown", "url": "https://trakt.tv/shows/tiflis"}, {"title": "Treasure Planet", "type": "Movie", "status": "Watchlist", "rating": "", "genres": "Adventure, Animation, Fantasy, Science-Fiction, Family", "dateWatched": "", "runtime": "1h 36m", "director": "Ron Clements", "released": "2002-11-27", "metacritic": 60, "country": "United States", "ageRating": "PG", "url": "https://trakt.tv/movies/treasure-planet-2002"}, {"title": "Troy", "type": "Movie", "status": "Already Seen", "rating": "9 - Excellent", "genres": "History, War, Action", "dateWatched": "2026-03-18", "runtime": "2h 43m", "director": "Wolfgang Petersen", "released": "2004-05-14", "metacritic": 56, "country": "United States", "ageRating": "R", "url": "https://trakt.tv/movies/troy-2004"}, {"title": "Turbo", "type": "Movie", "status": "Already Seen", "rating": "7 - Good", "genres": "Animation, Family", "dateWatched": "", "runtime": "1h 36m", "director": "David Soren", "released": "2013-07-19", "metacritic": 58, "country": "United States", "ageRating": "PG", "url": "https://trakt.tv/movies/turbo-2013"}, {"title": "Twilight", "type": "Movie", "status": "Already Seen", "rating": "8 - Great", "genres": "Drama, Fantasy, Romance", "dateWatched": "", "runtime": "2h 2m", "director": "Catherine Hardwicke", "released": "2008-11-21", "metacritic": 56, "country": "United States", "ageRating": "PG-13", "url": "https://trakt.tv/movies/twilight-2008"}, {"title": "Wake Up Dead Man: A Knives Out Mystery", "type": "Movie", "status": "Watchlist", "rating": "", "genres": "Comedy, Mystery, Thriller", "dateWatched": "", "runtime": "2h 25m", "director": "Rian Johnson", "released": "2025-11-26", "metacritic": 80, "country": "United States", "ageRating": "PG-13", "url": "https://trakt.tv/movies/wake-up-dead-man-a-knives-out-mystery-2025"}, {"title": "Warcraft", "type": "Movie", "status": "Already Seen", "rating": "8 - Great", "genres": "Action, Adventure, Fantasy", "dateWatched": "2026-05-27", "runtime": "2h 3m", "director": "Duncan Jones", "released": "2016-06-10", "metacritic": 32, "country": "United States", "ageRating": "PG-13", "url": "https://trakt.tv/movies/warcraft-2016"}, {"title": "Weapons", "type": "Movie", "status": "Already Seen", "rating": "8 - Great", "genres": "Horror, Mystery", "dateWatched": "2025-08-29", "runtime": "2h 9m", "director": "Zach Cregger", "released": "2025-08-08", "metacritic": 81, "country": "United States", "ageRating": "R", "url": "https://trakt.tv/movies/weapons-2025"}, {"title": "Wonka", "type": "Movie", "status": "Already Seen", "rating": "6 - Fine", "genres": "Comedy, Family, Fantasy, Musical", "dateWatched": "", "runtime": "1h 57m", "director": "Paul King", "released": "2023-12-08", "metacritic": 66, "country": "United Kingdom", "ageRating": "PG", "url": "https://trakt.tv/movies/wonka-2023"}, {"title": "You Don't Mess with the Zohan", "type": "Movie", "status": "Already Seen", "rating": "7 - Good", "genres": "Action, Comedy", "dateWatched": "", "runtime": "1h 53m", "director": "Dennis Dugan", "released": "2008-06-06", "metacritic": 54, "country": "United States", "ageRating": "PG-13", "url": "https://trakt.tv/movies/you-don-t-mess-with-the-zohan-2008"}, {"title": "Zambezia", "type": "Movie", "status": "Watchlist", "rating": "", "genres": "Animation, Comedy, Adventure, Family", "dateWatched": "", "runtime": "1h 23m", "director": "Wayne Thornley", "released": "2012-07-07", "metacritic": null, "country": "United States", "ageRating": "G", "url": "https://trakt.tv/movies/zambezia-2012"}, {"title": "Zootopia", "type": "Movie", "status": "Already Seen", "rating": "8 - Great", "genres": "Adventure, Animation, Comedy, Family", "dateWatched": "", "runtime": "1h 49m", "director": "Byron Howard", "released": "2016-03-04", "metacritic": 78, "country": "United States", "ageRating": "PG", "url": "https://trakt.tv/movies/zootopia-2016"}, {"title": "Zootopia 2", "type": "Movie", "status": "Already Seen", "rating": "8 - Great", "genres": "Adventure, Animation, Comedy, Family, Mystery", "dateWatched": "2026-01-21", "runtime": "1h 47m", "director": "Jared Bush", "released": "2025-11-26", "metacritic": 73, "country": "United States", "ageRating": "PG", "url": "https://trakt.tv/movies/zootopia-2-2025"}, {"title": "Ex Machina", "type": "Movie", "status": "Watchlist", "rating": "", "genres": "Drama, Science-Fiction", "dateWatched": "", "runtime": "1h 48m", "director": "Alex Garland", "released": "2015-01-21", "metacritic": 78, "country": "United Kingdom", "ageRating": "R", "url": "https://trakt.tv/movies/ex-machina-2015"}, {"title": "Definitely, Maybe", "type": "Movie", "status": "Already Seen", "rating": "7 - Good", "genres": "Comedy, Romance", "dateWatched": "2026-06-02", "runtime": "1h 52m", "director": "Adam Brooks", "released": "2008-02-14", "metacritic": 59, "country": "United States", "ageRating": "PG-13", "url": "https://trakt.tv/movies/definitely-maybe-2008"}, {"title": "How to Train Your Dragon: The Hidden World", "type": "Movie", "status": "Already Seen", "rating": "9 - Excellent", "genres": "Adventure, Animation, Family", "dateWatched": "2026-06-03", "runtime": "1h 44m", "director": "Dean DeBlois", "released": "2019-02-22", "metacritic": 71, "country": "United States", "ageRating": "PG", "url": "https://trakt.tv/movies/how-to-train-your-dragon-the-hidden-world-2019"}, {"title": "Zoolander", "type": "Movie", "status": "Already Seen", "rating": "8 - Great", "genres": "Comedy", "dateWatched": "2026-06-13", "runtime": "1h 29m", "director": "Ben Stiller", "released": "2001-09-28", "metacritic": 61, "country": "United States", "ageRating": "PG-13", "url": "https://trakt.tv/movies/zoolander-2001"}, {"title": "Mamma Mia!", "type": "Movie", "status": "Already Seen", "rating": "7 - Good", "genres": "Comedy, Romance, Musical", "dateWatched": "2026-06-18", "runtime": "1h 48m", "director": "Phyllida Lloyd", "released": "2008-07-10", "metacritic": 51, "country": "United Kingdom", "ageRating": "PG-13", "url": "https://trakt.tv/movies/mamma-mia-2008"}];
-const SERIES = [];
+const SERIES = [{"title": "One Piece", "watched": 145, "total": 1155, "remaining": 1010, "pct": 12.55}];
 const OMDB_KEY = '51b66a8f';
 const posterCache = {};
 
@@ -339,190 +681,194 @@ let typeFilter = 'all';
 let seriesStatusFilter = 'all';
 
 function switchView(view) {
- const moviesPage = document.getElementById('page-movies');
- const seriesPage = document.getElementById('page-series');
- const btnMovies = document.getElementById('viewBtnMovies');
- const btnSeries = document.getElementById('viewBtnSeries');
- const headerCount = document.getElementById('headerCount');
+  const moviesPage = document.getElementById('page-movies');
+  const seriesPage = document.getElementById('page-series');
+  const btnMovies = document.getElementById('viewBtnMovies');
+  const btnSeries = document.getElementById('viewBtnSeries');
+  const headerCount = document.getElementById('headerCount');
 
- if (view === 'series') {
-   moviesPage.classList.remove('active'); seriesPage.classList.add('active');
-   btnMovies.classList.remove('active'); btnSeries.classList.add('active','series-active');
-   headerCount.textContent = SERIES.length + ' shows tracked';
- } else {
-   seriesPage.classList.remove('active'); moviesPage.classList.add('active');
-   btnSeries.classList.remove('active','series-active'); btnMovies.classList.add('active');
-   headerCount.textContent = MOVIES.length + ' titles tracked';
- }
+  if (view === 'series') {
+    moviesPage.classList.remove('active'); seriesPage.classList.add('active');
+    btnMovies.classList.remove('active'); btnSeries.classList.add('active','series-active');
+    headerCount.textContent = SERIES.length + ' shows tracked';
+  } else {
+    seriesPage.classList.remove('active'); moviesPage.classList.add('active');
+    btnSeries.classList.remove('active','series-active'); btnMovies.classList.add('active');
+    headerCount.textContent = MOVIES.length + ' entries';
+  }
 }
 
 function hashStr(str) {
- let h = 0;
- for (let i = 0; i < str.length; i++) h = (h * 31 + str.charCodeAt(i)) & 0xffff;
- return h;
+  let h = 0;
+  for (let i = 0; i < str.length; i++) h = (h * 31 + str.charCodeAt(i)) & 0xffff;
+  return h;
 }
 
 function ratingClass(r) {
- if (!r) return 'r-none';
- if (r.startsWith('10')) return 'r10';
- if (r.startsWith('9')) return 'r9';
- if (r.startsWith('8')) return 'r8';
- if (r.startsWith('7')) return 'r7';
- if (r.startsWith('6')) return 'r6';
- if (r.startsWith('5')) return 'r5';
- return 'r-low';
+  if (!r) return 'r-none';
+  if (r.startsWith('10')) return 'r10';
+  if (r.startsWith('9')) return 'r9';
+  if (r.startsWith('8')) return 'r8';
+  if (r.startsWith('7')) return 'r7';
+  if (r.startsWith('6')) return 'r6';
+  if (r.startsWith('5')) return 'r5';
+  return 'r-low';
 }
 
 function mcClass(n) {
- if (n >= 70) return 'mc-good';
- if (n >= 50) return 'mc-mid';
- return 'mc-low';
+  if (n >= 70) return 'mc-good';
+  if (n >= 50) return 'mc-mid';
+  return 'mc-low';
 }
 
 function yearFromDate(d) {
- if (!d) return ''; return d.substring(0, 4);
+  if (!d) return ''; return d.substring(0, 4);
 }
 
 function typeClass(t) {
- if (t === 'Anime') return 'type-anime';
- if (t === 'TV Show') return 'type-show';
- return 'type-movie';
-}
-
-function posterGradients() {
- return [
-   'linear-gradient(135deg,#1a0505 0%,#3d1010 100%)', 'linear-gradient(135deg,#050518 0%,#10103d 100%)',
-   'linear-gradient(135deg,#051a05 0%,#103d10 100%)', 'linear-gradient(135deg,#1a0d05 0%,#3d2810 100%)',
-   'linear-gradient(135deg,#12051a 0%,#281040 100%)', 'linear-gradient(135deg,#051218 0%,#103050 100%)'
- ];
+  if (t === 'Anime') return 'type-anime';
+  if (t === 'TV Show') return 'type-show';
+  return 'type-movie';
 }
 
 function buildCard(m, idx) {
- const grads = posterGradients();
- const grad = grads[hashStr(m.title) % grads.length];
- const statusClass = m.status === 'Already Seen' ? 'seen' : 'watchlist';
- const year = yearFromDate(m.released);
- const genres = m.genres ? m.genres.split(', ').slice(0, 3) : [];
- const rc = ratingClass(m.rating);
+  const statusClass = m.status === 'Already Seen' ? 'seen' : 'watchlist';
+  const year = yearFromDate(m.released);
+  const genres = m.genres ? m.genres.split(', ').slice(0, 3) : [];
+  const rc = ratingClass(m.rating);
 
- let mcHtml = m.metacritic ? `<span class="metacritic ${mcClass(m.metacritic)}">MC ${m.metacritic}</span>` : '';
- let ratingHtml = m.rating ? `<span class="rating-pill ${rc}">${m.rating.split(' - ')}★</span>` : `<span class="rating-pill r-none">Soon</span>`;
- const genreTags = genres.map(g => `<span class="genre-tag">${g}</span>`).join('');
+  let mcHtml = m.metacritic ? `<span class="metacritic ${mcClass(m.metacritic)}">MC ${m.metacritic}</span>` : '';
+  let ratingHtml = m.rating ? `<span class="rating-pill ${rc}">${m.rating.split(' - ')[0]}</span>` : `<span class="rating-pill r-none">--</span>`;
+  const genreTags = genres.map(g => `<span class="genre-tag">${g}</span>`).join('');
 
- return `<div class="movie-card" onclick="openModal(${idx})" data-title="${m.title}" data-year="${year}">
-   <div class="card-poster" style="background:${grad}">
-     <img class="poster-img" alt="${m.title}">
-     <div class="card-status-bar ${statusClass}"></div>
-     <span class="card-type-badge ${typeClass(m.type)}">${m.type}</span>
-     <div class="card-poster-title">${m.title}</div>
-   </div>
-   <div class="card-body">
-     <div class="card-title">${m.title}</div>
-     <div class="card-meta">${ratingHtml} ${year ? `<span class="meta-year">${year}</span>` : ''} ${m.runtime ? `<span class="meta-runtime">${m.runtime}</span>` : ''} ${m.ageRating && m.ageRating !== 'Unknown' ? `<span class="meta-age">${m.ageRating}</span>` : ''}</div>
-     ${mcHtml} <div class="card-genres">${genreTags}</div>
-   </div>
- </div>`;
+  // Unique cache key uses title + year, so same-titled films from different years never collide
+  const cacheKey = m.title + '|' + year;
+
+  return `<div class="movie-card" onclick="openModal(${idx})" data-title="${m.title}" data-year="${year}" data-cachekey="${cacheKey}">
+    <div class="card-poster">
+      <img class="poster-img" alt="${m.title}">
+      <div class="card-status-bar ${statusClass}"></div>
+      <span class="card-type-badge">${m.type}</span>
+      <div class="card-poster-title">${m.title}</div>
+    </div>
+    <div class="card-body">
+      <div class="card-title">${m.title}</div>
+      <div class="card-meta">${ratingHtml} ${year ? `<span class="meta-year">${year}</span>` : ''} ${m.runtime ? `<span class="meta-runtime">${m.runtime}</span>` : ''} ${m.ageRating && m.ageRating !== 'Unknown' ? `<span class="meta-age">${m.ageRating}</span>` : ''}</div>
+      ${mcHtml}
+      <div class="card-genres">${genreTags}</div>
+    </div>
+  </div>`;
 }
 
 function setStatus(btn, val) {
- statusFilter = val;
- document.querySelectorAll('[data-status]').forEach(b => { b.classList.remove('active','active-watch'); });
- if (val === 'watchlist') btn.classList.add('active-watch'); else btn.classList.add('active');
- render();
+  statusFilter = val;
+  document.querySelectorAll('[data-status]').forEach(b => { b.classList.remove('active','active-watch'); });
+  if (val === 'watchlist') btn.classList.add('active-watch'); else btn.classList.add('active');
+  render();
 }
 
 function setType(btn, val) {
- typeFilter = val;
- document.querySelectorAll('[data-type]').forEach(b => b.classList.remove('active'));
- btn.classList.add('active');
- render();
+  typeFilter = val;
+  document.querySelectorAll('[data-type]').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  render();
 }
 
 function ratingNum(r) {
- if (!r) return 0;
- return parseInt(r.split(' - ')) || 0;
+  if (!r) return 0;
+  return parseInt(r.split(' - ')[0]) || 0;
 }
 
-// 🌟 NEW: Complete JS Rewrite for advanced sorting & rating filter
 function render() {
- const q = document.getElementById('searchBox').value.toLowerCase();
- const genre = document.getElementById('genreFilter').value;
- const ratingVal = document.getElementById('ratingFilter').value;
- const sort = document.getElementById('sortFilter').value;
+  const q = document.getElementById('searchBox').value.toLowerCase();
+  const genre = document.getElementById('genreFilter').value;
+  const ratingVal = document.getElementById('ratingFilter').value;
+  const sort = document.getElementById('sortFilter').value;
 
- let filtered = MOVIES.filter(m => {
-   if (statusFilter === 'seen' && m.status !== 'Already Seen') return false;
-   if (statusFilter === 'watchlist' && m.status !== 'Watchlist') return false;
-   if (typeFilter !== 'all' && m.type !== typeFilter) return false;
-   if (genre && !m.genres.includes(genre)) return false;
-   
-   // NEW Filter Logic
-   if (ratingVal !== 'all' && ratingNum(m.rating) !== parseInt(ratingVal)) return false;
+  let filtered = MOVIES.filter(m => {
+    if (statusFilter === 'seen' && m.status !== 'Already Seen') return false;
+    if (statusFilter === 'watchlist' && m.status !== 'Watchlist') return false;
+    if (typeFilter !== 'all' && m.type !== typeFilter) return false;
+    if (genre && !m.genres.includes(genre)) return false;
+    if (ratingVal !== 'all' && ratingNum(m.rating) !== parseInt(ratingVal)) return false;
+    if (q && !m.title.toLowerCase().includes(q) && !m.director.toLowerCase().includes(q) && !m.genres.toLowerCase().includes(q)) return false;
+    return true;
+  });
 
-   if (q && !m.title.toLowerCase().includes(q) && !m.director.toLowerCase().includes(q) && !m.genres.toLowerCase().includes(q)) return false;
-   return true;
- });
+  if (sort === 'rating_desc') filtered.sort((a,b) => ratingNum(b.rating) - ratingNum(a.rating));
+  else if (sort === 'rating_asc') filtered.sort((a,b) => ratingNum(a.rating) - ratingNum(b.rating));
+  else if (sort === 'released_desc') filtered.sort((a,b) => (b.released||'').localeCompare(a.released||''));
+  else if (sort === 'released_asc') filtered.sort((a,b) => (a.released||'').localeCompare(b.released||''));
+  else if (sort === 'metacritic_desc') filtered.sort((a,b) => (b.metacritic||0) - (a.metacritic||0));
+  else if (sort === 'metacritic_asc') filtered.sort((a,b) => (a.metacritic||0) - (b.metacritic||0));
+  else if (sort === 'watched_desc') filtered.sort((a,b) => (b.dateWatched||'').localeCompare(a.dateWatched||''));
+  else if (sort === 'watched_asc') filtered.sort((a,b) => (a.dateWatched||'').localeCompare(b.dateWatched||''));
+  else if (sort === 'alpha_desc') filtered.sort((a,b) => b.title.localeCompare(a.title));
+  else filtered.sort((a,b) => a.title.localeCompare(b.title));
 
- // NEW Bi-Directional Sorting Logic
- if (sort === 'rating_desc') filtered.sort((a,b) => ratingNum(b.rating) - ratingNum(a.rating));
- else if (sort === 'rating_asc') filtered.sort((a,b) => ratingNum(a.rating) - ratingNum(b.rating));
- else if (sort === 'released_desc') filtered.sort((a,b) => (b.released||'').localeCompare(a.released||''));
- else if (sort === 'released_asc') filtered.sort((a,b) => (a.released||'').localeCompare(b.released||''));
- else if (sort === 'metacritic_desc') filtered.sort((a,b) => (b.metacritic||0) - (a.metacritic||0));
- else if (sort === 'metacritic_asc') filtered.sort((a,b) => (a.metacritic||0) - (b.metacritic||0));
- else if (sort === 'watched_desc') filtered.sort((a,b) => (b.dateWatched||'').localeCompare(a.dateWatched||''));
- else if (sort === 'watched_asc') filtered.sort((a,b) => (a.dateWatched||'').localeCompare(b.dateWatched||''));
- else if (sort === 'alpha_desc') filtered.sort((a,b) => b.title.localeCompare(a.title));
- else filtered.sort((a,b) => a.title.localeCompare(b.title)); // alpha_asc default
+  document.getElementById('countBadge').textContent = filtered.length;
+  const grid = document.getElementById('grid');
+  const empty = document.getElementById('emptyState');
 
- document.getElementById('countBadge').textContent = filtered.length;
- const grid = document.getElementById('grid');
- const empty = document.getElementById('emptyState');
-
- if (filtered.length === 0) {
-   grid.innerHTML = ''; empty.style.display = 'block';
- } else {
-   empty.style.display = 'none';
-   grid.innerHTML = filtered.map(m => buildCard(m, MOVIES.indexOf(m))).join('');
- }
- initLazyLoading();
+  if (filtered.length === 0) {
+    grid.innerHTML = ''; empty.style.display = 'block';
+  } else {
+    empty.style.display = 'none';
+    grid.innerHTML = filtered.map(m => buildCard(m, MOVIES.indexOf(m))).join('');
+  }
+  initLazyLoading();
 }
 
 function initLazyLoading() {
- const observer = new IntersectionObserver((entries, obs) => {
-   entries.forEach(entry => {
-     if (entry.isIntersecting) {
-       const card = entry.target; const img = card.querySelector('.poster-img');
-       const title = card.getAttribute('data-title'); const year = card.getAttribute('data-year');
-       const cacheKey = title + '|' + year;
-       if (posterCache[cacheKey]) {
-         if (posterCache[cacheKey] !== 'N/A') { img.src = posterCache[cacheKey]; img.classList.add('loaded'); }
-         obs.unobserve(card); return;
-       }
-       fetch(`https://www.omdbapi.com/?t=${encodeURIComponent(title)}&y=${year}&apikey=${OMDB_KEY}`)
-         .then(r => r.json()).then(data => {
-           posterCache[cacheKey] = data.Poster || 'N/A';
-           if (data.Poster && data.Poster !== 'N/A') { img.src = data.Poster; img.onload = () => img.classList.add('loaded'); }
-         }).catch(() => { posterCache[cacheKey] = 'N/A'; });
-       obs.unobserve(card);
-     }
-   });
- }, { rootMargin: '200px' });
- document.querySelectorAll('#grid .movie-card').forEach(card => observer.observe(card));
+  const observer = new IntersectionObserver((entries, obs) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        const card = entry.target;
+        const img = card.querySelector('.poster-img');
+        const title = card.getAttribute('data-title');
+        const year = card.getAttribute('data-year');
+        // Use title+year as cache key so two films with the same name
+        // (e.g. Aladdin 1992 vs 2019) never share a poster.
+        const cacheKey = card.getAttribute('data-cachekey');
+
+        if (posterCache[cacheKey]) {
+          if (posterCache[cacheKey] !== 'N/A') { img.src = posterCache[cacheKey]; img.classList.add('loaded'); }
+          obs.unobserve(card); return;
+        }
+
+        const url = year
+          ? `https://www.omdbapi.com/?t=${encodeURIComponent(title)}&y=${year}&apikey=${OMDB_KEY}`
+          : `https://www.omdbapi.com/?t=${encodeURIComponent(title)}&apikey=${OMDB_KEY}`;
+
+        fetch(url)
+          .then(r => r.json()).then(data => {
+            // Verify the returned year actually matches before caching/using it --
+            // OMDb sometimes ignores the y= param for ambiguous titles.
+            const returnedYear = (data.Year || '').substring(0, 4);
+            const yearOk = !year || !returnedYear || returnedYear === year;
+            const poster = (data.Poster && data.Poster !== 'N/A' && yearOk) ? data.Poster : 'N/A';
+            posterCache[cacheKey] = poster;
+            if (poster !== 'N/A') { img.src = poster; img.onload = () => img.classList.add('loaded'); }
+          }).catch(() => { posterCache[cacheKey] = 'N/A'; });
+        obs.unobserve(card);
+      }
+    });
+  }, { rootMargin: '200px' });
+  document.querySelectorAll('#grid .movie-card').forEach(card => observer.observe(card));
 }
 
 function openModal(idx) {
- const m = MOVIES[idx];
- document.getElementById('mType').textContent = m.type.toUpperCase() + ' · ' + (m.status === 'Already Seen' ? '✅ Already Seen' : '🔖 Watchlist');
- document.getElementById('mTitle').textContent = m.title;
- const rc = ratingClass(m.rating);
- document.getElementById('mRating').innerHTML = m.rating ? `<span class="rating-pill ${rc}" style="font-size:0.9rem;padding:5px 14px">${m.rating}</span>` : `<span class="rating-pill r-none" style="font-size:0.9rem;padding:5px 14px">Not yet rated</span>`;
- const fields = [['Director', m.director], ['Runtime', m.runtime], ['Released', m.released ? m.released.substring(0,10) : ''], ['Date Watched', m.dateWatched || '—'], ['Country', m.country], ['Age Rating', m.ageRating], ['Metacritic', m.metacritic ? `<span class="metacritic ${mcClass(m.metacritic)}" style="display:inline-flex">MC ${m.metacritic}</span>` : '—'], ['Type', m.type]];
- document.getElementById('mGrid').innerHTML = fields.map(([label, val]) => `<div class="modal-field"><div class="modal-field-label">${label}</div><div class="modal-field-val">${val || '—'}</div></div>`).join('');
- const genres = m.genres ? m.genres.split(', ') : [];
- document.getElementById('mGenres').innerHTML = genres.map(g => `<span class="modal-genre">${g}</span>`).join('');
- document.getElementById('mTrakt').href = m.url;
- document.getElementById('modalOverlay').classList.add('open');
+  const m = MOVIES[idx];
+  document.getElementById('mType').textContent = m.type.toUpperCase() + ' - ' + (m.status === 'Already Seen' ? 'Already Seen' : 'Watchlist');
+  document.getElementById('mTitle').textContent = m.title;
+  const rc = ratingClass(m.rating);
+  document.getElementById('mRating').innerHTML = m.rating ? `<span class="rating-pill ${rc}" style="font-size:0.9rem;padding:5px 14px">${m.rating}</span>` : `<span class="rating-pill r-none" style="font-size:0.9rem;padding:5px 14px">Not yet rated</span>`;
+  const fields = [['Director', m.director], ['Runtime', m.runtime], ['Released', m.released ? m.released.substring(0,10) : ''], ['Date watched', m.dateWatched || '--'], ['Country', m.country], ['Age rating', m.ageRating], ['Metacritic', m.metacritic ? `<span class="metacritic ${mcClass(m.metacritic)}" style="display:inline-flex">MC ${m.metacritic}</span>` : '--'], ['Type', m.type]];
+  document.getElementById('mGrid').innerHTML = fields.map(([label, val]) => `<div class="modal-field"><div class="modal-field-label">${label}</div><div class="modal-field-val">${val || '--'}</div></div>`).join('');
+  const genres = m.genres ? m.genres.split(', ') : [];
+  document.getElementById('mGenres').innerHTML = genres.map(g => `<span class="modal-genre">${g}</span>`).join('');
+  document.getElementById('mTrakt').href = m.url;
+  document.getElementById('modalOverlay').classList.add('open');
 }
 
 function closeModal(e) { if (e.target === document.getElementById('modalOverlay')) closeModalBtn(); }
@@ -530,66 +876,66 @@ function closeModalBtn() { document.getElementById('modalOverlay').classList.rem
 document.addEventListener('keydown', e => { if (e.key === 'Escape') { closeModalBtn(); closeSeriesModalBtn(); } });
 document.getElementById('searchBox').addEventListener('input', render);
 
-// ════════════════════ SERIES VIEW LOGIC ════════════════════
+// ==================== SERIES VIEW LOGIC ====================
 function seriesStatusOf(s) {
- if (s.watched === 0) return 'notstarted';
- if (s.watched >= s.total) return 'completed';
- return 'progress';
+  if (s.watched === 0) return 'notstarted';
+  if (s.watched >= s.total) return 'completed';
+  return 'progress';
 }
 
 function buildSeriesCard(s, idx) {
- const grads = posterGradients(); const grad = grads[hashStr(s.title) % grads.length];
- const status = seriesStatusOf(s); const statusClass = status === 'completed' ? 'seen' : (status === 'progress' ? 'series' : 'watchlist');
- return `<div class="movie-card" onclick="openSeriesModal(${idx})">
-   <div class="card-poster" style="background:${grad}"><div class="card-status-bar ${statusClass}"></div><span class="card-type-badge type-show">${status === 'completed' ? '✅ Completed' : (status === 'progress' ? '▶️ In Progress' : '⏳ Not Started')}</span><div class="card-poster-title">${s.title}</div></div>
-   <div class="card-body">
-     <div class="card-title">${s.title}</div>
-     <div class="card-progress-wrap">
-       <div class="card-progress-label"><span>${s.watched} / ${s.total} episodes</span><strong>${s.pct}%</strong></div>
-       <div class="card-progress-bar"><div class="card-progress-fill" style="width:${s.pct}%"></div></div>
-       <div class="card-progress-pct">${s.remaining} episode${s.remaining === 1 ? '' : 's'} remaining</div>
-     </div>
-   </div>
- </div>`;
+  const status = seriesStatusOf(s);
+  const statusClass = status === 'completed' ? 'seen' : (status === 'progress' ? 'series' : 'watchlist');
+  const statusLabel = status === 'completed' ? 'Completed' : (status === 'progress' ? 'In Progress' : 'Not Started');
+  return `<div class="movie-card" onclick="openSeriesModal(${idx})">
+    <div class="card-poster"><div class="card-status-bar ${statusClass}"></div><span class="card-type-badge">${statusLabel}</span><div class="card-poster-title">${s.title}</div></div>
+    <div class="card-body">
+      <div class="card-title">${s.title}</div>
+      <div class="card-progress-wrap">
+        <div class="card-progress-label"><span>${s.watched} / ${s.total} episodes</span><strong>${s.pct}%</strong></div>
+        <div class="card-progress-bar"><div class="card-progress-fill" style="width:${s.pct}%"></div></div>
+        <div class="card-progress-pct">${s.remaining} episode${s.remaining === 1 ? '' : 's'} remaining</div>
+      </div>
+    </div>
+  </div>`;
 }
 
 function setSeriesStatus(btn, val) {
- seriesStatusFilter = val;
- document.querySelectorAll('[data-sstatus]').forEach(b => b.classList.remove('active')); btn.classList.add('active');
- renderSeries();
+  seriesStatusFilter = val;
+  document.querySelectorAll('[data-sstatus]').forEach(b => b.classList.remove('active')); btn.classList.add('active');
+  renderSeries();
 }
 
 function renderSeries() {
- const q = document.getElementById('seriesSearchBox').value.toLowerCase();
- const sort = document.getElementById('seriesSortFilter').value;
- let seriesFiltered = SERIES.filter(s => {
-   const status = seriesStatusOf(s);
-   if (seriesStatusFilter !== 'all' && status !== seriesStatusFilter) return false;
-   if (q && !s.title.toLowerCase().includes(q)) return false;
-   return true;
- });
+  const q = document.getElementById('seriesSearchBox').value.toLowerCase();
+  const sort = document.getElementById('seriesSortFilter').value;
+  let seriesFiltered = SERIES.filter(s => {
+    const status = seriesStatusOf(s);
+    if (seriesStatusFilter !== 'all' && status !== seriesStatusFilter) return false;
+    if (q && !s.title.toLowerCase().includes(q)) return false;
+    return true;
+  });
 
- // NEW Bi-Directional Sorting Logic for Series
- if (sort === 'pct_desc') seriesFiltered.sort((a,b) => b.pct - a.pct);
- else if (sort === 'pct_asc') seriesFiltered.sort((a,b) => a.pct - b.pct);
- else if (sort === 'remaining_desc') seriesFiltered.sort((a,b) => b.remaining - a.remaining);
- else if (sort === 'remaining_asc') seriesFiltered.sort((a,b) => a.remaining - b.remaining);
- else if (sort === 'alpha_desc') seriesFiltered.sort((a,b) => b.title.localeCompare(a.title));
- else seriesFiltered.sort((a,b) => a.title.localeCompare(b.title));
+  if (sort === 'pct_desc') seriesFiltered.sort((a,b) => b.pct - a.pct);
+  else if (sort === 'pct_asc') seriesFiltered.sort((a,b) => a.pct - b.pct);
+  else if (sort === 'remaining_desc') seriesFiltered.sort((a,b) => b.remaining - a.remaining);
+  else if (sort === 'remaining_asc') seriesFiltered.sort((a,b) => a.remaining - b.remaining);
+  else if (sort === 'alpha_desc') seriesFiltered.sort((a,b) => b.title.localeCompare(a.title));
+  else seriesFiltered.sort((a,b) => a.title.localeCompare(b.title));
 
- document.getElementById('seriesCountBadge').textContent = seriesFiltered.length;
- const grid = document.getElementById('seriesGrid'); const empty = document.getElementById('seriesEmptyState');
- if (seriesFiltered.length === 0) { grid.innerHTML = ''; empty.style.display = 'block'; } 
- else { empty.style.display = 'none'; grid.innerHTML = seriesFiltered.map(s => buildSeriesCard(s, SERIES.indexOf(s))).join(''); }
+  document.getElementById('seriesCountBadge').textContent = seriesFiltered.length;
+  const grid = document.getElementById('seriesGrid'); const empty = document.getElementById('seriesEmptyState');
+  if (seriesFiltered.length === 0) { grid.innerHTML = ''; empty.style.display = 'block'; }
+  else { empty.style.display = 'none'; grid.innerHTML = seriesFiltered.map(s => buildSeriesCard(s, SERIES.indexOf(s))).join(''); }
 }
 
 function openSeriesModal(idx) {
- const s = SERIES[idx];
- document.getElementById('smTitle').textContent = s.title;
- document.getElementById('smProgressLabel').textContent = `${s.watched} / ${s.total} episodes`;
- document.getElementById('smProgressFill').style.width = s.pct + '%';
- document.getElementById('smProgressSub').textContent = `${s.pct}% complete · ${s.remaining} episode${s.remaining === 1 ? '' : 's'} remaining`;
- document.getElementById('seriesModalOverlay').classList.add('open');
+  const s = SERIES[idx];
+  document.getElementById('smTitle').textContent = s.title;
+  document.getElementById('smProgressLabel').textContent = `${s.watched} / ${s.total} episodes`;
+  document.getElementById('smProgressFill').style.width = s.pct + '%';
+  document.getElementById('smProgressSub').textContent = `${s.pct}% complete - ${s.remaining} episode${s.remaining === 1 ? '' : 's'} remaining`;
+  document.getElementById('seriesModalOverlay').classList.add('open');
 }
 function closeSeriesModal(e) { if (e.target === document.getElementById('seriesModalOverlay')) closeSeriesModalBtn(); }
 function closeSeriesModalBtn() { document.getElementById('seriesModalOverlay').classList.remove('open'); }
@@ -606,13 +952,21 @@ const seen = MOVIES.filter(m => m.status === 'Already Seen').length;
 const watchlist = MOVIES.filter(m => m.status === 'Watchlist').length;
 const masterpiece = MOVIES.filter(m => m.rating === '10 - Masterpiece').length;
 const excellent = MOVIES.filter(m => m.rating === '9 - Excellent' || m.rating === '10 - Masterpiece').length;
-document.getElementById('s-total').textContent = MOVIES.length; document.getElementById('s-seen').textContent = seen; document.getElementById('s-watchlist').textContent = watchlist; document.getElementById('s-masterpiece').textContent = masterpiece; document.getElementById('s-excellent').textContent = excellent;
+document.getElementById('s-total').textContent = MOVIES.length;
+document.getElementById('s-seen').textContent = seen;
+document.getElementById('s-watchlist').textContent = watchlist;
+document.getElementById('s-masterpiece').textContent = masterpiece;
+document.getElementById('s-excellent').textContent = excellent;
 
 const srCompleted = SERIES.filter(s => seriesStatusOf(s) === 'completed').length;
 const srInProgress = SERIES.filter(s => seriesStatusOf(s) === 'progress').length;
 const srEpisodesWatched = SERIES.reduce((sum, s) => sum + s.watched, 0);
 const srEpisodesRemaining = SERIES.reduce((sum, s) => sum + s.remaining, 0);
-document.getElementById('sr-total').textContent = SERIES.length; document.getElementById('sr-completed').textContent = srCompleted; document.getElementById('sr-inprogress').textContent = srInProgress; document.getElementById('sr-episodes-watched').textContent = srEpisodesWatched; document.getElementById('sr-episodes-remaining').textContent = srEpisodesRemaining;
+document.getElementById('sr-total').textContent = SERIES.length;
+document.getElementById('sr-completed').textContent = srCompleted;
+document.getElementById('sr-inprogress').textContent = srInProgress;
+document.getElementById('sr-episodes-watched').textContent = srEpisodesWatched;
+document.getElementById('sr-episodes-remaining').textContent = srEpisodesRemaining;
 
 render();
 renderSeries();
