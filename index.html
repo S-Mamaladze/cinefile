@@ -484,6 +484,16 @@
   }
   .modal-watch:hover { background: rgba(184,137,63,0.2); }
 
+  /* -- WEB SEARCH MODAL -- */
+  .search-modal { max-width: 500px; }
+  .api-search-box { width: 100%; background: var(--night); border: 1px solid var(--brass); color: var(--paper-on-night); padding: 12px; font-family: 'Archivo', sans-serif; outline: none; margin-bottom: 15px; }
+  .api-results { max-height: 300px; overflow-y: auto; margin-bottom: 15px; }
+  .api-result-item { display: flex; justify-content: space-between; align-items: center; padding: 10px; border-bottom: 1px solid var(--night-rule); font-size: 0.85rem; }
+  .api-result-item:hover { background: rgba(255,255,255,0.03); }
+  .add-btn-group { display: flex; gap: 5px; }
+  .add-btn { background: var(--night-card); border: 1px solid var(--night-rule); color: var(--ink-soft); font-size: 0.7rem; padding: 4px 8px; cursor: pointer; transition: 0.2s; }
+  .add-btn:hover { color: var(--paper-on-night); border-color: var(--brass); }
+
   /* -- series progress bar (legacy one-piece-style block) -- */
   .op-bar-wrap { background: var(--night-card); border: 1px solid var(--night-rule); border-radius: 3px; padding: 16px 20px; margin-top: 0; max-width: none; }
   .op-bar-label { font-family: 'JetBrains Mono', monospace; font-size: 0.74rem; color: var(--ink-soft); margin-bottom: 10px; display: flex; justify-content: space-between; }
@@ -608,6 +618,8 @@
       <option value="watched_asc">Date watched (up)</option>
     </select>
 
+    <button class="filter-btn" style="border-color: var(--brass); color: var(--brass);" onclick="openWebSearch()">+ Add Movie</button>
+
     <div class="count-badge">Showing <strong id="countBadge">0</strong> of <strong id="countBadgeTotal">0</strong> entries</div>
   </div>
 
@@ -706,6 +718,21 @@
         <div class="op-bar"><div class="op-bar-fill" id="smProgressFill" style="width:0%"></div></div>
         <div style="font-family:'JetBrains Mono',monospace;font-size:0.7rem;color:var(--ink-soft);margin-top:6px;" id="smProgressSub"></div>
       </div>
+    </div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="searchModalOverlay" onclick="closeWebSearch(event)">
+  <div class="modal search-modal">
+    <button class="modal-close" onclick="closeWebSearchBtn()">x</button>
+    <div class="modal-header">
+      <div class="modal-title">Add to Ledger</div>
+      <div style="font-size: 0.8rem; color: var(--ink-soft);">Search Trakt.tv database</div>
+    </div>
+    <div class="modal-body">
+      <input type="text" class="api-search-box" id="traktSearchInput" placeholder="Type a movie title and press Enter..." onkeypress="handleTraktSearch(event)">
+      <div class="api-results" id="traktResultsContainer"></div>
+      <div id="apiSearchStatus" style="font-family: 'JetBrains Mono', monospace; font-size: 0.7rem; color: var(--brass);"></div>
     </div>
   </div>
 </div>
@@ -984,16 +1011,12 @@ function openModal(idx) {
   document.getElementById('mTrakt').href = m.url;
   document.getElementById('mWatch').href = mykadriSearchUrl(m.title);
 
-  // Extract the 4-digit year from the release date
-  const year = m.released ? m.released.substring(0, 4) : '';
-  document.getElementById('mWatch').href = mykadriSearchUrl(m.title, year);
-
   document.getElementById('modalOverlay').classList.add('open');
 }
 
 function closeModal(e) { if (e.target === document.getElementById('modalOverlay')) closeModalBtn(); }
 function closeModalBtn() { document.getElementById('modalOverlay').classList.remove('open'); }
-document.addEventListener('keydown', e => { if (e.key === 'Escape') { closeModalBtn(); closeSeriesModalBtn(); } });
+document.addEventListener('keydown', e => { if (e.key === 'Escape') { closeModalBtn(); closeSeriesModalBtn(); closeWebSearchBtn(); } });
 document.getElementById('searchBox').addEventListener('input', render);
 
 // ==================== SERIES VIEW LOGIC ====================
@@ -1096,6 +1119,89 @@ function openSeriesModal(idx) {
 function closeSeriesModal(e) { if (e.target === document.getElementById('seriesModalOverlay')) closeSeriesModalBtn(); }
 function closeSeriesModalBtn() { document.getElementById('seriesModalOverlay').classList.remove('open'); }
 document.getElementById('seriesSearchBox').addEventListener('input', renderSeries);
+
+// ==================== WEB SEARCH & INGESTION ====================
+function openWebSearch() {
+  document.getElementById('searchModalOverlay').classList.add('open');
+  document.getElementById('traktSearchInput').focus();
+}
+
+function closeWebSearch(e) {
+  if (e.target === document.getElementById('searchModalOverlay')) closeWebSearchBtn();
+}
+
+function closeWebSearchBtn() {
+  document.getElementById('searchModalOverlay').classList.remove('open');
+  document.getElementById('traktResultsContainer').innerHTML = '';
+  document.getElementById('traktSearchInput').value = '';
+}
+
+async function handleTraktSearch(e) {
+  if (e.key !== 'Enter') return;
+  const query = e.target.value.trim();
+  if (!query) return;
+
+  const container = document.getElementById('traktResultsContainer');
+  const status = document.getElementById('apiSearchStatus');
+  
+  container.innerHTML = '';
+  status.textContent = 'Searching Trakt...';
+
+  try {
+    const res = await fetch(`https://api.trakt.tv/search/movie?query=${encodeURIComponent(query)}`, {
+      headers: {
+        'Content-Type': 'application/json',
+        'trakt-api-version': '2',
+        'trakt-api-key': TRAKT_KEY
+      }
+    });
+    
+    if (!res.ok) throw new Error('API Error');
+    const data = await res.json();
+    
+    status.textContent = data.length ? `${data.length} results found.` : 'No results found.';
+    
+    data.slice(0, 10).forEach(item => {
+      const m = item.movie;
+      const year = m.year || 'N/A';
+      const div = document.createElement('div');
+      div.className = 'api-result-item';
+      div.innerHTML = `
+        <div><strong>${m.title}</strong> (${year})</div>
+        <div class="add-btn-group">
+          <button class="add-btn" onclick="addMovieToBackend('${m.ids.slug}', 'Watchlist')">+ Watchlist</button>
+          <button class="add-btn" onclick="addMovieToBackend('${m.ids.slug}', 'Already Seen')">+ Seen</button>
+          <button class="add-btn" onclick="addMovieToBackend('${m.ids.slug}', 'Dropped')">+ Drop</button>
+        </div>
+      `;
+      container.appendChild(div);
+    });
+  } catch (error) {
+    status.textContent = 'Failed to fetch results from Trakt.';
+  }
+}
+
+async function addMovieToBackend(slug, statusCategory) {
+  const statusDisplay = document.getElementById('apiSearchStatus');
+  statusDisplay.textContent = `Adding to ${statusCategory}... please wait.`;
+  
+  try {
+    const response = await fetch('/api/add_movie', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ slug: slug, status: statusCategory })
+    });
+    
+    if (response.ok) {
+      statusDisplay.textContent = `Success! Added to sheet. Refreshing page...`;
+      setTimeout(() => window.location.reload(), 1500);
+    } else {
+      throw new Error('Backend rejection');
+    }
+  } catch (err) {
+    statusDisplay.textContent = `Error adding movie. Check Colab console.`;
+  }
+}
 
 // Populate genres
 const allGenres = new Set();
