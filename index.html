@@ -962,11 +962,9 @@ function initLazyLoading() {
 }
 
 function mykadriSearchUrl(title) {
-  // MyKadri's full search endpoint blocks bots, but its /tags/ pages work as a
-  // reliable title lookup -- e.g. /tags/toy+story+5/ resolves straight to the match.
   const cleaned = title.replace(/[:'"!?,.]/g, '').trim();
-  const slug = encodeURIComponent(cleaned).replace(/%20/g, '+');
-  return `https://mykadri.tv/tags/${slug}/`;
+  const query = encodeURIComponent(cleaned).replace(/%20/g, '+');
+  return `https://mykadri.tv/?story=${query}&do=search&subaction=search`;
 }
 
 function openModal(idx) {
