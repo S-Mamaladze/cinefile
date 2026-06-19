@@ -207,14 +207,22 @@
      <option value="">All Genres</option>
    </select>
    
+   <!-- ADD THIS: Full 1-10 Rating Filter -->
    <select class="filter-select" id="ratingFilter" onchange="render()">
      <option value="all">All Ratings</option>
+     <option value="10">10 Stars</option>
      <option value="9">9+ Stars</option>
      <option value="8">8+ Stars</option>
      <option value="7">7+ Stars</option>
      <option value="6">6+ Stars</option>
+     <option value="5">5+ Stars</option>
+     <option value="4">4+ Stars</option>
+     <option value="3">3+ Stars</option>
+     <option value="2">2+ Stars</option>
+     <option value="1">1+ Stars</option>
    </select>
 
+   <!-- REPLACE YOUR CURRENT SORT FILTER WITH THIS -->
    <select class="filter-select" id="sortFilter" onchange="render()">
      <option value="alpha_asc">A → Z</option>
      <option value="alpha_desc">Z → A</option>
