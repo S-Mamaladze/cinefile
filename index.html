@@ -961,14 +961,17 @@ function initLazyLoading() {
   document.querySelectorAll('#grid .movie-card').forEach(card => observer.observe(card));
 }
 
-function mykadriSearchUrl(title) {
-  // Strip out punctuation that might break the search
+function mykadriSearchUrl(title, year) {
+  // Clean the title: remove special characters and replace spaces with pluses
   const cleanedTitle = title.replace(/[:'"!?,.]/g, '').trim();
-  
-  // Format with plus signs for the URL
   const query = encodeURIComponent(cleanedTitle).replace(/%20/g, '+');
   
-  // Reverted to title-only search until we get the exact year parameter
+  // Use the xfsearch pattern for exact year filtering
+  if (year) {
+    return `https://mykadri.tv/xfsearch/year/${year}/${query}/`;
+  }
+  
+  // Fallback for movies without a year
   return `https://mykadri.tv/?story=${query}&do=search&subaction=search`;
 }
 
@@ -985,10 +988,11 @@ function openModal(idx) {
   
   // Link generation
   document.getElementById('mTrakt').href = m.url;
-  document.getElementById('mWatch').href = mykadriSearchUrl(m.title);
   
-  // Extract the 4-digit year from the release date
+  // Extract the 4-digit year from the 'released' date field
   const year = m.released ? m.released.substring(0, 4) : '';
+  
+  // Now the search will attempt to use the Year filter
   document.getElementById('mWatch').href = mykadriSearchUrl(m.title, year);
   
   document.getElementById('modalOverlay').classList.add('open');
