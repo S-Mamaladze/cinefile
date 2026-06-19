@@ -8,19 +8,19 @@
   @import url('https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600;9..144,700&family=Archivo:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap');
 
   :root {
-    --paper:     #f4eee1;
-    --paper-dim: #e8dfca;
-    --ink:       #15130f;
-    --ink-soft:  #4a443a;
-    --rule:      #cdbf9f;
-    --sienna:    #bd5530;
+    --paper:      #f4eee1;
+    --paper-dim:  #e8dfca;
+    --ink:        #15130f;
+    --ink-soft:   #8a8171; /* <-- Changed from #4a443a for readability */
+    --rule:       #cdbf9f;
+    --sienna:     #bd5530;
     --sienna-deep:#8f3c1f;
-    --moss:      #56624c;
-    --moss-deep: #3c4536;
-    --brass:     #b8893f;
-    --night:     #15130f;
-    --night-card:#1c1a14;
-    --night-rule:#332f24;
+    --moss:       #56624c;
+    --moss-deep:  #4a5442; /* <-- Slightly lightened */
+    --brass:      #b8893f;
+    --night:      #15130f;
+    --night-card: #1c1a14;
+    --night-rule: #3f3a2d; /* <-- Lightened so borders/bars don't vanish */
     --paper-on-night: #ece3cf;
   }
 
@@ -379,13 +379,13 @@
   .r6  { color: #c2bba9; background: rgba(155,148,133,0.16); border-color: #9b9485; }
   .r5  { color: #b0a890; background: rgba(138,130,117,0.14); border-color: #8a8275; }
   .r-low { color: #e08055; background: rgba(189,85,48,0.18); border-color: var(--sienna); }
-  .r-none { color: #9b9485; background: rgba(244,238,225,0.06); font-style: italic; border-style: dashed; }
+  .r-none { color: #b5ad9e; background: rgba(244,238,225,0.08); font-style: italic; border-style: dashed; }
 
-  .meta-year, .meta-runtime { font-family: 'JetBrains Mono', monospace; font-size: 0.7rem; color: #b6ac96; }
-  .meta-age { font-family: 'JetBrains Mono', monospace; font-size: 0.62rem; border: 1px solid var(--night-rule); color: #c2bba9; padding: 1px 5px; border-radius: 2px; }
+  .meta-year, .meta-runtime { font-family: 'JetBrains Mono', monospace; font-size: 0.7rem; color: #d4ccbd; /* <-- Brighter */ }
+  .meta-age { font-family: 'JetBrains Mono', monospace; font-size: 0.62rem; border: 1px solid var(--night-rule); color: #d4ccbd; padding: 1px 5px; border-radius: 2px; }
 
   .card-genres { margin-top: 7px; display: flex; flex-wrap: wrap; gap: 4px; }
-  .genre-tag { font-size: 0.66rem; color: #c2bba9; background: rgba(244,238,225,0.07); padding: 2px 6px; border-radius: 2px; }
+  .genre-tag { font-size: 0.66rem; color: #ece3cf; background: rgba(244,238,225,0.12); padding: 2px 6px; border-radius: 2px; } /* <-- Brighter text, slightly more visible background */
 
   .metacritic {
     display: inline-flex; align-items: center; gap: 4px;
