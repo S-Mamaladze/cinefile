@@ -466,14 +466,23 @@
   .modal-field-val { font-size: 0.88rem; font-weight: 500; color: var(--paper-on-night); }
   .modal-genres { display: flex; flex-wrap: wrap; gap: 6px; margin: 14px 0; }
   .modal-genre { font-size: 0.74rem; padding: 4px 10px; border-radius: 2px; background: rgba(86,98,76,0.12); border: 1px solid rgba(86,98,76,0.3); color: #8ba87a; }
-  .modal-trakt {
+  .modal-links { display: flex; flex-wrap: wrap; gap: 10px; }
+  .modal-trakt, .modal-watch {
     display: inline-flex; align-items: center; gap: 6px; margin-top: 12px;
-    background: rgba(189,85,48,0.1); border: 1px solid rgba(189,85,48,0.3);
-    color: var(--sienna); padding: 9px 16px; border-radius: 2px;
+    padding: 9px 16px; border-radius: 2px;
     text-decoration: none; font-size: 0.84rem; font-weight: 600;
     transition: background 0.15s;
   }
+  .modal-trakt {
+    background: rgba(189,85,48,0.1); border: 1px solid rgba(189,85,48,0.3);
+    color: var(--sienna);
+  }
   .modal-trakt:hover { background: rgba(189,85,48,0.2); }
+  .modal-watch {
+    background: rgba(184,137,63,0.1); border: 1px solid rgba(184,137,63,0.3);
+    color: var(--brass);
+  }
+  .modal-watch:hover { background: rgba(184,137,63,0.2); }
 
   /* -- series progress bar (legacy one-piece-style block) -- */
   .op-bar-wrap { background: var(--night-card); border: 1px solid var(--night-rule); border-radius: 3px; padding: 16px 20px; margin-top: 0; max-width: none; }
@@ -673,7 +682,10 @@
     <div class="modal-body">
       <div class="modal-grid" id="mGrid"></div>
       <div class="modal-genres" id="mGenres"></div>
-      <a class="modal-trakt" id="mTrakt" target="_blank" rel="noopener">View on Trakt.tv -></a>
+      <div class="modal-links">
+        <a class="modal-trakt" id="mTrakt" target="_blank" rel="noopener">View on Trakt.tv -></a>
+        <a class="modal-watch" id="mWatch" target="_blank" rel="noopener">Watch on MyKadri -></a>
+      </div>
     </div>
   </div>
 </div>
@@ -947,6 +959,14 @@ function initLazyLoading() {
   }, { rootMargin: '200px' });
   
   document.querySelectorAll('#grid .movie-card').forEach(card => observer.observe(card));
+}
+
+function mykadriSearchUrl(title) {
+  // MyKadri's full search endpoint blocks bots, but its /tags/ pages work as a
+  // reliable title lookup -- e.g. /tags/toy+story+5/ resolves straight to the match.
+  const cleaned = title.replace(/[:'"!?,.]/g, '').trim();
+  const slug = encodeURIComponent(cleaned).replace(/%20/g, '+');
+  return `https://mykadri.tv/tags/${slug}/`;
 }
 
 function openModal(idx) {
