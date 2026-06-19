@@ -13,8 +13,8 @@
     --ink:        #15130f;
     --ink-soft:   #8a8171;
     --rule:       #cdbf9f;
-    --sienna:       #e67e58; 
-    --sienna-deep:  #bf6545; 
+    --sienna:       #e67e58;
+    --sienna-deep:  #bf6545;
     --moss:       #56624c;
     --moss-deep:  #4a5442;
     --brass:      #b8893f;
@@ -915,10 +915,10 @@ function initLazyLoading() {
         }
 
         const fallbackSearch = () => {
-          const searchUrl = year 
-            ? `https://www.omdbapi.com/?t=${encodeURIComponent(title)}&y=${year}&apikey=${OMDB_KEY}` 
+          const searchUrl = year
+            ? `https://www.omdbapi.com/?t=${encodeURIComponent(title)}&y=${year}&apikey=${OMDB_KEY}`
             : `https://www.omdbapi.com/?t=${encodeURIComponent(title)}&apikey=${OMDB_KEY}`;
-          
+
           fetch(searchUrl).then(r => r.json()).then(data => {
             const returnedYear = (data.Year || '').substring(0, 4);
             const diff = Math.abs(parseInt(returnedYear) - parseInt(year));
@@ -957,7 +957,7 @@ function initLazyLoading() {
       }
     });
   }, { rootMargin: '200px' });
-  
+
   document.querySelectorAll('#grid .movie-card').forEach(card => observer.observe(card));
 }
 
@@ -965,7 +965,7 @@ function mykadriSearchUrl(title) {
   // Clean the title for a standard search query
   const cleanedTitle = title.replace(/[:'"!?,.]/g, '').trim();
   const query = encodeURIComponent(cleanedTitle).replace(/%20/g, '+');
-  
+
   // This is the direct search URL for their engine
   return `https://mykadri.tv/?story=${query}&do=search&subaction=search`;
 }
@@ -979,15 +979,15 @@ function openModal(idx) {
   document.getElementById('mGrid').innerHTML = fields.map(([label, val]) => `<div class="modal-field"><div class="modal-field-label">${label}</div><div class="modal-field-val">${val || '--'}</div></div>`).join('');
   const genres = m.genres ? m.genres.split(', ') : [];
   document.getElementById('mGenres').innerHTML = genres.map(g => `<span class="modal-genre">${g}</span>`).join('');
-  
+
   // Link generation
   document.getElementById('mTrakt').href = m.url;
   document.getElementById('mWatch').href = mykadriSearchUrl(m.title);
-  
+
   // Extract the 4-digit year from the release date
   const year = m.released ? m.released.substring(0, 4) : '';
   document.getElementById('mWatch').href = mykadriSearchUrl(m.title, year);
-  
+
   document.getElementById('modalOverlay').classList.add('open');
 }
 
