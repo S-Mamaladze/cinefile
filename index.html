@@ -4,7 +4,6 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Cinefile -- Personal Ledger</title>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.4/chart.umd.min.js"></script>
 <style>
   @import url('https://fonts.googleapis.com/css2?family=Anton&family=Archivo:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600;700&display=swap');
 
@@ -53,11 +52,31 @@
   .analytics-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 18px; }
   .analytics-card { background: var(--night-card); border: 1px solid var(--night-rule); border-radius: 3px; padding: 18px 20px; }
   .analytics-card.wide { grid-column: 1 / -1; }
-  .analytics-card-title { font-family: 'JetBrains Mono', monospace; font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.08em; color: var(--ink-soft); margin-bottom: 14px; }
+  .analytics-card-title { font-family: 'JetBrains Mono', monospace; font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.08em; color: var(--ink-soft); margin-bottom: 16px; }
   .analytics-card-empty { font-family: 'JetBrains Mono', monospace; font-size: 0.74rem; color: var(--ink-soft); font-style: italic; padding: 30px 0; text-align: center; }
-  .chart-wrap { position: relative; height: 240px; }
-  .analytics-card.wide .chart-wrap { height: 200px; }
   .runtime-stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); gap: 14px; }
+
+  /* Horizontal bar lists -- genres, directors, cast, countries */
+  .bar-list { display: flex; flex-direction: column; gap: 11px; }
+  .bar-row { display: flex; align-items: center; gap: 10px; }
+  .bar-row-label { width: 38%; flex-shrink: 0; font-size: 0.76rem; color: var(--paper-on-night); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .bar-row-track { flex: 1; background: var(--night-rule); border-radius: 1px; height: 9px; overflow: hidden; }
+  .bar-row-fill { height: 100%; background: linear-gradient(90deg, var(--brass), var(--sienna)); border-radius: 1px; }
+  .bar-row-count { width: 26px; flex-shrink: 0; text-align: right; font-family: 'JetBrains Mono', monospace; font-size: 0.68rem; color: var(--ink-soft); }
+
+  /* Vertical histograms -- rating distribution + watching activity */
+  .rating-histogram { display: flex; align-items: flex-end; gap: 8px; height: 190px; }
+  .rating-bar-col { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: flex-end; height: 100%; }
+  .rating-bar-fill { width: 100%; background: linear-gradient(180deg, var(--brass), var(--sienna)); border-radius: 2px 2px 0 0; min-height: 2px; }
+  .rating-bar-count { font-family: 'JetBrains Mono', monospace; font-size: 0.62rem; color: var(--ink-soft); margin-bottom: 5px; }
+  .rating-bar-label { font-family: 'JetBrains Mono', monospace; font-size: 0.64rem; color: var(--ink-soft); margin-top: 7px; }
+
+  .activity-chart-wrap { overflow-x: auto; padding-bottom: 4px; }
+  .activity-histogram { display: flex; align-items: flex-end; gap: 5px; height: 170px; min-width: max-content; }
+  .activity-bar-col { width: 30px; flex-shrink: 0; display: flex; flex-direction: column; align-items: center; justify-content: flex-end; height: 100%; }
+  .activity-bar-fill { width: 100%; background: linear-gradient(180deg, var(--moss), var(--moss-deep)); border-radius: 2px 2px 0 0; min-height: 2px; }
+  .activity-bar-count { font-family: 'JetBrains Mono', monospace; font-size: 0.6rem; color: var(--ink-soft); margin-bottom: 5px; }
+  .activity-bar-label { font-family: 'JetBrains Mono', monospace; font-size: 0.6rem; color: var(--ink-soft); margin-top: 7px; white-space: nowrap; }
 
   .hero { padding: 56px 44px 36px; border-bottom: 1px solid var(--night-rule); }
   .hero-eyebrow { font-family: 'JetBrains Mono', monospace; font-size: 0.7rem; letter-spacing: 0.18em; text-transform: uppercase; color: var(--brass); margin-bottom: 14px; display: flex; align-items: center; gap: 10px; }
@@ -360,27 +379,27 @@
     <div class="analytics-grid">
       <div class="analytics-card">
         <div class="analytics-card-title">Genres</div>
-        <div class="chart-wrap"><canvas id="chartGenres"></canvas></div>
+        <div class="bar-list" id="chartGenres"></div>
       </div>
       <div class="analytics-card">
         <div class="analytics-card-title">Rating distribution</div>
-        <div class="chart-wrap"><canvas id="chartRatings"></canvas></div>
+        <div class="rating-histogram" id="chartRatings"></div>
       </div>
       <div class="analytics-card wide">
         <div class="analytics-card-title">Watching activity, by month</div>
-        <div class="chart-wrap"><canvas id="chartActivity"></canvas></div>
+        <div class="activity-chart-wrap"><div class="activity-histogram" id="chartActivity"></div></div>
       </div>
       <div class="analytics-card">
         <div class="analytics-card-title">Top directors</div>
-        <div class="chart-wrap"><canvas id="chartDirectors"></canvas></div>
+        <div class="bar-list" id="chartDirectors"></div>
       </div>
       <div class="analytics-card">
         <div class="analytics-card-title">Top cast</div>
-        <div class="chart-wrap"><canvas id="chartCast"></canvas></div>
+        <div class="bar-list" id="chartCast"></div>
       </div>
       <div class="analytics-card">
         <div class="analytics-card-title">Countries</div>
-        <div class="chart-wrap"><canvas id="chartCountries"></canvas></div>
+        <div class="bar-list" id="chartCountries"></div>
       </div>
       <div class="analytics-card">
         <div class="analytics-card-title">Runtime</div>
@@ -885,8 +904,6 @@ async function incrementCurrentSeries() {
 }
 
 // ==================== ANALYTICS ====================
-const CHART_PALETTE = ['#e67e58', '#b8893f', '#56624c', '#a9c7c9', '#9fc285', '#bf6545', '#c2bba9', '#8a8171'];
-
 function parseRuntimeMinutes(str) {
   if (!str) return 0;
   let mins = 0;
@@ -904,32 +921,46 @@ function setAnalyticsScope(scope) {
   renderAnalytics();
 }
 
-function destroyChart(key) {
-  if (charts[key]) { charts[key].destroy(); delete charts[key]; }
+function renderBarList(containerId, entries) {
+  const el = document.getElementById(containerId);
+  if (!entries.length) { el.innerHTML = '<div class="analytics-card-empty">No data for this view</div>'; return; }
+  const max = Math.max(...entries.map(e => e[1]));
+  el.innerHTML = entries.map(([label, count]) => `
+    <div class="bar-row">
+      <div class="bar-row-label" title="${String(label).replace(/"/g, '&quot;')}">${label}</div>
+      <div class="bar-row-track"><div class="bar-row-fill" style="width:${max ? (count / max * 100) : 0}%"></div></div>
+      <div class="bar-row-count">${count}</div>
+    </div>`).join('');
 }
 
-function renderBarChart(canvasId, labels, data, color, horizontal) {
-  destroyChart(canvasId);
-  const wrap = document.getElementById(canvasId).closest('.analytics-card');
-  if (!labels.length) {
-    wrap.querySelector('.chart-wrap').innerHTML = '<div class="analytics-card-empty">No data for this view</div>';
-    return;
-  }
-  const ctx = document.getElementById(canvasId).getContext('2d');
-  charts[canvasId] = new Chart(ctx, {
-    type: 'bar',
-    data: { labels, datasets: [{ data, backgroundColor: color, borderRadius: 2, barThickness: horizontal ? 14 : 18 }] },
-    options: {
-      indexAxis: horizontal ? 'y' : 'x',
-      responsive: true,
-      maintainAspectRatio: false,
-      plugins: { legend: { display: false } },
-      scales: {
-        x: { ticks: { color: '#8a8171', font: { family: 'JetBrains Mono', size: 10 } }, grid: { color: '#3f3a2d' } },
-        y: { ticks: { color: '#ece3cf', font: { family: 'Archivo', size: 11 } }, grid: { color: '#3f3a2d', display: horizontal ? false : true } }
-      }
-    }
-  });
+function renderRatingHistogram(containerId, counts) {
+  const el = document.getElementById(containerId);
+  const total = counts.reduce((a, b) => a + b, 0);
+  if (!total) { el.innerHTML = '<div class="analytics-card-empty">No data for this view</div>'; return; }
+  const max = Math.max(...counts, 1);
+  el.innerHTML = counts.map((c, i) => `
+    <div class="rating-bar-col">
+      <div class="rating-bar-count">${c || ''}</div>
+      <div class="rating-bar-fill" style="height:${c ? Math.max(c / max * 100, 4) : 0}%"></div>
+      <div class="rating-bar-label">${i + 1}</div>
+    </div>`).join('');
+}
+
+function renderActivityHistogram(containerId, keys, counts) {
+  const el = document.getElementById(containerId);
+  if (!keys.length) { el.innerHTML = '<div class="analytics-card-empty">No data for this view</div>'; return; }
+  const max = Math.max(...counts, 1);
+  const monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+  el.innerHTML = keys.map((k, i) => {
+    const [y, mo] = k.split('-');
+    const label = `${monthNames[parseInt(mo) - 1]} '${y.slice(2)}`;
+    const c = counts[i];
+    return `<div class="activity-bar-col">
+      <div class="activity-bar-count">${c || ''}</div>
+      <div class="activity-bar-fill" style="height:${c ? Math.max(c / max * 100, 4) : 0}%"></div>
+      <div class="activity-bar-label">${label}</div>
+    </div>`;
+  }).join('');
 }
 
 function renderAnalytics() {
@@ -941,43 +972,36 @@ function renderAnalytics() {
   const genreCounts = {};
   source.forEach(m => { if (m.genres) m.genres.split(', ').forEach(g => { g = g.trim(); if (g) genreCounts[g] = (genreCounts[g] || 0) + 1; }); });
   const genreSorted = Object.entries(genreCounts).sort((a, b) => b[1] - a[1]).slice(0, 10);
-  resetChartCard('chartGenres');
-  renderBarChart('chartGenres', genreSorted.map(g => g[0]), genreSorted.map(g => g[1]), '#e67e58', true);
+  renderBarList('chartGenres', genreSorted);
 
   // Ratings 1-10
-  const ratingLabels = ['1', '2', '3', '4', '5', '6', '7', '8', '9', '10'];
   const ratingCounts = Array(10).fill(0);
   source.forEach(m => { const n = ratingNum(m.rating); if (n >= 1 && n <= 10) ratingCounts[n - 1]++; });
-  resetChartCard('chartRatings');
-  renderBarChart('chartRatings', ratingLabels, ratingCounts, '#b8893f', false);
+  renderRatingHistogram('chartRatings', ratingCounts);
 
   // Watching activity by year-month (based on Date Watched)
   const activityCounts = {};
   source.forEach(m => { if (m.dateWatched) { const ym = m.dateWatched.substring(0, 7); activityCounts[ym] = (activityCounts[ym] || 0) + 1; } });
   const activityKeys = Object.keys(activityCounts).sort();
-  resetChartCard('chartActivity');
-  renderBarChart('chartActivity', activityKeys, activityKeys.map(k => activityCounts[k]), '#56624c', false);
+  renderActivityHistogram('chartActivity', activityKeys, activityKeys.map(k => activityCounts[k]));
 
   // Top directors
   const directorCounts = {};
   source.forEach(m => { if (m.director && m.director !== 'Unknown') directorCounts[m.director] = (directorCounts[m.director] || 0) + 1; });
   const directorSorted = Object.entries(directorCounts).sort((a, b) => b[1] - a[1]).slice(0, 8);
-  resetChartCard('chartDirectors');
-  renderBarChart('chartDirectors', directorSorted.map(d => d[0]), directorSorted.map(d => d[1]), '#a9c7c9', true);
+  renderBarList('chartDirectors', directorSorted);
 
   // Top cast
   const castCounts = {};
   source.forEach(m => { if (m.cast) m.cast.split(',').forEach(c => { c = c.trim(); if (c) castCounts[c] = (castCounts[c] || 0) + 1; }); });
   const castSorted = Object.entries(castCounts).sort((a, b) => b[1] - a[1]).slice(0, 8);
-  resetChartCard('chartCast');
-  renderBarChart('chartCast', castSorted.map(c => c[0]), castSorted.map(c => c[1]), '#9fc285', true);
+  renderBarList('chartCast', castSorted);
 
   // Countries
   const countryCounts = {};
   source.forEach(m => { if (m.country && m.country !== 'Unknown') countryCounts[m.country] = (countryCounts[m.country] || 0) + 1; });
   const countrySorted = Object.entries(countryCounts).sort((a, b) => b[1] - a[1]).slice(0, 8);
-  resetChartCard('chartCountries');
-  renderBarChart('chartCountries', countrySorted.map(c => c[0]), countrySorted.map(c => c[1]), '#bf6545', true);
+  renderBarList('chartCountries', countrySorted);
 
   // Runtime stats (based on Already Seen entries with a parseable runtime)
   const seenWithRuntime = source.filter(m => m.status === 'Already Seen' && m.runtime);
@@ -988,23 +1012,6 @@ function renderAnalytics() {
     <div class="stat-card"><div class="stat-num">${avgMinutes}</div><div class="stat-label">Avg runtime (min)</div></div>
     <div class="stat-card"><div class="stat-num">${seenWithRuntime.length}</div><div class="stat-label">Entries counted</div></div>
   `;
-}
-
-// Restores the canvas element inside a chart-wrap if a previous render replaced it
-// with an empty-state message, so the next render always has a canvas to draw on.
-function resetChartCard(canvasId) {
-  const existing = document.getElementById(canvasId);
-  if (existing) return;
-  const cardTitle = {
-    chartGenres: 'Genres', chartRatings: 'Rating distribution', chartActivity: 'Watching activity, by month',
-    chartDirectors: 'Top directors', chartCast: 'Top cast', chartCountries: 'Countries'
-  }[canvasId];
-  document.querySelectorAll('.analytics-card').forEach(card => {
-    const title = card.querySelector('.analytics-card-title');
-    if (title && title.textContent === cardTitle) {
-      card.querySelector('.chart-wrap').innerHTML = `<canvas id="${canvasId}"></canvas>`;
-    }
-  });
 }
 
 // ==================== ADD MOVIE (Trakt search) ====================
