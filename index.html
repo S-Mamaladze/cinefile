@@ -4,6 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Cinefile -- Personal Ledger</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.4/chart.umd.min.js"></script>
 <style>
   @import url('https://fonts.googleapis.com/css2?family=Anton&family=Archivo:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600;700&display=swap');
 
@@ -44,8 +45,19 @@
   .view-btn:hover { color: var(--paper-on-night); background: rgba(255,255,255,0.03); }
   .view-btn.active { background: var(--sienna); color: var(--paper); }
   .view-btn.active.series-active { background: var(--moss); color: var(--paper); }
+  .view-btn.active.analytics-active { background: var(--brass); color: var(--night); }
   .view-page { display: none; }
   .view-page.active { display: block; }
+
+  .analytics-toggle { display: flex; gap: 5px; }
+  .analytics-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 18px; }
+  .analytics-card { background: var(--night-card); border: 1px solid var(--night-rule); border-radius: 3px; padding: 18px 20px; }
+  .analytics-card.wide { grid-column: 1 / -1; }
+  .analytics-card-title { font-family: 'JetBrains Mono', monospace; font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.08em; color: var(--ink-soft); margin-bottom: 14px; }
+  .analytics-card-empty { font-family: 'JetBrains Mono', monospace; font-size: 0.74rem; color: var(--ink-soft); font-style: italic; padding: 30px 0; text-align: center; }
+  .chart-wrap { position: relative; height: 240px; }
+  .analytics-card.wide .chart-wrap { height: 200px; }
+  .runtime-stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); gap: 14px; }
 
   .hero { padding: 56px 44px 36px; border-bottom: 1px solid var(--night-rule); }
   .hero-eyebrow { font-family: 'JetBrains Mono', monospace; font-size: 0.7rem; letter-spacing: 0.18em; text-transform: uppercase; color: var(--brass); margin-bottom: 14px; display: flex; align-items: center; gap: 10px; }
@@ -213,6 +225,7 @@
     <div class="view-switcher">
       <button class="view-btn active" id="viewBtnMovies" onclick="switchView('movies')">Films &amp; Anime</button>
       <button class="view-btn" id="viewBtnSeries" onclick="switchView('series')">Series</button>
+      <button class="view-btn" id="viewBtnAnalytics" onclick="switchView('analytics')">Analytics</button>
     </div>
     <div id="headerCount">182 entries</div>
   </div>
@@ -326,6 +339,57 @@
   </div>
 </div>
 
+<div class="view-page" id="page-analytics">
+  <section class="hero">
+    <div class="hero-eyebrow">Volume Three</div>
+    <div class="hero-title">The ledger, <em>totaled</em> up.</div>
+    <div class="hero-sub">Genres, ratings, viewing pace, and who keeps showing up in the credits.</div>
+  </section>
+
+  <div class="controls-wrapper" style="position: static;">
+    <div class="controls-top">
+      <div class="analytics-toggle">
+        <button class="filter-btn active" id="analyticsToggleFiltered" onclick="setAnalyticsScope('filtered')">Filtered view</button>
+        <button class="filter-btn" id="analyticsToggleAll" onclick="setAnalyticsScope('all')">Full collection</button>
+      </div>
+      <div class="count-badge" id="analyticsScopeLabel"></div>
+    </div>
+  </div>
+
+  <div class="grid-section">
+    <div class="analytics-grid">
+      <div class="analytics-card">
+        <div class="analytics-card-title">Genres</div>
+        <div class="chart-wrap"><canvas id="chartGenres"></canvas></div>
+      </div>
+      <div class="analytics-card">
+        <div class="analytics-card-title">Rating distribution</div>
+        <div class="chart-wrap"><canvas id="chartRatings"></canvas></div>
+      </div>
+      <div class="analytics-card wide">
+        <div class="analytics-card-title">Watching activity, by month</div>
+        <div class="chart-wrap"><canvas id="chartActivity"></canvas></div>
+      </div>
+      <div class="analytics-card">
+        <div class="analytics-card-title">Top directors</div>
+        <div class="chart-wrap"><canvas id="chartDirectors"></canvas></div>
+      </div>
+      <div class="analytics-card">
+        <div class="analytics-card-title">Top cast</div>
+        <div class="chart-wrap"><canvas id="chartCast"></canvas></div>
+      </div>
+      <div class="analytics-card">
+        <div class="analytics-card-title">Countries</div>
+        <div class="chart-wrap"><canvas id="chartCountries"></canvas></div>
+      </div>
+      <div class="analytics-card">
+        <div class="analytics-card-title">Runtime</div>
+        <div class="runtime-stats-grid" id="runtimeStats"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
 <div class="modal-overlay" id="modalOverlay" onclick="closeModal(event)">
   <div class="modal">
     <button class="modal-close" onclick="closeModalBtn()">x</button>
@@ -432,6 +496,8 @@ let typeFilter = 'all';
 let seriesStatusFilter = 'all';
 let currentModalMovie = null;
 let currentModalSeries = null;
+let analyticsScope = 'filtered';
+const charts = {};
 
 const PAGE_SIZE = 48;
 let visibleCount = PAGE_SIZE;
@@ -439,12 +505,18 @@ let visibleCount = PAGE_SIZE;
 function switchView(view) {
   document.getElementById('page-movies').classList.remove('active');
   document.getElementById('page-series').classList.remove('active');
+  document.getElementById('page-analytics').classList.remove('active');
   document.getElementById('viewBtnMovies').classList.remove('active');
   document.getElementById('viewBtnSeries').classList.remove('active','series-active');
+  document.getElementById('viewBtnAnalytics').classList.remove('active','analytics-active');
   document.getElementById('page-' + view).classList.add('active');
   if (view === 'series') {
     document.getElementById('viewBtnSeries').classList.add('active','series-active');
     document.getElementById('headerCount').textContent = SERIES.length + ' shows tracked';
+  } else if (view === 'analytics') {
+    document.getElementById('viewBtnAnalytics').classList.add('active','analytics-active');
+    document.getElementById('headerCount').textContent = 'Analytics';
+    renderAnalytics();
   } else {
     document.getElementById('viewBtnMovies').classList.add('active');
     document.getElementById('headerCount').textContent = MOVIES.length + ' entries';
@@ -810,6 +882,129 @@ async function incrementCurrentSeries() {
     statusEl.textContent = 'Network error -- is the Colab server still running?';
     btn.disabled = false;
   }
+}
+
+// ==================== ANALYTICS ====================
+const CHART_PALETTE = ['#e67e58', '#b8893f', '#56624c', '#a9c7c9', '#9fc285', '#bf6545', '#c2bba9', '#8a8171'];
+
+function parseRuntimeMinutes(str) {
+  if (!str) return 0;
+  let mins = 0;
+  const h = str.match(/(\d+)h/);
+  const m = str.match(/(\d+)m/);
+  if (h) mins += parseInt(h[1]) * 60;
+  if (m) mins += parseInt(m[1]);
+  return mins;
+}
+
+function setAnalyticsScope(scope) {
+  analyticsScope = scope;
+  document.getElementById('analyticsToggleFiltered').classList.toggle('active', scope === 'filtered');
+  document.getElementById('analyticsToggleAll').classList.toggle('active', scope === 'all');
+  renderAnalytics();
+}
+
+function destroyChart(key) {
+  if (charts[key]) { charts[key].destroy(); delete charts[key]; }
+}
+
+function renderBarChart(canvasId, labels, data, color, horizontal) {
+  destroyChart(canvasId);
+  const wrap = document.getElementById(canvasId).closest('.analytics-card');
+  if (!labels.length) {
+    wrap.querySelector('.chart-wrap').innerHTML = '<div class="analytics-card-empty">No data for this view</div>';
+    return;
+  }
+  const ctx = document.getElementById(canvasId).getContext('2d');
+  charts[canvasId] = new Chart(ctx, {
+    type: 'bar',
+    data: { labels, datasets: [{ data, backgroundColor: color, borderRadius: 2, barThickness: horizontal ? 14 : 18 }] },
+    options: {
+      indexAxis: horizontal ? 'y' : 'x',
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: { legend: { display: false } },
+      scales: {
+        x: { ticks: { color: '#8a8171', font: { family: 'JetBrains Mono', size: 10 } }, grid: { color: '#3f3a2d' } },
+        y: { ticks: { color: '#ece3cf', font: { family: 'Archivo', size: 11 } }, grid: { color: '#3f3a2d', display: horizontal ? false : true } }
+      }
+    }
+  });
+}
+
+function renderAnalytics() {
+  const source = analyticsScope === 'filtered' ? getFilteredMovies() : MOVIES;
+  document.getElementById('analyticsScopeLabel').innerHTML =
+    `Analyzing <strong>${source.length}</strong> ${analyticsScope === 'filtered' ? 'filtered' : 'total'} entr${source.length === 1 ? 'y' : 'ies'}`;
+
+  // Genres
+  const genreCounts = {};
+  source.forEach(m => { if (m.genres) m.genres.split(', ').forEach(g => { g = g.trim(); if (g) genreCounts[g] = (genreCounts[g] || 0) + 1; }); });
+  const genreSorted = Object.entries(genreCounts).sort((a, b) => b[1] - a[1]).slice(0, 10);
+  resetChartCard('chartGenres');
+  renderBarChart('chartGenres', genreSorted.map(g => g[0]), genreSorted.map(g => g[1]), '#e67e58', true);
+
+  // Ratings 1-10
+  const ratingLabels = ['1', '2', '3', '4', '5', '6', '7', '8', '9', '10'];
+  const ratingCounts = Array(10).fill(0);
+  source.forEach(m => { const n = ratingNum(m.rating); if (n >= 1 && n <= 10) ratingCounts[n - 1]++; });
+  resetChartCard('chartRatings');
+  renderBarChart('chartRatings', ratingLabels, ratingCounts, '#b8893f', false);
+
+  // Watching activity by year-month (based on Date Watched)
+  const activityCounts = {};
+  source.forEach(m => { if (m.dateWatched) { const ym = m.dateWatched.substring(0, 7); activityCounts[ym] = (activityCounts[ym] || 0) + 1; } });
+  const activityKeys = Object.keys(activityCounts).sort();
+  resetChartCard('chartActivity');
+  renderBarChart('chartActivity', activityKeys, activityKeys.map(k => activityCounts[k]), '#56624c', false);
+
+  // Top directors
+  const directorCounts = {};
+  source.forEach(m => { if (m.director && m.director !== 'Unknown') directorCounts[m.director] = (directorCounts[m.director] || 0) + 1; });
+  const directorSorted = Object.entries(directorCounts).sort((a, b) => b[1] - a[1]).slice(0, 8);
+  resetChartCard('chartDirectors');
+  renderBarChart('chartDirectors', directorSorted.map(d => d[0]), directorSorted.map(d => d[1]), '#a9c7c9', true);
+
+  // Top cast
+  const castCounts = {};
+  source.forEach(m => { if (m.cast) m.cast.split(',').forEach(c => { c = c.trim(); if (c) castCounts[c] = (castCounts[c] || 0) + 1; }); });
+  const castSorted = Object.entries(castCounts).sort((a, b) => b[1] - a[1]).slice(0, 8);
+  resetChartCard('chartCast');
+  renderBarChart('chartCast', castSorted.map(c => c[0]), castSorted.map(c => c[1]), '#9fc285', true);
+
+  // Countries
+  const countryCounts = {};
+  source.forEach(m => { if (m.country && m.country !== 'Unknown') countryCounts[m.country] = (countryCounts[m.country] || 0) + 1; });
+  const countrySorted = Object.entries(countryCounts).sort((a, b) => b[1] - a[1]).slice(0, 8);
+  resetChartCard('chartCountries');
+  renderBarChart('chartCountries', countrySorted.map(c => c[0]), countrySorted.map(c => c[1]), '#bf6545', true);
+
+  // Runtime stats (based on Already Seen entries with a parseable runtime)
+  const seenWithRuntime = source.filter(m => m.status === 'Already Seen' && m.runtime);
+  const totalMinutes = seenWithRuntime.reduce((sum, m) => sum + parseRuntimeMinutes(m.runtime), 0);
+  const avgMinutes = seenWithRuntime.length ? Math.round(totalMinutes / seenWithRuntime.length) : 0;
+  document.getElementById('runtimeStats').innerHTML = `
+    <div class="stat-card"><div class="stat-num">${Math.round(totalMinutes / 60)}</div><div class="stat-label">Hours watched</div></div>
+    <div class="stat-card"><div class="stat-num">${avgMinutes}</div><div class="stat-label">Avg runtime (min)</div></div>
+    <div class="stat-card"><div class="stat-num">${seenWithRuntime.length}</div><div class="stat-label">Entries counted</div></div>
+  `;
+}
+
+// Restores the canvas element inside a chart-wrap if a previous render replaced it
+// with an empty-state message, so the next render always has a canvas to draw on.
+function resetChartCard(canvasId) {
+  const existing = document.getElementById(canvasId);
+  if (existing) return;
+  const cardTitle = {
+    chartGenres: 'Genres', chartRatings: 'Rating distribution', chartActivity: 'Watching activity, by month',
+    chartDirectors: 'Top directors', chartCast: 'Top cast', chartCountries: 'Countries'
+  }[canvasId];
+  document.querySelectorAll('.analytics-card').forEach(card => {
+    const title = card.querySelector('.analytics-card-title');
+    if (title && title.textContent === cardTitle) {
+      card.querySelector('.chart-wrap').innerHTML = `<canvas id="${canvasId}"></canvas>`;
+    }
+  });
 }
 
 // ==================== ADD MOVIE (Trakt search) ====================
