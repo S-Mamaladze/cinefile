@@ -176,6 +176,8 @@
   .modal-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 13px; margin-bottom: 18px; }
   .modal-field-label { font-family: 'JetBrains Mono', monospace; font-size: 0.62rem; color: var(--ink-soft); text-transform: uppercase; margin-bottom: 4px; }
   .modal-field-val { font-size: 0.88rem; font-weight: 500; color: var(--paper-on-night); }
+  .modal-field-val ul.cast-list { list-style: disc; margin: 0; padding-left: 18px; }
+  .modal-field-val ul.cast-list li { margin-bottom: 3px; line-height: 1.4; }
   .modal-genres { display: flex; flex-wrap: wrap; gap: 6px; margin: 14px 0; }
   .modal-genre { font-size: 0.74rem; padding: 4px 10px; border-radius: 2px; background: rgba(86,98,76,0.12); border: 1px solid rgba(86,98,76,0.3); color: #8ba87a; }
   .modal-links { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 12px; }
@@ -272,6 +274,7 @@
       </div>
       <div style="display:flex; gap:10px;">
         <button class="filter-btn" style="border-color: var(--moss); color: var(--moss);" onclick="triggerBackup()" id="backupBtn">Backup Ledger</button>
+        <button class="filter-btn" style="border-color: var(--brass); color: var(--brass);" onclick="triggerCastBackfill()" id="castBackfillBtn">Refill Cast</button>
         <button class="filter-btn" style="border-color: var(--brass); color: var(--brass);" onclick="openWebSearch()">+ Add Movie</button>
       </div>
     </div>
@@ -750,9 +753,13 @@ function openModal(idx) {
   document.getElementById('mType').textContent = m.type.toUpperCase() + ' - ' + (m.status || 'Watchlist');
   document.getElementById('mTitle').textContent = m.title;
 
+  const castHtml = m.cast
+    ? `<ul class="cast-list">${m.cast.split(',').map(c => `<li>${c.trim()}</li>`).join('')}</ul>`
+    : '--';
+
   const fields = [
     ['Director', m.director || '--'],
-    ['Cast', m.cast || '--'],
+    ['Cast', castHtml],
     ['Released', m.released ? m.released.substring(0,10) : '--'],
     ['Date watched', m.dateWatched || '--'],
     ['Runtime', m.runtime || '--'],
@@ -1147,6 +1154,30 @@ async function triggerBackup() {
     const res = await fetch('/api/backup', { method: 'POST' });
     const data = await res.json();
     btn.innerHTML = data.status === 'success' ? 'Backup created!' : 'Backup failed';
+  } catch (e) {
+    btn.innerHTML = 'Network error';
+  }
+  setTimeout(() => { btn.innerHTML = original; btn.disabled = false; }, 3000);
+}
+
+// ==================== CAST BACKFILL ====================
+async function triggerCastBackfill() {
+  const btn = document.getElementById('castBackfillBtn');
+  const original = btn.innerHTML;
+  btn.innerHTML = 'Filling cast...';
+  btn.disabled = true;
+  try {
+    const res = await fetch('/api/backfill_cast', { method: 'POST' });
+    const data = await res.json();
+    if (data.status === 'success') {
+      btn.innerHTML = `Filled ${data.updated}!`;
+      if (data.updated > 0) {
+        setTimeout(() => window.location.reload(), 1200);
+        return;
+      }
+    } else {
+      btn.innerHTML = 'Error: ' + (data.message || 'failed');
+    }
   } catch (e) {
     btn.innerHTML = 'Network error';
   }
