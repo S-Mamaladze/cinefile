@@ -56,6 +56,7 @@
   .analytics-card-empty { font-family: 'JetBrains Mono', monospace; font-size: 0.74rem; color: var(--ink-soft); font-style: italic; padding: 30px 0; text-align: center; }
   .runtime-stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); gap: 14px; }
 
+  /* Duration cards -- Movies / Series / Total watch-time, plus avg runtime + film count */
   .duration-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); gap: 14px; }
   .duration-card { background: rgba(244,238,225,0.03); border: 1px solid var(--night-rule); border-radius: 2px; padding: 16px 18px; }
   .duration-card.is-series { border-color: rgba(184,137,63,0.35); }
@@ -68,6 +69,7 @@
   .rating-avg-line { font-family: 'JetBrains Mono', monospace; font-size: 0.72rem; color: var(--ink-soft); margin-top: 16px; text-align: center; }
   .rating-avg-line strong { color: var(--brass); }
 
+  /* Horizontal bar lists -- genres, directors, cast, countries */
   .bar-list { display: flex; flex-direction: column; gap: 11px; }
   .bar-row { display: flex; align-items: center; gap: 10px; }
   .bar-row-label { width: 38%; flex-shrink: 0; font-size: 0.76rem; color: var(--paper-on-night); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
@@ -75,6 +77,7 @@
   .bar-row-fill { height: 100%; background: linear-gradient(90deg, var(--brass), var(--sienna)); border-radius: 1px; }
   .bar-row-count { width: 26px; flex-shrink: 0; text-align: right; font-family: 'JetBrains Mono', monospace; font-size: 0.68rem; color: var(--ink-soft); }
 
+  /* Vertical histograms -- rating distribution + watching activity */
   .rating-histogram { display: flex; align-items: flex-end; gap: 8px; height: 190px; }
   .rating-bar-col { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: flex-end; height: 100%; }
   .rating-bar-fill { width: 100%; background: linear-gradient(180deg, var(--brass), var(--sienna)); border-radius: 2px 2px 0 0; min-height: 2px; }
@@ -135,6 +138,7 @@
   .card-poster { height: 142px; display: flex; align-items: center; justify-content: center; background: linear-gradient(160deg, var(--night-card) 0%, #232017 100%); position: relative; overflow: hidden; padding: 10px; }
   .card-poster-title { font-family: 'Anton', sans-serif; font-size: 1.1rem; text-transform: uppercase; color: rgba(244,238,225,0.78); text-align: center; padding: 8px; z-index: 1; line-height: 1.1; }
 
+  /* Poster image -- loads in via JS once OMDb returns a result, fades over the text fallback */
   .poster-img { position: absolute; top: 0; left: 0; right: 0; bottom: 0; width: 100%; height: 100%; object-fit: cover; opacity: 0; transition: opacity 0.5s ease; z-index: 2; }
   .poster-img.loaded { opacity: 1; }
 
@@ -224,6 +228,8 @@
   .empty-icon { font-size: 2.4rem; margin-bottom: 14px; opacity: 0.5; }
   .empty p { font-size: 0.9rem; font-family: 'JetBrains Mono', monospace; }
 
+  /* Load More button -- v6.2 hardcoded a 50-item slice with no way to see the rest.
+     This restores real pagination. */
   .load-more-wrap { display: none; justify-content: center; padding: 16px 0 30px; }
   .load-more-btn { background: var(--night-card); border: 1px solid var(--brass); color: var(--brass); padding: 11px 30px; border-radius: 2px; font-family: 'JetBrains Mono', monospace; font-size: 0.72rem; font-weight: 600; letter-spacing: 0.06em; text-transform: uppercase; cursor: pointer; transition: all 0.15s; }
   .load-more-btn:hover { background: var(--brass); color: var(--night); }
@@ -250,7 +256,7 @@
     <div class="masthead-sub">personal ledger</div>
   </div>
   <div class="header-right">
-    <button class="filter-btn" id="refreshBtn" style="border-color: var(--sienna); color: var(--sienna);" onclick="triggerRefresh()" title="Re-read Google Sheet and rebuild dashboard">&#8635; Refresh</button>
+    <button class="filter-btn" id="refreshBtn" style="border-color: var(--sienna); color: var(--sienna);" onclick="triggerRefresh()" title="Re-read the Google Sheet and rebuild the dashboard -- no need to restart the Colab cell">&#8635; Refresh</button>
     <div class="view-switcher">
       <button class="view-btn active" id="viewBtnMovies" onclick="switchView('movies')">Films &amp; Anime</button>
       <button class="view-btn" id="viewBtnSeries" onclick="switchView('series')">Series</button>
@@ -531,56 +537,7 @@ const SERIES = [{"title": "One Piece (1999)", "watched": 166, "total": 1155, "re
 const OMDB_KEY = '51b66a8f';
 const TRAKT_KEY = 'ac81a92cea256a088c8d65e2de33c6259026d2475477d8ed005532bedb1937bc';
 const posterCache = {};
-const showRuntimeCache = {}; 
-const showMetadataCache = {};
-
-function getRegionName(code) {
-  if (!code || code === '--') return '--';
-  try { return new Intl.DisplayNames(['en'], { type: 'region' }).of(code.toUpperCase()); }
-  catch(e) { return code.toUpperCase(); }
-}
-
-async function getShowMetadata(showTitle) {
-  if (showMetadataCache[showTitle]) return showMetadataCache[showTitle];
-  try {
-    const searchRes = await fetch(`https://api.trakt.tv/search/show?query=${encodeURIComponent(showTitle)}&limit=1`, {
-      headers: { 'trakt-api-version': '2', 'trakt-api-key': TRAKT_KEY }
-    });
-    const searchData = await searchRes.json();
-    const slug = searchData[0]?.show?.ids?.slug;
-    if (!slug) throw new Error("Not found");
-
-    const showRes = await fetch(`https://api.trakt.tv/shows/${slug}?extended=full`, {
-      headers: { 'trakt-api-version': '2', 'trakt-api-key': TRAKT_KEY }
-    });
-    const s = await showRes.json();
-
-    const peopleRes = await fetch(`https://api.trakt.tv/shows/${slug}/people`, {
-      headers: { 'trakt-api-version': '2', 'trakt-api-key': TRAKT_KEY }
-    });
-    const p = await peopleRes.json();
-
-    const castList = (p.cast || []).slice(0, 3).map(c => c.person?.name).filter(Boolean);
-
-    const meta = {
-      network: s.network || '--',
-      firstAired: s.first_aired ? s.first_aired.substring(0, 10) : '--',
-      runtime: s.runtime ? `${s.runtime}m` : '--',
-      country: getRegionName(s.country),
-      ageRating: s.certification || '--',
-      genres: s.genres || [],
-      cast: castList,
-      url: `https://trakt.tv/shows/${slug}`
-    };
-
-    showMetadataCache[showTitle] = meta;
-    return meta;
-  } catch (e) {
-    const fallback = { network: '--', firstAired: '--', runtime: '--', country: '--', ageRating: '--', genres: [], cast: [], url: `https://trakt.tv/search?query=${encodeURIComponent(showTitle)}` };
-    showMetadataCache[showTitle] = fallback;
-    return fallback;
-  }
-}
+const showRuntimeCache = {}; // in-memory only -- cleared on every reload, never written to sheet
 
 async function getShowRuntimeMinutes(showTitle) {
   if (showRuntimeCache[showTitle] !== undefined) return showRuntimeCache[showTitle];
@@ -595,7 +552,7 @@ async function getShowRuntimeMinutes(showTitle) {
       headers: { 'trakt-api-version': '2', 'trakt-api-key': TRAKT_KEY }
     });
     const showData = await showRes.json();
-    const runtime = showData.runtime || 0; 
+    const runtime = showData.runtime || 0; // Trakt's average episode runtime for the show
     showRuntimeCache[showTitle] = runtime;
     return runtime;
   } catch (e) {
@@ -650,6 +607,7 @@ function ratingClass(r) {
 function mcClass(n) { return n >= 70 ? 'mc-good' : n >= 50 ? 'mc-mid' : 'mc-low'; }
 function yearFromDate(d) { return d ? d.substring(0, 4) : ''; }
 
+// Correctly parse the leading number out of "9 - Excellent" style ratings.
 function ratingNum(r) {
   if (!r) return 0;
   const n = parseInt(r.split(' - ')[0]);
@@ -773,6 +731,10 @@ function renderGrid() {
 
 function loadMore() { visibleCount += PAGE_SIZE; renderGrid(); }
 
+// Poster loading: title+year cache key prevents same-titled films from different
+// years (e.g. two Aladdins) from ever sharing a poster. Tries Trakt->IMDb->OMDb
+// first (most reliable, since slug encodes year), falls back to an OMDb title
+// search with year cross-checking if that chain fails.
 function initLazyLoading() {
   const observer = new IntersectionObserver((entries, obs) => {
     entries.forEach(entry => {
@@ -893,6 +855,7 @@ function closeModal(e) { if (e.target === document.getElementById('modalOverlay'
 function closeModalBtn() { document.getElementById('modalOverlay').classList.remove('open'); currentModalMovie = null; }
 document.addEventListener('keydown', e => { if (e.key === 'Escape') { closeModalBtn(); closeSeriesModalBtn(); closeWebSearchBtn(); closeShowSearchBtn(); } });
 
+// ==================== SERIES VIEW ====================
 function seriesStatusOf(s) {
   if (s.watched === 0) return 'notstarted';
   if (s.watched >= s.total) return 'completed';
@@ -945,7 +908,7 @@ function renderSeries() {
   }
 }
 
-async function openSeriesModal(idx) {
+function openSeriesModal(idx) {
   const s = SERIES[idx];
   currentModalSeries = s;
   document.getElementById('smTitle').textContent = s.title;
@@ -953,35 +916,6 @@ async function openSeriesModal(idx) {
   document.getElementById('smProgressFill').style.width = s.pct + '%';
   document.getElementById('smProgressSub').textContent = `${s.pct}% complete -- ${s.remaining} episode${s.remaining === 1 ? '' : 's'} remaining`;
   document.getElementById('seriesSaveStatus').textContent = '';
-
-  const traktBtn = document.getElementById('smTrakt');
-  traktBtn.href = `https://trakt.tv/search?query=${encodeURIComponent(s.title)}`;
-
-  document.getElementById('smGrid').innerHTML = '<div style="grid-column: 1/-1; color: var(--ink-soft); font-style: italic;">Fetching show details from Trakt...</div>';
-  document.getElementById('smGenres').innerHTML = '';
-
-  document.getElementById('seriesModalOverlay').classList.add('open');
-
-  const meta = await getShowMetadata(s.title);
-
-  if (currentModalSeries && currentModalSeries.title === s.title) {
-    const castHtml = meta.cast.length 
-      ? `<ul class="cast-list">${meta.cast.map(c => `<li>${c}</li>`).join('')}</ul>` 
-      : '--';
-
-    const fields = [
-      ['Network', meta.network],
-      ['Cast', castHtml],
-      ['First aired', meta.firstAired],
-      ['Avg runtime', meta.runtime],
-      ['Country', meta.country],
-      ['Age rating', meta.ageRating]
-    ];
-
-    document.getElementById('smGrid').innerHTML = fields.map(([l, v]) => `<div><div class="modal-field-label">${l}</div><div class="modal-field-val">${v}</div></div>`).join('');
-    document.getElementById('smGenres').innerHTML = meta.genres.map(g => `<span class="modal-genre">${g}</span>`).join('');
-    traktBtn.href = meta.url; 
-  }
 
   const btn = document.getElementById('incrementBtn');
   if (s.watched >= s.total) {
@@ -991,8 +925,9 @@ async function openSeriesModal(idx) {
     btn.disabled = false;
     btn.textContent = `Mark episode ${s.watched + 1} watched`;
   }
-}
 
+  document.getElementById('seriesModalOverlay').classList.add('open');
+}
 function closeSeriesModal(e) { if (e.target === document.getElementById('seriesModalOverlay')) closeSeriesModalBtn(); }
 function closeSeriesModalBtn() { document.getElementById('seriesModalOverlay').classList.remove('open'); currentModalSeries = null; }
 
@@ -1025,7 +960,7 @@ async function incrementCurrentSeries() {
   }
 }
 
-# ==================== ANALYTICS ====================
+// ==================== ANALYTICS ====================
 function parseRuntimeMinutes(str) {
   if (!str) return 0;
   let mins = 0;
@@ -1036,15 +971,22 @@ function parseRuntimeMinutes(str) {
   return mins;
 }
 
+// Formats a minute count as "Xdays, Xhours, Xmins (X.XX hours)"
 function formatDuration(totalMinutes) {
   totalMinutes = Math.round(totalMinutes || 0);
   const days = Math.floor(totalMinutes / 1440);
   const hours = Math.floor((totalMinutes % 1440) / 60);
   const mins = totalMinutes % 60;
   const hoursDecimal = (totalMinutes / 60).toFixed(2);
-  return { main: `${days} days, ${hours} hours, ${mins} mins`, sub: `(${hoursDecimal} hours)` };
+  
+  // UPDATED: Added spaces after the numbers
+  return { 
+    main: `${days} days, ${hours} hours, ${mins} mins`, 
+    sub: `(${hoursDecimal} hours)` 
+  };
 }
-
+// totalMinutes === null renders a loading placeholder (used for the series card,
+// which is computed async from live Trakt lookups)
 function durationCardHtml(label, id, totalMinutes, extraClass) {
   const loading = totalMinutes === null;
   const fmt = loading ? { main: '...', sub: 'calculating' } : formatDuration(totalMinutes);
@@ -1104,6 +1046,7 @@ function renderActivityHistogram(containerId, keys, counts) {
   }).join('');
 }
 
+// Average rating per genre (only genres with enough rated entries to be meaningful)
 function renderTopRatedGenres(source) {
   const genreRatings = {};
   source.forEach(m => {
@@ -1139,11 +1082,13 @@ function renderAnalytics() {
   document.getElementById('analyticsScopeLabel').innerHTML =
     `Analyzing <strong>${source.length}</strong> ${analyticsScope === 'filtered' ? 'filtered' : 'total'} entr${source.length === 1 ? 'y' : 'ies'}`;
 
+  // Genres
   const genreCounts = {};
   source.forEach(m => { if (m.genres) m.genres.split(', ').forEach(g => { g = g.trim(); if (g) genreCounts[g] = (genreCounts[g] || 0) + 1; }); });
   const genreSorted = Object.entries(genreCounts).sort((a, b) => b[1] - a[1]).slice(0, 10);
   renderBarList('chartGenres', genreSorted);
 
+  // Ratings 1-10
   const ratingCounts = Array(10).fill(0);
   source.forEach(m => { const n = ratingNum(m.rating); if (n >= 1 && n <= 10) ratingCounts[n - 1]++; });
   renderRatingHistogram('chartRatings', ratingCounts);
@@ -1154,21 +1099,25 @@ function renderAnalytics() {
     ? `Average rating: <strong>${avgRating} / 10</strong> across ${ratedEntries.length} rated entr${ratedEntries.length === 1 ? 'y' : 'ies'}`
     : '';
 
+  // Watching activity by year-month (based on Date Watched)
   const activityCounts = {};
   source.forEach(m => { if (m.dateWatched) { const ym = m.dateWatched.substring(0, 7); activityCounts[ym] = (activityCounts[ym] || 0) + 1; } });
   const activityKeys = Object.keys(activityCounts).sort();
   renderActivityHistogram('chartActivity', activityKeys, activityKeys.map(k => activityCounts[k]));
 
+  // Top directors
   const directorCounts = {};
   source.forEach(m => { if (m.director && m.director !== 'Unknown') directorCounts[m.director] = (directorCounts[m.director] || 0) + 1; });
   const directorSorted = Object.entries(directorCounts).sort((a, b) => b[1] - a[1]).slice(0, 8);
   renderBarList('chartDirectors', directorSorted);
 
+  // Top cast
   const castCounts = {};
   source.forEach(m => { if (m.cast) m.cast.split(',').forEach(c => { c = c.trim(); if (c) castCounts[c] = (castCounts[c] || 0) + 1; }); });
   const castSorted = Object.entries(castCounts).sort((a, b) => b[1] - a[1]).slice(0, 8);
   renderBarList('chartCast', castSorted);
 
+  // Countries
   const countryCounts = {};
   source.forEach(m => { if (m.country && m.country !== 'Unknown') countryCounts[m.country] = (countryCounts[m.country] || 0) + 1; });
   const countrySorted = Object.entries(countryCounts).sort((a, b) => b[1] - a[1]).slice(0, 8);
@@ -1180,6 +1129,7 @@ function renderAnalytics() {
 }
 
 function renderRuntimeStats(source) {
+  // Runtime stats (based on Already Seen entries with a parseable runtime)
   const seenWithRuntime = source.filter(m => m.status === 'Already Seen' && m.runtime);
   const totalMovieMinutes = seenWithRuntime.reduce((sum, m) => sum + parseRuntimeMinutes(m.runtime), 0);
   const avgMinutes = seenWithRuntime.length ? Math.round(totalMovieMinutes / seenWithRuntime.length) : 0;
@@ -1191,10 +1141,11 @@ function renderRuntimeStats(source) {
     `<div class="duration-card"><div class="duration-card-label">Avg film runtime</div><div class="duration-card-main">${avgMinutes}m</div><div class="duration-card-sub">per title</div></div>` +
     `<div class="duration-card"><div class="duration-card-label">Films counted</div><div class="duration-card-main">${seenWithRuntime.length}</div><div class="duration-card-sub">with known runtime</div></div>`;
 
+  // Series runtime is never stored -- pulled fresh from Trakt every time this renders.
   computeSeriesHours().then(seriesMinutes => {
     const seriesMainEl = document.getElementById('rt-series-main');
     const seriesSubEl = document.getElementById('rt-series-sub');
-    if (!seriesMainEl) return; 
+    if (!seriesMainEl) return; // tab switched away before this resolved
     const seriesFmt = formatDuration(seriesMinutes);
     seriesMainEl.textContent = seriesFmt.main;
     seriesSubEl.textContent = seriesFmt.sub;
@@ -1340,6 +1291,7 @@ async function addShowToBackend(title, totalEpisodes) {
   }
 }
 
+// ==================== REFRESH (re-read sheet, no kernel restart needed) ====================
 async function triggerRefresh() {
   const btn = document.getElementById('refreshBtn');
   const original = btn.innerHTML;
@@ -1361,6 +1313,7 @@ async function triggerRefresh() {
   setTimeout(() => { btn.innerHTML = original; btn.disabled = false; }, 3000);
 }
 
+// ==================== BACKUP ====================
 async function triggerBackup() {
   const btn = document.getElementById('backupBtn');
   const original = btn.innerHTML;
@@ -1376,6 +1329,7 @@ async function triggerBackup() {
   setTimeout(() => { btn.innerHTML = original; btn.disabled = false; }, 3000);
 }
 
+// ==================== CAST BACKFILL ====================
 async function triggerCastBackfill() {
   const btn = document.getElementById('castBackfillBtn');
   const original = btn.innerHTML;
@@ -1399,6 +1353,7 @@ async function triggerCastBackfill() {
   setTimeout(() => { btn.innerHTML = original; btn.disabled = false; }, 3000);
 }
 
+// Populate genres + stats
 const allGenres = new Set();
 MOVIES.forEach(m => { if (m.genres) m.genres.split(', ').forEach(g => allGenres.add(g.trim())); });
 const genreSelect = document.getElementById('genreFilter');
