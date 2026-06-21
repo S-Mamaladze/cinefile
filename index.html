@@ -44,8 +44,39 @@
   .view-btn:hover { color: var(--paper-on-night); background: rgba(255,255,255,0.03); }
   .view-btn.active { background: var(--sienna); color: var(--paper); }
   .view-btn.active.series-active { background: var(--moss); color: var(--paper); }
+  .view-btn.active.analytics-active { background: var(--brass); color: var(--night); }
   .view-page { display: none; }
   .view-page.active { display: block; }
+
+  .analytics-toggle { display: flex; gap: 5px; }
+  .analytics-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 18px; }
+  .analytics-card { background: var(--night-card); border: 1px solid var(--night-rule); border-radius: 3px; padding: 18px 20px; }
+  .analytics-card.wide { grid-column: 1 / -1; }
+  .analytics-card-title { font-family: 'JetBrains Mono', monospace; font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.08em; color: var(--ink-soft); margin-bottom: 16px; }
+  .analytics-card-empty { font-family: 'JetBrains Mono', monospace; font-size: 0.74rem; color: var(--ink-soft); font-style: italic; padding: 30px 0; text-align: center; }
+  .runtime-stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); gap: 14px; }
+
+  /* Horizontal bar lists -- genres, directors, cast, countries */
+  .bar-list { display: flex; flex-direction: column; gap: 11px; }
+  .bar-row { display: flex; align-items: center; gap: 10px; }
+  .bar-row-label { width: 38%; flex-shrink: 0; font-size: 0.76rem; color: var(--paper-on-night); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .bar-row-track { flex: 1; background: var(--night-rule); border-radius: 1px; height: 9px; overflow: hidden; }
+  .bar-row-fill { height: 100%; background: linear-gradient(90deg, var(--brass), var(--sienna)); border-radius: 1px; }
+  .bar-row-count { width: 26px; flex-shrink: 0; text-align: right; font-family: 'JetBrains Mono', monospace; font-size: 0.68rem; color: var(--ink-soft); }
+
+  /* Vertical histograms -- rating distribution + watching activity */
+  .rating-histogram { display: flex; align-items: flex-end; gap: 8px; height: 190px; }
+  .rating-bar-col { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: flex-end; height: 100%; }
+  .rating-bar-fill { width: 100%; background: linear-gradient(180deg, var(--brass), var(--sienna)); border-radius: 2px 2px 0 0; min-height: 2px; }
+  .rating-bar-count { font-family: 'JetBrains Mono', monospace; font-size: 0.62rem; color: var(--ink-soft); margin-bottom: 5px; }
+  .rating-bar-label { font-family: 'JetBrains Mono', monospace; font-size: 0.64rem; color: var(--ink-soft); margin-top: 7px; }
+
+  .activity-chart-wrap { overflow-x: auto; padding-bottom: 4px; }
+  .activity-histogram { display: flex; align-items: flex-end; gap: 5px; height: 170px; min-width: max-content; }
+  .activity-bar-col { width: 30px; flex-shrink: 0; display: flex; flex-direction: column; align-items: center; justify-content: flex-end; height: 100%; }
+  .activity-bar-fill { width: 100%; background: linear-gradient(180deg, var(--moss), var(--moss-deep)); border-radius: 2px 2px 0 0; min-height: 2px; }
+  .activity-bar-count { font-family: 'JetBrains Mono', monospace; font-size: 0.6rem; color: var(--ink-soft); margin-bottom: 5px; }
+  .activity-bar-label { font-family: 'JetBrains Mono', monospace; font-size: 0.6rem; color: var(--ink-soft); margin-top: 7px; white-space: nowrap; }
 
   .hero { padding: 56px 44px 36px; border-bottom: 1px solid var(--night-rule); }
   .hero-eyebrow { font-family: 'JetBrains Mono', monospace; font-size: 0.7rem; letter-spacing: 0.18em; text-transform: uppercase; color: var(--brass); margin-bottom: 14px; display: flex; align-items: center; gap: 10px; }
@@ -213,6 +244,7 @@
     <div class="view-switcher">
       <button class="view-btn active" id="viewBtnMovies" onclick="switchView('movies')">Films &amp; Anime</button>
       <button class="view-btn" id="viewBtnSeries" onclick="switchView('series')">Series</button>
+      <button class="view-btn" id="viewBtnAnalytics" onclick="switchView('analytics')">Analytics</button>
     </div>
     <div id="headerCount">182 entries</div>
   </div>
@@ -326,6 +358,57 @@
   </div>
 </div>
 
+<div class="view-page" id="page-analytics">
+  <section class="hero">
+    <div class="hero-eyebrow">Volume Three</div>
+    <div class="hero-title">The ledger, <em>totaled</em> up.</div>
+    <div class="hero-sub">Genres, ratings, viewing pace, and who keeps showing up in the credits.</div>
+  </section>
+
+  <div class="controls-wrapper" style="position: static;">
+    <div class="controls-top">
+      <div class="analytics-toggle">
+        <button class="filter-btn active" id="analyticsToggleFiltered" onclick="setAnalyticsScope('filtered')">Filtered view</button>
+        <button class="filter-btn" id="analyticsToggleAll" onclick="setAnalyticsScope('all')">Full collection</button>
+      </div>
+      <div class="count-badge" id="analyticsScopeLabel"></div>
+    </div>
+  </div>
+
+  <div class="grid-section">
+    <div class="analytics-grid">
+      <div class="analytics-card">
+        <div class="analytics-card-title">Genres</div>
+        <div class="bar-list" id="chartGenres"></div>
+      </div>
+      <div class="analytics-card">
+        <div class="analytics-card-title">Rating distribution</div>
+        <div class="rating-histogram" id="chartRatings"></div>
+      </div>
+      <div class="analytics-card wide">
+        <div class="analytics-card-title">Watching activity, by month</div>
+        <div class="activity-chart-wrap"><div class="activity-histogram" id="chartActivity"></div></div>
+      </div>
+      <div class="analytics-card">
+        <div class="analytics-card-title">Top directors</div>
+        <div class="bar-list" id="chartDirectors"></div>
+      </div>
+      <div class="analytics-card">
+        <div class="analytics-card-title">Top cast</div>
+        <div class="bar-list" id="chartCast"></div>
+      </div>
+      <div class="analytics-card">
+        <div class="analytics-card-title">Countries</div>
+        <div class="bar-list" id="chartCountries"></div>
+      </div>
+      <div class="analytics-card">
+        <div class="analytics-card-title">Runtime</div>
+        <div class="runtime-stats-grid" id="runtimeStats"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
 <div class="modal-overlay" id="modalOverlay" onclick="closeModal(event)">
   <div class="modal">
     <button class="modal-close" onclick="closeModalBtn()">x</button>
@@ -357,8 +440,8 @@
             <option value="5 - Average">5 - Average</option>
             <option value="4 - Subpar">4 - Subpar</option>
             <option value="3 - Bad">3 - Bad</option>
-            <option value="2">2</option>
-            <option value="1">1</option>
+            <option value="2 - Terrible">2 - Terrible</option>
+            <option value="1 - Unwatchable">1 - Unwatchable</option>
           </select>
         </div>
         <button class="modal-save-btn" onclick="saveMovieEdit()">Save</button>
@@ -432,6 +515,8 @@ let typeFilter = 'all';
 let seriesStatusFilter = 'all';
 let currentModalMovie = null;
 let currentModalSeries = null;
+let analyticsScope = 'filtered';
+const charts = {};
 
 const PAGE_SIZE = 48;
 let visibleCount = PAGE_SIZE;
@@ -439,12 +524,18 @@ let visibleCount = PAGE_SIZE;
 function switchView(view) {
   document.getElementById('page-movies').classList.remove('active');
   document.getElementById('page-series').classList.remove('active');
+  document.getElementById('page-analytics').classList.remove('active');
   document.getElementById('viewBtnMovies').classList.remove('active');
   document.getElementById('viewBtnSeries').classList.remove('active','series-active');
+  document.getElementById('viewBtnAnalytics').classList.remove('active','analytics-active');
   document.getElementById('page-' + view).classList.add('active');
   if (view === 'series') {
     document.getElementById('viewBtnSeries').classList.add('active','series-active');
     document.getElementById('headerCount').textContent = SERIES.length + ' shows tracked';
+  } else if (view === 'analytics') {
+    document.getElementById('viewBtnAnalytics').classList.add('active','analytics-active');
+    document.getElementById('headerCount').textContent = 'Analytics';
+    renderAnalytics();
   } else {
     document.getElementById('viewBtnMovies').classList.add('active');
     document.getElementById('headerCount').textContent = MOVIES.length + ' entries';
@@ -701,7 +792,7 @@ async function saveMovieEdit() {
       statusEl.textContent = 'Error: ' + (data.message || 'Could not save');
     }
   } catch (e) {
-    statusEl.textContent = 'Request failed: ' + e.message + ' (check that the Colab tab opened by serve_kernel_port_as_window is still open and the cell is still running)';
+    statusEl.textContent = 'Network error -- is the Colab server still running?';
   }
 }
 
@@ -807,9 +898,120 @@ async function incrementCurrentSeries() {
       btn.disabled = false;
     }
   } catch (e) {
-    statusEl.textContent = 'Request failed: ' + e.message + ' (check that the Colab tab opened by serve_kernel_port_as_window is still open and the cell is still running)';
+    statusEl.textContent = 'Network error -- is the Colab server still running?';
     btn.disabled = false;
   }
+}
+
+// ==================== ANALYTICS ====================
+function parseRuntimeMinutes(str) {
+  if (!str) return 0;
+  let mins = 0;
+  const h = str.match(/(\d+)h/);
+  const m = str.match(/(\d+)m/);
+  if (h) mins += parseInt(h[1]) * 60;
+  if (m) mins += parseInt(m[1]);
+  return mins;
+}
+
+function setAnalyticsScope(scope) {
+  analyticsScope = scope;
+  document.getElementById('analyticsToggleFiltered').classList.toggle('active', scope === 'filtered');
+  document.getElementById('analyticsToggleAll').classList.toggle('active', scope === 'all');
+  renderAnalytics();
+}
+
+function renderBarList(containerId, entries) {
+  const el = document.getElementById(containerId);
+  if (!entries.length) { el.innerHTML = '<div class="analytics-card-empty">No data for this view</div>'; return; }
+  const max = Math.max(...entries.map(e => e[1]));
+  el.innerHTML = entries.map(([label, count]) => `
+    <div class="bar-row">
+      <div class="bar-row-label" title="${String(label).replace(/"/g, '&quot;')}">${label}</div>
+      <div class="bar-row-track"><div class="bar-row-fill" style="width:${max ? (count / max * 100) : 0}%"></div></div>
+      <div class="bar-row-count">${count}</div>
+    </div>`).join('');
+}
+
+function renderRatingHistogram(containerId, counts) {
+  const el = document.getElementById(containerId);
+  const total = counts.reduce((a, b) => a + b, 0);
+  if (!total) { el.innerHTML = '<div class="analytics-card-empty">No data for this view</div>'; return; }
+  const max = Math.max(...counts, 1);
+  el.innerHTML = counts.map((c, i) => `
+    <div class="rating-bar-col">
+      <div class="rating-bar-count">${c || ''}</div>
+      <div class="rating-bar-fill" style="height:${c ? Math.max(c / max * 100, 4) : 0}%"></div>
+      <div class="rating-bar-label">${i + 1}</div>
+    </div>`).join('');
+}
+
+function renderActivityHistogram(containerId, keys, counts) {
+  const el = document.getElementById(containerId);
+  if (!keys.length) { el.innerHTML = '<div class="analytics-card-empty">No data for this view</div>'; return; }
+  const max = Math.max(...counts, 1);
+  const monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+  el.innerHTML = keys.map((k, i) => {
+    const [y, mo] = k.split('-');
+    const label = `${monthNames[parseInt(mo) - 1]} '${y.slice(2)}`;
+    const c = counts[i];
+    return `<div class="activity-bar-col">
+      <div class="activity-bar-count">${c || ''}</div>
+      <div class="activity-bar-fill" style="height:${c ? Math.max(c / max * 100, 4) : 0}%"></div>
+      <div class="activity-bar-label">${label}</div>
+    </div>`;
+  }).join('');
+}
+
+function renderAnalytics() {
+  const source = analyticsScope === 'filtered' ? getFilteredMovies() : MOVIES;
+  document.getElementById('analyticsScopeLabel').innerHTML =
+    `Analyzing <strong>${source.length}</strong> ${analyticsScope === 'filtered' ? 'filtered' : 'total'} entr${source.length === 1 ? 'y' : 'ies'}`;
+
+  // Genres
+  const genreCounts = {};
+  source.forEach(m => { if (m.genres) m.genres.split(', ').forEach(g => { g = g.trim(); if (g) genreCounts[g] = (genreCounts[g] || 0) + 1; }); });
+  const genreSorted = Object.entries(genreCounts).sort((a, b) => b[1] - a[1]).slice(0, 10);
+  renderBarList('chartGenres', genreSorted);
+
+  // Ratings 1-10
+  const ratingCounts = Array(10).fill(0);
+  source.forEach(m => { const n = ratingNum(m.rating); if (n >= 1 && n <= 10) ratingCounts[n - 1]++; });
+  renderRatingHistogram('chartRatings', ratingCounts);
+
+  // Watching activity by year-month (based on Date Watched)
+  const activityCounts = {};
+  source.forEach(m => { if (m.dateWatched) { const ym = m.dateWatched.substring(0, 7); activityCounts[ym] = (activityCounts[ym] || 0) + 1; } });
+  const activityKeys = Object.keys(activityCounts).sort();
+  renderActivityHistogram('chartActivity', activityKeys, activityKeys.map(k => activityCounts[k]));
+
+  // Top directors
+  const directorCounts = {};
+  source.forEach(m => { if (m.director && m.director !== 'Unknown') directorCounts[m.director] = (directorCounts[m.director] || 0) + 1; });
+  const directorSorted = Object.entries(directorCounts).sort((a, b) => b[1] - a[1]).slice(0, 8);
+  renderBarList('chartDirectors', directorSorted);
+
+  // Top cast
+  const castCounts = {};
+  source.forEach(m => { if (m.cast) m.cast.split(',').forEach(c => { c = c.trim(); if (c) castCounts[c] = (castCounts[c] || 0) + 1; }); });
+  const castSorted = Object.entries(castCounts).sort((a, b) => b[1] - a[1]).slice(0, 8);
+  renderBarList('chartCast', castSorted);
+
+  // Countries
+  const countryCounts = {};
+  source.forEach(m => { if (m.country && m.country !== 'Unknown') countryCounts[m.country] = (countryCounts[m.country] || 0) + 1; });
+  const countrySorted = Object.entries(countryCounts).sort((a, b) => b[1] - a[1]).slice(0, 8);
+  renderBarList('chartCountries', countrySorted);
+
+  // Runtime stats (based on Already Seen entries with a parseable runtime)
+  const seenWithRuntime = source.filter(m => m.status === 'Already Seen' && m.runtime);
+  const totalMinutes = seenWithRuntime.reduce((sum, m) => sum + parseRuntimeMinutes(m.runtime), 0);
+  const avgMinutes = seenWithRuntime.length ? Math.round(totalMinutes / seenWithRuntime.length) : 0;
+  document.getElementById('runtimeStats').innerHTML = `
+    <div class="stat-card"><div class="stat-num">${Math.round(totalMinutes / 60)}</div><div class="stat-label">Hours watched</div></div>
+    <div class="stat-card"><div class="stat-num">${avgMinutes}</div><div class="stat-label">Avg runtime (min)</div></div>
+    <div class="stat-card"><div class="stat-num">${seenWithRuntime.length}</div><div class="stat-label">Entries counted</div></div>
+  `;
 }
 
 // ==================== ADD MOVIE (Trakt search) ====================
