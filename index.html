@@ -512,6 +512,29 @@ const SERIES = [{"title": "One Piece (1999)", "watched": 166, "total": 1155, "re
 const OMDB_KEY = '51b66a8f';
 const TRAKT_KEY = 'ac81a92cea256a088c8d65e2de33c6259026d2475477d8ed005532bedb1937bc';
 const posterCache = {};
+const showRuntimeCache = {}; // in-memory only -- cleared on every reload, never written to sheet
+
+async function getShowRuntimeMinutes(showTitle) {
+  if (showRuntimeCache[showTitle] !== undefined) return showRuntimeCache[showTitle];
+  try {
+    const searchRes = await fetch(`https://api.trakt.tv/search/show?query=${encodeURIComponent(showTitle)}&limit=1`, {
+      headers: { 'trakt-api-version': '2', 'trakt-api-key': TRAKT_KEY }
+    });
+    const searchData = await searchRes.json();
+    const slug = searchData[0] && searchData[0].show && searchData[0].show.ids && searchData[0].show.ids.slug;
+    if (!slug) { showRuntimeCache[showTitle] = 0; return 0; }
+    const showRes = await fetch(`https://api.trakt.tv/shows/${slug}?extended=full`, {
+      headers: { 'trakt-api-version': '2', 'trakt-api-key': TRAKT_KEY }
+    });
+    const showData = await showRes.json();
+    const runtime = showData.runtime || 0; // Trakt's average episode runtime for the show
+    showRuntimeCache[showTitle] = runtime;
+    return runtime;
+  } catch (e) {
+    showRuntimeCache[showTitle] = 0;
+    return 0;
+  }
+}
 
 let statusFilter = 'all';
 let typeFilter = 'all';
@@ -896,7 +919,9 @@ async function incrementCurrentSeries() {
     });
     const data = await res.json();
     if (data.status === 'success') {
-      statusEl.textContent = `Marked episode ${data.series.watched} watched. Reloading...`;
+      const runtime = await getShowRuntimeMinutes(currentModalSeries.title);
+      const runtimeNote = runtime ? ` (~${runtime} min)` : '';
+      statusEl.textContent = `Marked episode ${data.series.watched} watched${runtimeNote}. Reloading...`;
       setTimeout(() => window.location.reload(), 900);
     } else if (data.status === 'complete') {
       statusEl.textContent = 'All episodes are already marked watched.';
@@ -1010,15 +1035,43 @@ function renderAnalytics() {
   const countrySorted = Object.entries(countryCounts).sort((a, b) => b[1] - a[1]).slice(0, 8);
   renderBarList('chartCountries', countrySorted);
 
+  renderRuntimeStats(source);
+}
+
+function renderRuntimeStats(source) {
   // Runtime stats (based on Already Seen entries with a parseable runtime)
   const seenWithRuntime = source.filter(m => m.status === 'Already Seen' && m.runtime);
   const totalMinutes = seenWithRuntime.reduce((sum, m) => sum + parseRuntimeMinutes(m.runtime), 0);
   const avgMinutes = seenWithRuntime.length ? Math.round(totalMinutes / seenWithRuntime.length) : 0;
+  const movieHours = Math.round(totalMinutes / 60);
+
   document.getElementById('runtimeStats').innerHTML = `
-    <div class="stat-card"><div class="stat-num">${Math.round(totalMinutes / 60)}</div><div class="stat-label">Hours watched</div></div>
-    <div class="stat-card"><div class="stat-num">${avgMinutes}</div><div class="stat-label">Avg runtime (min)</div></div>
-    <div class="stat-card"><div class="stat-num">${seenWithRuntime.length}</div><div class="stat-label">Entries counted</div></div>
+    <div class="stat-card"><div class="stat-num" id="rt-total-hours">${movieHours}</div><div class="stat-label" id="rt-hours-label">Hours watched (films)</div></div>
+    <div class="stat-card"><div class="stat-num">${avgMinutes}</div><div class="stat-label">Avg film runtime (min)</div></div>
+    <div class="stat-card"><div class="stat-num">${seenWithRuntime.length}</div><div class="stat-label">Films counted</div></div>
+    <div class="stat-card gold"><div class="stat-num" id="rt-series-hours">...</div><div class="stat-label">Hours watched (series)</div></div>
   `;
+
+  // Series runtime is never stored -- pulled fresh from Trakt every time this renders.
+  computeSeriesHours().then(seriesMinutes => {
+    const seriesHoursEl = document.getElementById('rt-series-hours');
+    if (!seriesHoursEl) return; // tab switched away before this resolved
+    seriesHoursEl.textContent = Math.round(seriesMinutes / 60);
+    const totalEl = document.getElementById('rt-total-hours');
+    const labelEl = document.getElementById('rt-hours-label');
+    if (totalEl) totalEl.textContent = movieHours + Math.round(seriesMinutes / 60);
+    if (labelEl) labelEl.textContent = 'Hours watched (total)';
+  });
+}
+
+async function computeSeriesHours() {
+  const showsWithProgress = SERIES.filter(s => s.watched > 0);
+  let totalMinutes = 0;
+  for (const s of showsWithProgress) {
+    const runtime = await getShowRuntimeMinutes(s.title);
+    totalMinutes += runtime * s.watched;
+  }
+  return totalMinutes;
 }
 
 // ==================== ADD MOVIE (Trakt search) ====================
