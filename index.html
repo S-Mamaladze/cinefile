@@ -750,9 +750,14 @@ function openModal(idx) {
   document.getElementById('mType').textContent = m.type.toUpperCase() + ' - ' + (m.status || 'Watchlist');
   document.getElementById('mTitle').textContent = m.title;
 
-  const fields = [
+  const castHtml = m.cast
+    ? `<ul class="cast-list">${m.cast.split(',').map(c => `<li>${c.trim()}</li>`).join('')}</ul>`
+    : '--';
+.modal-field-val ul.cast-list { list-style: disc; margin: 0; padding-left: 18px; }
+.modal-field-val ul.cast-list li { margin-bottom: 3px; line-height: 1.4; }
+const fields = [
     ['Director', m.director || '--'],
-    ['Cast', m.cast || '--'],
+    ['Cast', castHtml],
     ['Released', m.released ? m.released.substring(0,10) : '--'],
     ['Date watched', m.dateWatched || '--'],
     ['Runtime', m.runtime || '--'],
