@@ -978,13 +978,9 @@ function formatDuration(totalMinutes) {
   const hours = Math.floor((totalMinutes % 1440) / 60);
   const mins = totalMinutes % 60;
   const hoursDecimal = (totalMinutes / 60).toFixed(2);
-
-  // UPDATED: Added spaces after the numbers
-  return {
-    main: `${days} days, ${hours} hours, ${mins} mins`,
-    sub: `(${hoursDecimal} hours)`
-  };
+  return { main: `${days}days, ${hours}hours, ${mins}mins`, sub: `(${hoursDecimal} hours)` };
 }
+
 // totalMinutes === null renders a loading placeholder (used for the series card,
 // which is computed async from live Trakt lookups)
 function durationCardHtml(label, id, totalMinutes, extraClass) {
